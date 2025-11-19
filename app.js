@@ -49,22 +49,8 @@ async function callGoogleScript(action, data = {}) {
 // ==================== INITIALIZATION ====================
 
 async function initializeApp() {
-    try {
-        document.getElementById('login-message').textContent = 'Menghubungkan ke Google Sheets...';
-        
-        // Load master data
-        const masterData = await callGoogleScript('getMasterTeamData');
-        processMasterData(masterData.data || []);
-        
-        // Render login select
-        renderLoginSelect();
-        
-        document.getElementById('login-message').textContent = 'Pilih nama Anda dan masukkan kata sandi (123456).';
-        
-    } catch (error) {
-        console.error('Init error:', error);
-        document.getElementById('login-message').textContent = 'Gagal menghubungkan ke Google Sheets. Periksa URL Script.';
-    }
+    // Tidak perlu load data di awal, langsung tampilkan form
+    document.getElementById('login-message').textContent = 'Ketik nama dan kata sandi Anda untuk login.';
 }
 
 function processMasterData(data) {
@@ -86,19 +72,6 @@ function processMasterData(data) {
 
 // ==================== LOGIN ====================
 
-function renderLoginSelect() {
-    const select = document.getElementById('login-name');
-    const masterNames = Object.keys(masterTeamData).sort();
-    
-    select.innerHTML = '<option value="" disabled selected>Pilih Nama Anda</option>';
-    
-    masterNames.forEach(name => {
-        const option = document.createElement('option');
-        option.value = name;
-        option.textContent = name;
-        select.appendChild(option);
-    });
-}
 
 document.getElementById('login-form').addEventListener('submit', async (e) => {
     e.preventDefault();
