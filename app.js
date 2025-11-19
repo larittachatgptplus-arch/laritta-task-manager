@@ -1,5 +1,5 @@
 // KONFIGURASI - Ganti dengan URL Google Apps Script Web App Anda
-const SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbx45dmu92MPEY7dsRNnilc-AiHO8Uvx0Ma3WpEWmbdhFurLSyAbDe6LBz7KcZK0klHz/exec';
+const SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbzLJiZKzr7jaEAKo0DEMCwWx9Hm_jHvDKI5aiuLREPu15NQfMAts3fFtFtlvw_X1j9k/exec';
 
 // Global Variables
 let currentUserName = '';
