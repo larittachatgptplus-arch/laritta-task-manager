@@ -1,0 +1,349 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Manajemen Tugas Tim - Laritta Bakery</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;900&display=swap" rel="stylesheet">
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: #000;
+        }
+        .header-bg {
+            background-color: #4b5563;
+        }
+        .app-container {
+            max-width: 900px;
+            margin: auto;
+            min-height: 100vh;
+            background-color: #1f2937;
+            color: white;
+        }
+        .tab-button {
+            border-bottom-width: 2px;
+            border-color: transparent;
+            padding: 0.75rem 1.5rem;
+            font-weight: 600;
+            color: #9ca3af;
+            transition: all 0.2s;
+        }
+        .tab-button.active {
+            border-color: #ef4444;
+            color: white;
+        }
+        .tab-button:hover:not(.active) {
+            color: #d1d5db;
+        }
+        
+        input[type="text"], input[type="email"], input[type="password"], input[type="number"], 
+        select, textarea, input[type="datetime-local"], input[type="time"] {
+            background-color: #374151;
+            border-color: #4b5563;
+            color: #f3f4f6;
+            padding: 0.5rem;
+            border-radius: 0.375rem;
+            width: 100%;
+            outline: none;
+        }
+        input:focus, select:focus, textarea:focus {
+            border-color: #ef4444;
+            ring: 1px;
+            ring-color: #ef4444;
+        }
+
+        .modal-content {
+            background-color: #111827;
+        }
+        .sub-tab-button {
+            padding: 0.5rem 1rem;
+            border-radius: 0.5rem;
+            transition: all 0.2s;
+            background-color: #374151;
+            color: #d1d5db;
+        }
+        .sub-tab-button.active {
+            background-color: #ef4444;
+            color: white;
+            font-weight: 700;
+        }
+        .loading {
+            display: inline-block;
+            width: 20px;
+            height: 20px;
+            border: 3px solid rgba(255,255,255,.3);
+            border-radius: 50%;
+            border-top-color: #fff;
+            animation: spin 1s ease-in-out infinite;
+        }
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+    </style>
+</head>
+
+<body class="bg-black">
+    
+    <!-- Modals -->
+    <div id="message-modal" class="hidden fixed inset-0 bg-gray-900 bg-opacity-75 flex items-center justify-center z-50">
+        <div class="modal-content bg-gray-800 p-6 rounded-xl shadow-2xl w-11/12 max-w-sm text-white">
+            <h3 id="modal-title" class="text-xl font-bold mb-4 text-red-500">Pesan</h3>
+            <p id="modal-message" class="mb-6 text-gray-300"></p>
+            <button onclick="closeModal('message-modal')" class="w-full bg-red-600 hover:bg-red-700 text-white font-semibold py-2 rounded-lg transition duration-150">Tutup</button>
+        </div>
+    </div>
+    
+    <div id="description-modal" class="hidden fixed inset-0 bg-gray-900 bg-opacity-75 flex items-center justify-center z-50">
+        <div class="modal-content bg-gray-800 p-6 rounded-xl shadow-2xl w-11/12 max-w-lg text-white">
+            <h3 id="desc-modal-title" class="text-xl font-bold mb-4 text-red-500">Deskripsi Tugas</h3>
+            <div class="space-y-4">
+                <p class="text-gray-300">Deskripsi:</p>
+                <p id="desc-modal-description" class="p-3 bg-gray-700 rounded-md text-sm"></p>
+                <div class="pt-2 border-t border-gray-700">
+                    <p class="text-gray-300">Link Pendukung:</p>
+                    <p id="desc-modal-link" class="text-sm font-semibold"></p>
+                </div>
+            </div>
+            <button onclick="closeModal('description-modal')" class="mt-6 w-full bg-red-600 hover:bg-red-700 text-white font-semibold py-2 rounded-lg transition duration-150">OK</button>
+        </div>
+    </div>
+
+    <!-- Login Screen -->
+    <div id="login-screen" class="min-h-screen bg-black flex items-center justify-center">
+        <div class="w-11/12 max-w-sm bg-gray-900 p-8 rounded-xl shadow-2xl border border-gray-700">
+            <h1 class="text-3xl font-black text-center text-red-600 mb-2">LARITTA</h1>
+            <h2 class="text-xl font-semibold text-center text-white mb-8">Team Task Manager</h2>
+            
+            <form id="login-form">
+                <div class="mb-4">
+                    <label for="login-name" class="block text-sm font-medium text-gray-400 mb-1">Nama Pengguna</label>
+                    <select id="login-name" required class="w-full p-2 bg-gray-800 border border-gray-700 rounded-lg text-white">
+                        <option value="" disabled selected>Memuat daftar tim...</option>
+                    </select>
+                </div>
+                <div class="mb-6">
+                    <label for="login-password" class="block text-sm font-medium text-gray-400 mb-1">Kata Sandi</label>
+                    <input type="password" id="login-password" value="123456" required class="w-full p-2 bg-gray-800 border border-gray-700 rounded-lg text-white" placeholder="Masukkan kata sandi">
+                </div>
+                
+                <button id="login-button" type="submit" class="w-full bg-red-600 hover:bg-red-700 text-white font-bold py-2 rounded-lg transition duration-200">
+                    Login ke Sistem
+                </button>
+                <p id="login-message" class="text-center text-sm mt-4 text-gray-400">Menghubungkan ke Google Sheets...</p>
+            </form>
+        </div>
+    </div>
+
+    <!-- Main Application -->
+    <div id="main-app-content" class="app-container hidden shadow-2xl">
+        <header class="header-bg p-4 shadow-md sticky top-0 z-10 bg-gray-900">
+            <div class="flex justify-between items-center mb-4">
+                <h1 class="text-2xl font-black text-red-500">LARITTA Task Board</h1>
+                <div class="text-right">
+                    <p id="current-user-info" class="font-semibold text-sm"></p>
+                    <p class="text-xs text-gray-400">Powered by Google Sheets</p>
+                </div>
+            </div>
+
+            <nav class="flex text-xs md:text-sm border-b border-gray-700 -mb-px overflow-x-auto">
+                <button id="sheet-1-tab" class="tab-button active flex-shrink-0" onclick="setActiveTab('sheet-1')">1. Input Tugas</button>
+                <button id="sheet-2-tab" class="tab-button flex-shrink-0" onclick="setActiveTab('sheet-2')">2. List Tugas Tim</button>
+                <button id="sheet-3-tab" class="tab-button flex-shrink-0" onclick="setActiveTab('sheet-3')">3. Laporan KPI</button>
+                <button id="sheet-4-tab" class="tab-button hidden flex-shrink-0" onclick="setActiveTab('sheet-4')">4. Master Data</button>
+                <button id="sheet-5-tab" class="tab-button hidden flex-shrink-0" onclick="setActiveTab('sheet-5')">5. Problem Solving</button>
+            </nav>
+        </header>
+
+        <main class="p-4 md:p-6">
+            <!-- Sheet 1: Task Input Form -->
+            <div id="sheet-1" class="sheet-content">
+                <h2 class="text-xl font-bold mb-4 text-gray-200">Input Tugas Baru</h2>
+                <form id="task-form" class="space-y-4 bg-gray-900 p-6 rounded-lg shadow-xl border border-gray-700">
+                    
+                    <div>
+                        <label for="task-type" class="block text-sm font-medium text-gray-400">Jenis Tugas</label>
+                        <select id="task-type" name="taskType" class="mt-1 block w-full">
+                            <option value="INSIDENTIL">Insidentil (Tidak Berulang)</option>
+                            <option value="HARIAN">Harian (Berulang 12 Bulan)</option>
+                            <option value="MINGGUAN">Mingguan (Berulang 12 Bulan)</option>
+                            <option value="BULANAN">Bulanan (Berulang 12 Bulan)</option>
+                        </select>
+                    </div>
+
+                    <div id="due-date-container" class="hidden">
+                        <label for="dueDate" class="block text-sm font-medium text-gray-400">Batas Waktu (Due Date)</label>
+                        <input type="datetime-local" id="dueDate" name="dueDate" class="mt-1 block w-full">
+                    </div>
+
+                    <div id="recurrence-fields" class="space-y-4 hidden">
+                         <p class="text-sm font-bold text-red-400">Perulangan akan dibuat untuk 12 bulan ke depan.</p>
+                         
+                         <div>
+                            <label for="time-of-day" class="block text-sm font-medium text-gray-400">Jam Selesai (Wajib)</label>
+                            <input type="time" id="time-of-day" name="timeOfDay" class="mt-1 block w-full" value="17:00">
+                         </div>
+
+                         <div class="hidden" id="day-of-week-container">
+                             <label for="day-of-week" class="block text-sm font-medium text-gray-400">Hari dalam Seminggu (Mingguan)</label>
+                             <select id="day-of-week" name="dayOfWeek" class="mt-1 block w-full">
+                                 <option>Senin</option><option>Selasa</option><option>Rabu</option><option>Kamis</option>
+                                 <option>Jumat</option><option>Sabtu</option><option>Minggu</option>
+                             </select>
+                         </div>
+                         
+                         <div class="hidden" id="day-of-month-container">
+                             <label for="day-of-month" class="block text-sm font-medium text-gray-400">Tanggal dalam Bulan (Bulanan)</label>
+                             <input type="number" id="day-of-month" name="dayOfMonth" min="1" max="31" value="1" class="mt-1 block w-full">
+                         </div>
+                    </div>
+                    
+                    <div>
+                        <label for="taskTitle" class="block text-sm font-medium text-gray-400">Judul Tugas</label>
+                        <input type="text" id="taskTitle" name="taskTitle" required class="mt-1 block w-full" placeholder="Contoh: Membuat Laporan Penjualan Harian">
+                    </div>
+                    
+                    <div>
+                        <label for="taskDescription" class="block text-sm font-medium text-gray-400">Deskripsi Tugas</label>
+                        <textarea id="taskDescription" name="taskDescription" rows="3" class="mt-1 block w-full" placeholder="Detail langkah-langkah, ekspektasi, dan catatan penting."></textarea>
+                    </div>
+                    
+                    <div>
+                        <label for="taskLink" class="block text-sm font-medium text-gray-400">Link Pendukung (Opsional)</label>
+                        <input type="url" id="taskLink" name="taskLink" class="mt-1 block w-full" placeholder="Contoh: https://drive.google.com/folder-laporan">
+                    </div>
+
+                    <div>
+                        <label for="assigned-to-select" class="block text-sm font-medium text-gray-400">Ditugaskan Kepada (Multi PIC: CTRL/CMD + Klik)</label>
+                        <select multiple id="assigned-to-select" name="assignedTo" required class="mt-1 block w-full h-32">
+                        </select>
+                        <p class="text-xs text-red-400 mt-1">CATATAN: Jika multi-PIC dipilih, akan dibuat 1 tugas per orang.</p>
+                    </div>
+                    
+                    <button type="submit" class="w-full bg-red-600 hover:bg-red-700 text-white font-bold py-3 rounded-lg shadow-md transition duration-200">
+                        Buat Tugas
+                    </button>
+                </form>
+            </div>
+
+            <!-- Sheet 2: Task List -->
+            <div id="sheet-2" class="sheet-content hidden">
+                <h2 class="text-xl font-bold mb-4 text-gray-200">List Tugas Tim (Per PIC)</h2>
+
+                <div id="sheet-2-tabs" class="flex space-x-2 p-2 bg-gray-900 rounded-lg mb-4 overflow-x-auto">
+                    <button data-task-type="ALL" class="sub-tab-button active flex-shrink-0" onclick="filterSheet2Tasks(this)">Semua Tugas</button>
+                    <button data-task-type="HARIAN" class="sub-tab-button flex-shrink-0" onclick="filterSheet2Tasks(this)">Harian</button>
+                    <button data-task-type="MINGGUAN" class="sub-tab-button flex-shrink-0" onclick="filterSheet2Tasks(this)">Mingguan</button>
+                    <button data-task-type="BULANAN" class="sub-tab-button flex-shrink-0" onclick="filterSheet2Tasks(this)">Bulanan</button>
+                    <button data-task-type="INSIDENTIL" class="sub-tab-button flex-shrink-0" onclick="filterSheet2Tasks(this)">Insidentil</button>
+                    <button data-task-type="WPS" class="sub-tab-button flex-shrink-0" onclick="filterSheet2Tasks(this)">Problem Solving</button>
+                </div>
+
+                <div id="task-list-container" class="space-y-4">
+                    <div class="text-center text-gray-500 p-8">Memuat tugas...</div>
+                </div>
+            </div>
+
+            <!-- Sheet 3: KPI Dashboard -->
+            <div id="sheet-3" class="sheet-content hidden">
+                <h2 class="text-xl font-bold mb-4 text-gray-200">Laporan KPI Bulanan</h2>
+                
+                <div class="bg-gray-900 p-4 rounded-lg shadow-xl mb-4 flex justify-between items-center border border-gray-700">
+                    <button onclick="handleKPIMonthChange(-1)" class="bg-gray-700 hover:bg-gray-600 text-white p-2 rounded-lg text-sm">
+                        &lt; Bulan Sebelumnya
+                    </button>
+                    <span id="kpi-month-display" class="text-lg font-bold text-red-500" data-month="" data-year=""></span>
+                    <button onclick="handleKPIMonthChange(1)" class="bg-gray-700 hover:bg-gray-600 text-white p-2 rounded-lg text-sm">
+                        Bulan Selanjutnya &gt;
+                    </button>
+                </div>
+
+                <div class="mb-6">
+                    <label for="kpi-leader-filter" class="block text-sm font-medium text-gray-400 mb-1">Filter Pemimpin Tim:</label>
+                    <select id="kpi-leader-filter" onchange="renderKPIDashboard()" class="mt-1 block w-full bg-gray-800 border border-gray-700 text-white rounded-lg p-2">
+                    </select>
+                </div>
+
+                <div id="kpi-dashboard-container" class="space-y-4">
+                    <div class="text-center text-gray-500 p-8">Memuat data KPI...</div>
+                </div>
+            </div>
+
+            <!-- Sheet 4: Master Team Management -->
+            <div id="sheet-4" class="sheet-content hidden">
+                <h2 class="text-xl font-bold mb-4 text-gray-200">Master Data Tim (Manager Only)</h2>
+                
+                <div id="master-team-list" class="mb-6 border-b border-gray-700 pb-4">
+                </div>
+
+                <div class="bg-gray-900 p-6 rounded-lg shadow-xl border border-gray-700">
+                    <h3 id="master-form-title" class="text-lg font-bold mb-4 text-red-400">Tambah PIC Baru</h3>
+                    <form id="master-team-form" class="space-y-4">
+                        <div>
+                            <label for="master-pic-name" class="block text-sm font-medium text-gray-400">Nama PIC</label>
+                            <input type="text" id="master-pic-name" required class="mt-1 block w-full">
+                        </div>
+                         <div>
+                            <label for="master-role-select" class="block text-sm font-medium text-gray-400">Peran</label>
+                            <select id="master-role-select" class="mt-1 block w-full">
+                                <option value="MANAGER">Manager</option>
+                                <option value="PA">Personal Assistant</option>
+                                <option value="STAFF">Staff / Koordinator Area</option>
+                            </select>
+                        </div>
+                        <div>
+                            <label for="master-leader-select" class="block text-sm font-medium text-gray-400">Lapor Kepada (Reporting To)</label>
+                            <select id="master-leader-select" class="mt-1 block w-full">
+                            </select>
+                        </div>
+                        <div class="flex space-x-4">
+                             <button id="master-form-button" type="submit" class="flex-grow bg-green-600 hover:bg-green-700 text-white font-bold py-2 rounded-lg transition duration-200">
+                                Tambah PIC
+                            </button>
+                             <button type="button" onclick="resetMasterForm()" class="bg-gray-600 hover:bg-gray-700 text-white font-bold py-2 px-4 rounded-lg transition duration-200">
+                                Reset Form
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+            
+            <!-- Sheet 5: Problem Solving (WPS) Input -->
+            <div id="sheet-5" class="sheet-content hidden">
+                <h2 class="text-xl font-bold mb-4 text-gray-200">Input Tugas Problem Solving (WPS)</h2>
+                <p class="mb-4 text-sm text-red-400">Tugas WPS dibuat berulang setiap minggu selama 1 tahun (52 minggu), dengan due date otomatis di hari Jumat pukul 17:00.</p>
+                
+                <form id="wps-form" class="space-y-4 bg-gray-900 p-6 rounded-lg shadow-xl border border-gray-700">
+                    <div>
+                        <label for="wpsTitle" class="block text-sm font-medium text-gray-400">Judul Masalah/Tugas</label>
+                        <input type="text" id="wpsTitle" name="wpsTitle" required class="mt-1 block w-full" placeholder="Contoh: Menurunkan complaint kebersihan di 3 cabang">
+                    </div>
+                    
+                    <div>
+                        <label for="wpsDescription" class="block text-sm font-medium text-gray-400">Deskripsi/Langkah Solusi</label>
+                        <textarea id="wpsDescription" name="wpsDescription" rows="3" class="mt-1 block w-full" placeholder="Rencana aksi yang harus dilakukan Koordinator Area."></textarea>
+                    </div>
+                    
+                    <div>
+                        <label for="wpsGoal" class="block text-sm font-medium text-gray-400">Goal (Target Terukur)</label>
+                        <input type="text" id="wpsGoal" name="wpsGoal" required class="mt-1 block w-full" placeholder="Contoh: Complaint kebersihan turun 50% di bulan ini">
+                    </div>
+
+                    <div>
+                        <label for="wps-assigned-to" class="block text-sm font-medium text-gray-400">Ditugaskan Kepada (Hanya 1 PIC)</label>
+                        <select id="wps-assigned-to" name="wpsAssignedTo" required class="mt-1 block w-full">
+                        </select>
+                    </div>
+                    
+                    <button type="submit" class="w-full bg-red-600 hover:bg-red-700 text-white font-bold py-3 rounded-lg shadow-md transition duration-200">
+                        Buat Tugas WPS Mingguan
+                    </button>
+                </form>
+            </div>
+
+        </main>
+    </div>
+
+    <script src="app.js"></script>
+</body>
+</html>
