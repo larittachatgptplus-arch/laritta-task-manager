@@ -1,0 +1,1555 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>🔴 Sistem KPI Laritta Bakery v2.0</title>
+    <style>
+        /* ==================== WARNA LARITTA BAKERY (MERAH) ==================== */
+        :root {
+            --red-main: #DC143C;      /* Crimson Red - warna utama */
+            --red-dark: #8B0000;      /* Dark Red - header */
+            --red-light: #FFB6C1;     /* Light Pink - accent */
+            --red-lighter: #FFE4E1;   /* Misty Rose - background */
+            --green: #32CD32;         /* Success */
+            --yellow: #FFD700;        /* Warning */
+            --orange: #FF8C00;        /* Alert */
+            --white: #FFFFFF;
+            --gray-light: #F5F5F5;
+            --gray-dark: #333333;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, var(--red-lighter) 0%, var(--white) 100%);
+            color: var(--gray-dark);
+            line-height: 1.6;
+        }
+
+        /* ==================== HEADER ==================== */
+        header {
+            background: linear-gradient(135deg, var(--red-dark) 0%, var(--red-main) 100%);
+            color: var(--white);
+            padding: 2rem 1rem;
+            text-align: center;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+        }
+
+        header h1 {
+            font-size: 2.5rem;
+            margin-bottom: 0.5rem;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.3);
+        }
+
+        header p {
+            font-size: 1.1rem;
+            opacity: 0.9;
+        }
+
+        .version {
+            display: inline-block;
+            background: var(--white);
+            color: var(--red-main);
+            padding: 0.3rem 1rem;
+            border-radius: 20px;
+            font-weight: bold;
+            margin-top: 1rem;
+        }
+
+        /* ==================== NAVIGATION ==================== */
+        nav {
+            background: var(--white);
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+            position: sticky;
+            top: 0;
+            z-index: 100;
+        }
+
+        nav ul {
+            list-style: none;
+            display: flex;
+            justify-content: center;
+            flex-wrap: wrap;
+        }
+
+        nav ul li {
+            margin: 0;
+        }
+
+        nav ul li a {
+            display: block;
+            padding: 1rem 2rem;
+            color: var(--red-main);
+            text-decoration: none;
+            font-weight: bold;
+            transition: all 0.3s;
+            border-bottom: 3px solid transparent;
+        }
+
+        nav ul li a:hover,
+        nav ul li a.active {
+            background: var(--red-lighter);
+            border-bottom: 3px solid var(--red-main);
+        }
+
+        /* ==================== CONTAINER ==================== */
+        .container {
+            max-width: 1400px;
+            margin: 2rem auto;
+            padding: 0 1rem;
+        }
+
+        .section {
+            background: var(--white);
+            border-radius: 15px;
+            padding: 2rem;
+            margin-bottom: 2rem;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+            display: none;
+        }
+
+        .section.active {
+            display: block;
+            animation: fadeIn 0.3s;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .section-title {
+            color: var(--red-main);
+            font-size: 2rem;
+            margin-bottom: 1.5rem;
+            padding-bottom: 0.5rem;
+            border-bottom: 3px solid var(--red-main);
+        }
+
+        /* ==================== FORM STYLES ==================== */
+        .form-group {
+            margin-bottom: 1.5rem;
+        }
+
+        .form-group label {
+            display: block;
+            font-weight: bold;
+            color: var(--red-dark);
+            margin-bottom: 0.5rem;
+        }
+
+        .form-group input,
+        .form-group select,
+        .form-group textarea {
+            width: 100%;
+            padding: 0.75rem;
+            border: 2px solid var(--red-light);
+            border-radius: 8px;
+            font-size: 1rem;
+            transition: all 0.3s;
+        }
+
+        .form-group input:focus,
+        .form-group select:focus,
+        .form-group textarea:focus {
+            outline: none;
+            border-color: var(--red-main);
+            box-shadow: 0 0 0 3px rgba(220, 20, 60, 0.1);
+        }
+
+        .form-row {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 1rem;
+        }
+
+        /* ==================== PILAR KPI ==================== */
+        .kpi-pilar {
+            background: linear-gradient(135deg, var(--red-lighter) 0%, var(--white) 100%);
+            border-left: 5px solid var(--red-main);
+            padding: 1.5rem;
+            margin-bottom: 1.5rem;
+            border-radius: 10px;
+        }
+
+        .kpi-pilar h3 {
+            color: var(--red-main);
+            margin-bottom: 1rem;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .kpi-badge {
+            background: var(--red-main);
+            color: var(--white);
+            padding: 0.25rem 0.75rem;
+            border-radius: 20px;
+            font-size: 0.9rem;
+            font-weight: bold;
+        }
+
+        /* ==================== BUTTONS ==================== */
+        .btn {
+            padding: 0.75rem 2rem;
+            border: none;
+            border-radius: 8px;
+            font-size: 1rem;
+            font-weight: bold;
+            cursor: pointer;
+            transition: all 0.3s;
+            display: inline-block;
+            text-decoration: none;
+        }
+
+        .btn-primary {
+            background: var(--red-main);
+            color: var(--white);
+        }
+
+        .btn-primary:hover {
+            background: var(--red-dark);
+            transform: translateY(-2px);
+            box-shadow: 0 4px 8px rgba(0,0,0,0.2);
+        }
+
+        .btn-secondary {
+            background: var(--gray-light);
+            color: var(--gray-dark);
+        }
+
+        .btn-secondary:hover {
+            background: #e0e0e0;
+        }
+
+        .btn-success {
+            background: var(--green);
+            color: var(--white);
+        }
+
+        .btn-success:hover {
+            background: #28a428;
+        }
+
+        /* ==================== DASHBOARD ==================== */
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 1.5rem;
+            margin-bottom: 2rem;
+        }
+
+        .stat-card {
+            background: linear-gradient(135deg, var(--red-main) 0%, var(--red-dark) 100%);
+            color: var(--white);
+            padding: 2rem;
+            border-radius: 15px;
+            text-align: center;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+            transition: transform 0.3s;
+        }
+
+        .stat-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 8px 12px rgba(0,0,0,0.2);
+        }
+
+        .stat-card .number {
+            font-size: 3rem;
+            font-weight: bold;
+            margin: 0.5rem 0;
+        }
+
+        .stat-card .label {
+            font-size: 1rem;
+            opacity: 0.9;
+        }
+
+        /* ==================== TABLE ==================== */
+        .table-responsive {
+            overflow-x: auto;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 1rem;
+        }
+
+        table th {
+            background: var(--red-dark);
+            color: var(--white);
+            padding: 1rem;
+            text-align: left;
+            font-weight: bold;
+        }
+
+        table td {
+            padding: 1rem;
+            border-bottom: 1px solid var(--red-lighter);
+        }
+
+        table tr:hover {
+            background: var(--red-lighter);
+        }
+
+        /* ==================== BADGE ==================== */
+        .badge {
+            display: inline-block;
+            padding: 0.35rem 0.75rem;
+            border-radius: 20px;
+            font-size: 0.85rem;
+            font-weight: bold;
+        }
+
+        .badge-success {
+            background: var(--green);
+            color: var(--white);
+        }
+
+        .badge-warning {
+            background: var(--yellow);
+            color: var(--gray-dark);
+        }
+
+        .badge-danger {
+            background: var(--red-main);
+            color: var(--white);
+        }
+
+        .badge-grade-a {
+            background: var(--green);
+            color: var(--white);
+        }
+
+        .badge-grade-b {
+            background: #4169E1;
+            color: var(--white);
+        }
+
+        .badge-grade-c {
+            background: var(--yellow);
+            color: var(--gray-dark);
+        }
+
+        .badge-grade-d {
+            background: var(--red-main);
+            color: var(--white);
+        }
+
+        /* ==================== ALERT ==================== */
+        .alert {
+            padding: 1rem 1.5rem;
+            border-radius: 8px;
+            margin-bottom: 1rem;
+            border-left: 5px solid;
+        }
+
+        .alert-info {
+            background: #E3F2FD;
+            border-color: #2196F3;
+            color: #1976D2;
+        }
+
+        .alert-success {
+            background: #E8F5E9;
+            border-color: var(--green);
+            color: #2E7D32;
+        }
+
+        .alert-warning {
+            background: #FFF3E0;
+            border-color: var(--yellow);
+            color: #F57C00;
+        }
+
+        .alert-danger {
+            background: #FFEBEE;
+            border-color: var(--red-main);
+            color: #C62828;
+        }
+
+        /* ==================== RESULT DISPLAY ==================== */
+        .result-card {
+            background: linear-gradient(135deg, var(--white) 0%, var(--red-lighter) 100%);
+            border: 3px solid var(--red-main);
+            border-radius: 15px;
+            padding: 2rem;
+            margin-top: 2rem;
+        }
+
+        .result-score {
+            text-align: center;
+            margin-bottom: 2rem;
+        }
+
+        .result-score .total {
+            font-size: 4rem;
+            font-weight: bold;
+            color: var(--red-main);
+        }
+
+        .result-breakdown {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 1rem;
+        }
+
+        .breakdown-item {
+            background: var(--white);
+            padding: 1rem;
+            border-radius: 10px;
+            text-align: center;
+            border: 2px solid var(--red-light);
+        }
+
+        .breakdown-item .score {
+            font-size: 2rem;
+            font-weight: bold;
+            color: var(--red-main);
+        }
+
+        .breakdown-item .achieve {
+            margin-top: 0.5rem;
+            font-weight: bold;
+        }
+
+        /* ==================== RESPONSIVE ==================== */
+        @media (max-width: 768px) {
+            header h1 {
+                font-size: 1.8rem;
+            }
+
+            nav ul {
+                flex-direction: column;
+            }
+
+            nav ul li a {
+                padding: 0.75rem 1rem;
+            }
+
+            .section {
+                padding: 1rem;
+            }
+
+            .section-title {
+                font-size: 1.5rem;
+            }
+
+            .form-row {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        /* ==================== PRINT STYLES ==================== */
+        @media print {
+            nav, .btn { display: none; }
+            .section { display: block !important; page-break-after: always; }
+        }
+
+        /* ==================== LOADING ==================== */
+        .loading {
+            display: inline-block;
+            width: 20px;
+            height: 20px;
+            border: 3px solid var(--red-light);
+            border-radius: 50%;
+            border-top-color: var(--red-main);
+            animation: spin 1s linear infinite;
+        }
+
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+
+        /* ==================== FOOTER ==================== */
+        footer {
+            background: var(--red-dark);
+            color: var(--white);
+            text-align: center;
+            padding: 2rem 1rem;
+            margin-top: 3rem;
+        }
+
+        footer a {
+            color: var(--red-light);
+            text-decoration: none;
+        }
+
+        footer a:hover {
+            text-decoration: underline;
+        }
+    </style>
+</head>
+<body>
+    <!-- HEADER -->
+    <header>
+        <h1>🔴 Sistem KPI Laritta Bakery</h1>
+        <p>Performance Management System - Sesuai Training KPI Masterclass</p>
+        <span class="version">v2.0 - Warna Merah Edition</span>
+    </header>
+
+    <!-- NAVIGATION -->
+    <nav>
+        <ul>
+            <li><a href="#" onclick="showSection('home')" class="active">🏠 Home</a></li>
+            <li><a href="#" onclick="showSection('input')">📝 Input KPI</a></li>
+            <li><a href="#" onclick="showSection('dashboard')">📊 Dashboard</a></li>
+            <li><a href="#" onclick="showSection('ltpb')">⚠️ LTPB</a></li>
+            <li><a href="#" onclick="showSection('project')">🎯 KPI Project</a></li>
+            <li><a href="#" onclick="showSection('panduan')">📖 Panduan</a></li>
+        </ul>
+    </nav>
+
+    <div class="container">
+        <!-- ==================== HOME SECTION ==================== -->
+        <section id="home" class="section active">
+            <h2 class="section-title">Selamat Datang di Sistem KPI v2.0</h2>
+            
+            <div class="alert alert-info">
+                <strong>🎉 Update Terbaru!</strong> Sistem KPI telah direvisi TOTAL berdasarkan training KPI Masterclass (Himawan Pramudita & Lisa Qonita, 11-12 November 2025).
+            </div>
+
+            <div class="stats-grid">
+                <div class="stat-card">
+                    <div class="label">Total Karyawan</div>
+                    <div class="number" id="totalKaryawan">0</div>
+                    <div class="label">Aktif Dimonitor</div>
+                </div>
+                <div class="stat-card">
+                    <div class="label">Rata-rata KPI</div>
+                    <div class="number" id="avgKPI">0</div>
+                    <div class="label">Performa Tim</div>
+                </div>
+                <div class="stat-card">
+                    <div class="label">Top Performers</div>
+                    <div class="number" id="topPerformers">0</div>
+                    <div class="label">Grade A</div>
+                </div>
+                <div class="stat-card">
+                    <div class="label">Need Improvement</div>
+                    <div class="number" id="needImprovement">0</div>
+                    <div class="label">Grade C & D</div>
+                </div>
+            </div>
+
+            <h3 style="color: var(--red-main); margin-top: 2rem;">✨ Fitur Baru v2.0:</h3>
+            <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 1rem; margin-top: 1rem;">
+                <div style="background: var(--red-lighter); padding: 1.5rem; border-radius: 10px; border-left: 5px solid var(--red-main);">
+                    <h4 style="color: var(--red-main);">⚠️ Achieve/Not Achieve Tracking</h4>
+                    <p>Tidak hanya total score, tapi track setiap KPI individual!</p>
+                </div>
+                <div style="background: var(--red-lighter); padding: 1.5rem; border-radius: 10px; border-left: 5px solid var(--red-main);">
+                    <h4 style="color: var(--red-main);">📝 LTPB System</h4>
+                    <p>Laporan Tindakan Perbaikan untuk Grade C & D</p>
+                </div>
+                <div style="background: var(--red-lighter); padding: 1.5rem; border-radius: 10px; border-left: 5px solid var(--red-main);">
+                    <h4 style="color: var(--red-main);">🎯 KPI Project</h4>
+                    <p>Untuk leader: KPI Rutin + KPI Project dari Company Goals</p>
+                </div>
+                <div style="background: var(--red-lighter); padding: 1.5rem; border-radius: 10px; border-left: 5px solid var(--red-main);">
+                    <h4 style="color: var(--red-main);">🔴 Warna Merah Laritta</h4>
+                    <p>100% sesuai brand identity Laritta Bakery!</p>
+                </div>
+            </div>
+
+            <div class="alert alert-warning" style="margin-top: 2rem;">
+                <strong>📢 Prinsip Emas KPI:</strong><br>
+                1. KPI = OUTPUT, bukan KOMPETENSI<br>
+                2. What gets measured, gets managed<br>
+                3. Performance Accelerator = KPI + Monitoring + Reward<br>
+                4. Setiap Not Achieve harus ada LTPB. Tidak buat = SP 1
+            </div>
+        </section>
+
+        <!-- ==================== INPUT KPI SECTION ==================== -->
+        <section id="input" class="section">
+            <h2 class="section-title">📝 Input Data KPI Mingguan</h2>
+            
+            <div class="alert alert-info">
+                <strong>⏰ Deadline:</strong> Setiap Jumat jam 17:00. Lewat deadline = Tidak dapat TTD → LTPB → SP 1
+            </div>
+
+            <form id="kpiForm">
+                <!-- INFO KARYAWAN -->
+                <div class="kpi-pilar">
+                    <h3>👤 Informasi Karyawan</h3>
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label>Nama Karyawan *</label>
+                            <input type="text" id="namaKaryawan" required>
+                        </div>
+                        <div class="form-group">
+                            <label>Posisi *</label>
+                            <select id="posisi" required>
+                                <option value="">Pilih Posisi</option>
+                                <option value="Staff">Staff</option>
+                                <option value="Leader">Leader</option>
+                                <option value="Supervisor">Supervisor</option>
+                                <option value="Manager">Manager</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label>Departemen/Outlet *</label>
+                            <input type="text" id="departemen" required>
+                        </div>
+                        <div class="form-group">
+                            <label>Minggu Ke- *</label>
+                            <input type="number" id="mingguKe" min="1" max="53" required>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- PILAR 1: PRODUCTIVITY (30%) -->
+                <div class="kpi-pilar">
+                    <h3>
+                        <span>💼 PILAR 1: PRODUCTIVITY</span>
+                        <span class="kpi-badge">30% Bobot</span>
+                    </h3>
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label>Output/Task Selesai *</label>
+                            <input type="number" id="output" min="0" required>
+                        </div>
+                        <div class="form-group">
+                            <label>Target Output *</label>
+                            <input type="number" id="targetOutput" min="1" required>
+                        </div>
+                        <div class="form-group">
+                            <label>Jumlah Error</label>
+                            <input type="number" id="error" min="0" value="0">
+                        </div>
+                        <div class="form-group">
+                            <label>Completion Rate (%) *</label>
+                            <input type="number" id="completionRate" min="0" max="100" required>
+                        </div>
+                    </div>
+                    <div class="alert alert-info">
+                        <strong>Formula:</strong> [(Output/Target × 40%) + (Completion × 40%) + ((100-Error%) × 20%)] × 30%<br>
+                        <strong>Target Achieve:</strong> ≥27 (90% dari 30)
+                    </div>
+                </div>
+
+                <!-- PILAR 2: QUALITY (25%) -->
+                <div class="kpi-pilar">
+                    <h3>
+                        <span>⭐ PILAR 2: QUALITY</span>
+                        <span class="kpi-badge">25% Bobot</span>
+                    </h3>
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label>Skor Audit (1-5) *</label>
+                            <input type="number" id="audit" min="1" max="5" step="0.1" required>
+                        </div>
+                        <div class="form-group">
+                            <label>Kepatuhan SOP (%) *</label>
+                            <input type="number" id="sop" min="0" max="100" required>
+                        </div>
+                        <div class="form-group">
+                            <label>Jumlah Revisi/Complaint</label>
+                            <input type="number" id="revisi" min="0" value="0">
+                        </div>
+                    </div>
+                    <div class="alert alert-info">
+                        <strong>Formula:</strong> [(Audit/5 × 40%) + (SOP% × 35%) + ((10-Revisi)/10 × 25%)] × 25%<br>
+                        <strong>Target Achieve:</strong> ≥22.5 (90% dari 25)
+                    </div>
+                </div>
+
+                <!-- PILAR 3: DISCIPLINE (20%) -->
+                <div class="kpi-pilar">
+                    <h3>
+                        <span>🎯 PILAR 3: DISCIPLINE</span>
+                        <span class="kpi-badge">20% Bobot</span>
+                    </h3>
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label>Hari Hadir *</label>
+                            <input type="number" id="hadir" min="0" max="7" required>
+                        </div>
+                        <div class="form-group">
+                            <label>Total Hari Kerja *</label>
+                            <input type="number" id="totalHari" min="1" max="7" required>
+                        </div>
+                        <div class="form-group">
+                            <label>Menit Terlambat</label>
+                            <input type="number" id="terlambat" min="0" value="0">
+                        </div>
+                        <div class="form-group">
+                            <label>Follow-up Needed (kali)</label>
+                            <input type="number" id="followup" min="0" value="0">
+                        </div>
+                    </div>
+                    <div class="alert alert-info">
+                        <strong>Formula:</strong> [(Attendance × 50%) + (Punctuality × 30%) + (Reliability × 20%)] × 20%<br>
+                        <strong>Target Achieve:</strong> ≥18 (90% dari 20)
+                    </div>
+                </div>
+
+                <!-- PILAR 4: INITIATIVE (15%) -->
+                <div class="kpi-pilar">
+                    <h3>
+                        <span>💡 PILAR 4: INITIATIVE</span>
+                        <span class="kpi-badge">15% Bobot</span>
+                    </h3>
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label>Jumlah Ide/Kontribusi</label>
+                            <input type="number" id="ide" min="0" value="0">
+                        </div>
+                        <div class="form-group">
+                            <label>Skor Keputusan (1-5) *</label>
+                            <input type="number" id="keputusan" min="1" max="5" step="0.1" required>
+                        </div>
+                        <div class="form-group">
+                            <label>Jam Belajar/Training</label>
+                            <input type="number" id="belajar" min="0" step="0.5" value="0">
+                        </div>
+                    </div>
+                    <div class="alert alert-info">
+                        <strong>Formula:</strong> [(Ideas × 35%) + (Decision/5 × 35%) + (Learning × 30%)] × 15%<br>
+                        <strong>Target Achieve:</strong> ≥13.5 (90% dari 15)
+                    </div>
+                </div>
+
+                <!-- PILAR 5: TEAMWORK (10%) -->
+                <div class="kpi-pilar">
+                    <h3>
+                        <span>🤝 PILAR 5: TEAMWORK</span>
+                        <span class="kpi-badge">10% Bobot</span>
+                    </h3>
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label>Skor Kolaborasi (1-5) *</label>
+                            <input type="number" id="kolaborasi" min="1" max="5" step="0.1" required>
+                        </div>
+                        <div class="form-group">
+                            <label>Kepatuhan Grooming (%) *</label>
+                            <input type="number" id="grooming" min="0" max="100" required>
+                        </div>
+                        <div class="form-group">
+                            <label>Skor Sikap (1-5) *</label>
+                            <input type="number" id="sikap" min="1" max="5" step="0.1" required>
+                        </div>
+                    </div>
+                    <div class="alert alert-info">
+                        <strong>Formula:</strong> [(Collaboration/5 × 40%) + (Grooming × 30%) + (Attitude/5 × 30%)] × 10%<br>
+                        <strong>Target Achieve:</strong> ≥9 (90% dari 10)
+                    </div>
+                </div>
+
+                <!-- CATATAN -->
+                <div class="form-group">
+                    <label>Catatan (Opsional)</label>
+                    <textarea id="catatan" rows="4" placeholder="Catatan tambahan tentang performa minggu ini..."></textarea>
+                </div>
+
+                <!-- SUBMIT BUTTON -->
+                <div style="text-align: center; margin-top: 2rem;">
+                    <button type="submit" class="btn btn-primary" style="min-width: 200px;">
+                        ✅ Hitung KPI Sekarang
+                    </button>
+                    <button type="reset" class="btn btn-secondary" style="margin-left: 1rem;">
+                        🔄 Reset Form
+                    </button>
+                </div>
+            </form>
+
+            <!-- RESULT DISPLAY -->
+            <div id="resultDisplay" style="display: none;">
+                <div class="result-card">
+                    <div class="result-score">
+                        <div class="label">TOTAL KPI SCORE</div>
+                        <div class="total" id="totalScore">0</div>
+                        <div class="grade" id="gradeDisplay" style="font-size: 2rem; margin-top: 1rem;"></div>
+                    </div>
+
+                    <h3 style="color: var(--red-main); margin-bottom: 1rem;">Breakdown Per Pilar:</h3>
+                    <div class="result-breakdown">
+                        <div class="breakdown-item">
+                            <div class="label">Productivity</div>
+                            <div class="score" id="scoreProductivity">0</div>
+                            <div class="achieve" id="achieveProductivity"></div>
+                        </div>
+                        <div class="breakdown-item">
+                            <div class="label">Quality</div>
+                            <div class="score" id="scoreQuality">0</div>
+                            <div class="achieve" id="achieveQuality"></div>
+                        </div>
+                        <div class="breakdown-item">
+                            <div class="label">Discipline</div>
+                            <div class="score" id="scoreDiscipline">0</div>
+                            <div class="achieve" id="achieveDiscipline"></div>
+                        </div>
+                        <div class="breakdown-item">
+                            <div class="label">Initiative</div>
+                            <div class="score" id="scoreInitiative">0</div>
+                            <div class="achieve" id="achieveInitiative"></div>
+                        </div>
+                        <div class="breakdown-item">
+                            <div class="label">Teamwork</div>
+                            <div class="score" id="scoreTeamwork">0</div>
+                            <div class="achieve" id="achieveTeamwork"></div>
+                        </div>
+                    </div>
+
+                    <div id="ltpbAlert" style="display: none;" class="alert alert-danger" style="margin-top: 2rem;">
+                        <strong>⚠️ ACTION REQUIRED!</strong><br>
+                        Ada KPI yang <strong>NOT ACHIEVE</strong>. Karyawan ini WAJIB membuat <strong>LTPB (Laporan Tindakan Perbaikan)</strong>.<br>
+                        Kalau tidak buat LTPB → <strong>SP 1</strong>
+                    </div>
+
+                    <div style="text-align: center; margin-top: 2rem;">
+                        <button onclick="exportData()" class="btn btn-success">📥 Export ke Excel</button>
+                        <button onclick="window.print()" class="btn btn-secondary">🖨️ Print</button>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- ==================== DASHBOARD SECTION ==================== -->
+        <section id="dashboard" class="section">
+            <h2 class="section-title">📊 Dashboard KPI</h2>
+            
+            <div class="alert alert-info">
+                Dashboard ini menampilkan summary performa seluruh karyawan. Data akan terupdate setiap kali ada input baru.
+            </div>
+
+            <h3 style="color: var(--red-main);">🏆 Top 10 Performers</h3>
+            <div class="table-responsive">
+                <table id="topPerformersTable">
+                    <thead>
+                        <tr>
+                            <th>Rank</th>
+                            <th>Nama</th>
+                            <th>Posisi</th>
+                            <th>Score</th>
+                            <th>Grade</th>
+                            <th>Status</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td colspan="6" style="text-align: center; color: var(--red-main);">
+                                Belum ada data. Silakan input KPI terlebih dahulu.
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+
+            <h3 style="color: var(--red-main); margin-top: 2rem;">📈 Distribusi Grade</h3>
+            <div class="stats-grid">
+                <div class="stat-card" style="background: linear-gradient(135deg, var(--green) 0%, #28a428 100%);">
+                    <div class="label">Grade A</div>
+                    <div class="number" id="gradeA">0</div>
+                    <div class="label">≥90 (Outstanding)</div>
+                </div>
+                <div class="stat-card" style="background: linear-gradient(135deg, #4169E1 0%, #1E3A8A 100%);">
+                    <div class="label">Grade B</div>
+                    <div class="number" id="gradeB">0</div>
+                    <div class="label">75-89 (Good)</div>
+                </div>
+                <div class="stat-card" style="background: linear-gradient(135deg, var(--yellow) 0%, #F59E0B 100%);">
+                    <div class="label">Grade C</div>
+                    <div class="number" id="gradeC">0</div>
+                    <div class="label">60-74 (Need Improvement)</div>
+                </div>
+                <div class="stat-card">
+                    <div class="label">Grade D</div>
+                    <div class="number" id="gradeD">0</div>
+                    <div class="label">&lt;60 (Poor)</div>
+                </div>
+            </div>
+
+            <h3 style="color: var(--red-main); margin-top: 2rem;">⚠️ Achieve/Not Achieve Tracking</h3>
+            <div class="table-responsive">
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Pilar KPI</th>
+                            <th>Total Achieve</th>
+                            <th>Total Not Achieve</th>
+                            <th>% Achieve</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td>Productivity</td>
+                            <td id="achieveProductivityCount">0</td>
+                            <td id="notAchieveProductivityCount">0</td>
+                            <td id="achieveProductivityPercent">0%</td>
+                        </tr>
+                        <tr>
+                            <td>Quality</td>
+                            <td id="achieveQualityCount">0</td>
+                            <td id="notAchieveQualityCount">0</td>
+                            <td id="achieveQualityPercent">0%</td>
+                        </tr>
+                        <tr>
+                            <td>Discipline</td>
+                            <td id="achieveDisciplineCount">0</td>
+                            <td id="notAchieveDisciplineCount">0</td>
+                            <td id="achieveDisciplinePercent">0%</td>
+                        </tr>
+                        <tr>
+                            <td>Initiative</td>
+                            <td id="achieveInitiativeCount">0</td>
+                            <td id="notAchieveInitiativeCount">0</td>
+                            <td id="achieveInitiativePercent">0%</td>
+                        </tr>
+                        <tr>
+                            <td>Teamwork</td>
+                            <td id="achieveTeamworkCount">0</td>
+                            <td id="notAchieveTeamworkCount">0</td>
+                            <td id="achieveTeamworkPercent">0%</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </section>
+
+        <!-- ==================== LTPB SECTION ==================== -->
+        <section id="ltpb" class="section">
+            <h2 class="section-title">⚠️ LTPB - Laporan Tindakan Perbaikan</h2>
+            
+            <div class="alert alert-danger">
+                <strong>WAJIB!</strong> LTPB harus dibuat jika:<br>
+                1. Ada KPI yang <strong>Not Achieve</strong> (walaupun total score bagus)<br>
+                2. Grade C atau D<br>
+                3. Tidak input KPI tepat waktu<br><br>
+                <strong>Konsekuensi:</strong> Tidak buat LTPB → SP 1 → SP 2 → Termination
+            </div>
+
+            <form id="ltpbForm">
+                <div class="form-row">
+                    <div class="form-group">
+                        <label>Tanggal *</label>
+                        <input type="date" id="ltpbTanggal" required>
+                    </div>
+                    <div class="form-group">
+                        <label>Nama Karyawan *</label>
+                        <input type="text" id="ltpbNama" required>
+                    </div>
+                    <div class="form-group">
+                        <label>Posisi *</label>
+                        <input type="text" id="ltpbPosisi" required>
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label>KPI Yang Tidak Achieve *</label>
+                    <input type="text" id="ltpbKPI" placeholder="Contoh: Initiative (10.2 < 13.5)" required>
+                </div>
+
+                <div class="form-group">
+                    <label>1. MASALAH APA YANG TERJADI *</label>
+                    <textarea id="ltpbMasalah" rows="4" placeholder="Jelaskan masalah konkret yang terjadi..." required></textarea>
+                </div>
+
+                <div class="form-group">
+                    <label>2. PENYEBAB MASALAH (Kenapa tidak tercapai) *</label>
+                    <textarea id="ltpbPenyebab" rows="4" placeholder="Analisis root cause masalah..." required></textarea>
+                </div>
+
+                <div class="form-group">
+                    <label>3. TINDAKAN PERBAIKAN YANG AKAN DILAKUKAN *</label>
+                    <textarea id="ltpbPerbaikan" rows="4" placeholder="Action plan spesifik untuk perbaikan..." required></textarea>
+                </div>
+
+                <div class="form-group">
+                    <label>4. TINDAKAN PENCEGAHAN AGAR TIDAK TERULANG *</label>
+                    <textarea id="ltpbPencegahan" rows="4" placeholder="Preventive measures yang akan diterapkan..." required></textarea>
+                </div>
+
+                <div class="form-group">
+                    <label>5. TARGET PERBAIKAN *</label>
+                    <textarea id="ltpbTarget" rows="4" placeholder="Target konkret dengan timeline:
+- Minggu depan: [target]
+- 2 minggu: [target]
+- 1 bulan: [target naik ke Grade B]" required></textarea>
+                </div>
+
+                <div style="text-align: center; margin-top: 2rem;">
+                    <button type="submit" class="btn btn-primary">✅ Submit LTPB</button>
+                    <button type="reset" class="btn btn-secondary">🔄 Reset</button>
+                </div>
+            </form>
+
+            <div id="ltpbSuccess" style="display: none;" class="alert alert-success" style="margin-top: 2rem;">
+                ✅ <strong>LTPB berhasil dibuat!</strong> Data telah tersimpan dan akan dimonitor oleh supervisor.
+            </div>
+        </section>
+
+        <!-- ==================== KPI PROJECT SECTION ==================== -->
+        <section id="project" class="section">
+            <h2 class="section-title">🎯 KPI Project - Untuk Level Leader</h2>
+            
+            <div class="alert alert-info">
+                <strong>KPI Project</strong> diturunkan dari Company Goals menggunakan Balanced Scorecard (BSC).<br>
+                <strong>4 Perspektif:</strong> Financial, Customer, Internal Process, Learning & Growth<br>
+                <strong>Bobot:</strong> 20-30% dari total KPI (sisanya KPI Rutin)
+            </div>
+
+            <form id="projectForm">
+                <div class="form-row">
+                    <div class="form-group">
+                        <label>Nama Leader *</label>
+                        <input type="text" id="projectLeader" required>
+                    </div>
+                    <div class="form-group">
+                        <label>Posisi *</label>
+                        <input type="text" id="projectPosisi" required>
+                    </div>
+                    <div class="form-group">
+                        <label>BSC Perspective *</label>
+                        <select id="projectBSC" required>
+                            <option value="">Pilih Perspektif</option>
+                            <option value="Financial">Financial (Revenue, Profit)</option>
+                            <option value="Customer">Customer (Satisfaction, Retention)</option>
+                            <option value="Internal Process">Internal Process (Quality, Efficiency)</option>
+                            <option value="Learning & Growth">Learning & Growth (Training, Culture)</option>
+                        </select>
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label>Project Title *</label>
+                    <input type="text" id="projectTitle" placeholder="Contoh: Implementasi Preventive Maintenance System" required>
+                </div>
+
+                <div class="form-group">
+                    <label>Output Target *</label>
+                    <textarea id="projectOutput" rows="3" placeholder="Hasil akhir yang ingin dicapai (bukan aktivitas!)
+Contoh: Sistem PM terdokumentasi + 100% mesin ter-maintain" required></textarea>
+                </div>
+
+                <div class="form-group">
+                    <label>Milestone (dengan % progress) *</label>
+                    <textarea id="projectMilestone" rows="5" placeholder="Contoh:
+1. Audit mesin (20%)
+2. Buat SOP PM (40%)
+3. Training team (70%)
+4. Implementasi full (100%)" required></textarea>
+                </div>
+
+                <div class="form-row">
+                    <div class="form-group">
+                        <label>Progress Saat Ini (%) *</label>
+                        <input type="number" id="projectProgress" min="0" max="100" required>
+                    </div>
+                    <div class="form-group">
+                        <label>Bobot (%) *</label>
+                        <input type="number" id="projectBobot" min="10" max="30" value="30" required>
+                    </div>
+                    <div class="form-group">
+                        <label>Deadline *</label>
+                        <input type="date" id="projectDeadline" required>
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label>Evidence/Dokumen Pendukung</label>
+                    <textarea id="projectEvidence" rows="3" placeholder="List bukti dokumen yang tersedia:
+- SOP PM
+- Schedule maintenance
+- Foto training
+- Log maintenance"></textarea>
+                </div>
+
+                <div style="text-align: center; margin-top: 2rem;">
+                    <button type="submit" class="btn btn-primary">✅ Submit KPI Project</button>
+                    <button type="reset" class="btn btn-secondary">🔄 Reset</button>
+                </div>
+            </form>
+
+            <div id="projectSuccess" style="display: none;" class="alert alert-success" style="margin-top: 2rem;">
+                ✅ <strong>KPI Project berhasil disimpan!</strong> Progress akan dimonitor secara berkala.
+            </div>
+        </section>
+
+        <!-- ==================== PANDUAN SECTION ==================== -->
+        <section id="panduan" class="section">
+            <h2 class="section-title">📖 Panduan Sistem KPI v2.0</h2>
+            
+            <div class="alert alert-warning">
+                <strong>📢 PENTING!</strong> Baca panduan ini dengan seksama untuk memahami sistem KPI yang baru.
+            </div>
+
+            <h3 style="color: var(--red-main);">🎯 Prinsip Dasar KPI (Dari Training)</h3>
+            <div style="background: var(--red-lighter); padding: 1.5rem; border-radius: 10px; margin-bottom: 1.5rem;">
+                <ol style="line-height: 2;">
+                    <li><strong>KPI = OUTPUT, bukan KOMPETENSI</strong><br>
+                        ❌ Salah: "Memiliki inisiatif tinggi"<br>
+                        ✅ Benar: "Menghasilkan 5 ide yang diimplementasikan per kuartal"
+                    </li>
+                    <li><strong>KPI harus berbasis angka (SMART)</strong><br>
+                        Specific, Measurable, Achievable, Relevant, Time-bound
+                    </li>
+                    <li><strong>KPI harus berdampak pada bisnis</strong><br>
+                        Profit ↑, Kecepatan ↑, Error ↓, Kepuasan pelanggan ↑
+                    </li>
+                    <li><strong>Ada 2 jenis KPI:</strong><br>
+                        • KPI Rutin (dari Job Description)<br>
+                        • KPI Project (dari Company Goals)
+                    </li>
+                    <li><strong>Setiap KPI punya TARGET dan TIPE (MAX/MIN)</strong><br>
+                        MAX = semakin tinggi semakin baik<br>
+                        MIN = semakin rendah semakin baik
+                    </li>
+                </ol>
+            </div>
+
+            <h3 style="color: var(--red-main);">📊 5 Pilar KPI & Formula</h3>
+            
+            <div class="kpi-pilar">
+                <h4>1. PRODUCTIVITY (30%)</h4>
+                <p><strong>Formula:</strong> [(Output/Target × 40%) + (Completion × 40%) + ((100-Error%) × 20%)] × 30%</p>
+                <p><strong>Target Achieve:</strong> ≥27 (90% dari 30)</p>
+                <p><strong>Tipe:</strong> MAX (semakin tinggi semakin baik)</p>
+            </div>
+
+            <div class="kpi-pilar">
+                <h4>2. QUALITY (25%)</h4>
+                <p><strong>Formula:</strong> [(Audit/5 × 40%) + (SOP% × 35%) + ((10-Revisi)/10 × 25%)] × 25%</p>
+                <p><strong>Target Achieve:</strong> ≥22.5 (90% dari 25)</p>
+                <p><strong>Tipe:</strong> MAX</p>
+            </div>
+
+            <div class="kpi-pilar">
+                <h4>3. DISCIPLINE (20%)</h4>
+                <p><strong>Formula:</strong> [(Attendance × 50%) + (Punctuality × 30%) + (Reliability × 20%)] × 20%</p>
+                <p><strong>Target Achieve:</strong> ≥18 (90% dari 20)</p>
+                <p><strong>Tipe:</strong> MAX</p>
+            </div>
+
+            <div class="kpi-pilar">
+                <h4>4. INITIATIVE (15%)</h4>
+                <p><strong>Formula:</strong> [(Ideas × 35%) + (Decision/5 × 35%) + (Learning × 30%)] × 15%</p>
+                <p><strong>Target Achieve:</strong> ≥13.5 (90% dari 15)</p>
+                <p><strong>Tipe:</strong> MAX</p>
+            </div>
+
+            <div class="kpi-pilar">
+                <h4>5. TEAMWORK (10%)</h4>
+                <p><strong>Formula:</strong> [(Collaboration/5 × 40%) + (Grooming × 30%) + (Attitude/5 × 30%)] × 10%</p>
+                <p><strong>Target Achieve:</strong> ≥9 (90% dari 10)</p>
+                <p><strong>Tipe:</strong> MAX</p>
+            </div>
+
+            <h3 style="color: var(--red-main); margin-top: 2rem;">🎓 Grading System</h3>
+            <div class="table-responsive">
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Grade</th>
+                            <th>Score</th>
+                            <th>Kategori</th>
+                            <th>Bonus</th>
+                            <th>Career Battery</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td><span class="badge badge-grade-a">A</span></td>
+                            <td>90-100</td>
+                            <td>Outstanding</td>
+                            <td>1 bulan gaji</td>
+                            <td>50%</td>
+                        </tr>
+                        <tr>
+                            <td><span class="badge badge-grade-b">B</span></td>
+                            <td>75-89</td>
+                            <td>Good</td>
+                            <td>0.5 bulan gaji</td>
+                            <td>25%</td>
+                        </tr>
+                        <tr>
+                            <td><span class="badge badge-grade-c">C</span></td>
+                            <td>60-74</td>
+                            <td>Need Improvement</td>
+                            <td>0.2 bulan gaji</td>
+                            <td>10%</td>
+                        </tr>
+                        <tr>
+                            <td><span class="badge badge-grade-d">D</span></td>
+                            <td>&lt;60</td>
+                            <td>Poor</td>
+                            <td>0</td>
+                            <td>0%</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+
+            <div class="alert alert-danger" style="margin-top: 1rem;">
+                <strong>⚠️ PENTING:</strong> Bonus hanya cair jika:<br>
+                ✅ Kinerja individu bagus (Grade A/B)<br>
+                ✅ Kinerja departemen bagus<br>
+                ✅ Kinerja perusahaan bagus (ada profit)
+            </div>
+
+            <h3 style="color: var(--red-main); margin-top: 2rem;">🔄 Monitoring Framework</h3>
+            <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 1rem;">
+                <div class="kpi-pilar">
+                    <h4>Mingguan</h4>
+                    <p><strong>Coaching-Counseling 10-15 menit</strong></p>
+                    <p>2 Pertanyaan:<br>
+                    1. Apa yang sudah dilakukan?<br>
+                    2. Apa yang akan dilakukan?</p>
+                    <p><strong>Color Coding:</strong><br>
+                    🟢 ≥100% = Apresiasi<br>
+                    🟡 80-99% = Coaching ringan<br>
+                    🔴 <80% = Coaching + LTPB</p>
+                </div>
+
+                <div class="kpi-pilar">
+                    <h4>Bulanan</h4>
+                    <p><strong>Review & Apresiasi</strong></p>
+                    <p>• Review seluruh tim<br>
+                    • Coaching Grade C & D<br>
+                    • Evaluasi LTPB<br>
+                    • Set target bulan depan</p>
+                </div>
+
+                <div class="kpi-pilar">
+                    <h4>Kuartal</h4>
+                    <p><strong>Analisis & Training</strong></p>
+                    <p>• Trend 3 bulan<br>
+                    • Training needs<br>
+                    • Adjust KPI<br>
+                    • Presentasi ke management</p>
+                </div>
+
+                <div class="kpi-pilar">
+                    <h4>Tahunan</h4>
+                    <p><strong>Strategic Planning</strong></p>
+                    <p>• Summary 12 bulan<br>
+                    • MVP of the Year<br>
+                    • Most Improved<br>
+                    • Update target tahun depan</p>
+                </div>
+            </div>
+
+            <h3 style="color: var(--red-main); margin-top: 2rem;">📥 Download Files</h3>
+            <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 1rem;">
+                <a href="#" class="btn btn-primary" style="text-align: center;">
+                    📊 Template Excel v2.0
+                </a>
+                <a href="#" class="btn btn-primary" style="text-align: center;">
+                    📖 Dokumentasi Lengkap
+                </a>
+                <a href="#" class="btn btn-primary" style="text-align: center;">
+                    🤖 Telegram Bot Script
+                </a>
+                <a href="#" class="btn btn-primary" style="text-align: center;">
+                    📑 Panduan LTPB
+                </a>
+            </div>
+        </section>
+    </div>
+
+    <!-- FOOTER -->
+    <footer>
+        <p><strong>🔴 Laritta Bakery - Performance Management System v2.0</strong></p>
+        <p>Sesuai Training KPI Masterclass (Himawan Pramudita & Lisa Qonita)</p>
+        <p style="margin-top: 1rem; opacity: 0.8;">
+            "Measure what matters. Improve what you measure. Repeat."
+        </p>
+        <p style="margin-top: 1rem; font-size: 0.9rem;">
+            © 2025 Laritta Bakery. All rights reserved.<br>
+            Dibuat dengan ❤️ oleh HR Team Laritta
+        </p>
+    </footer>
+
+    <!-- JAVASCRIPT -->
+    <script>
+        // ==================== NAVIGATION ====================
+        function showSection(sectionId) {
+            // Hide all sections
+            const sections = document.querySelectorAll('.section');
+            sections.forEach(section => {
+                section.classList.remove('active');
+            });
+
+            // Show selected section
+            document.getElementById(sectionId).classList.add('active');
+
+            // Update active nav link
+            const navLinks = document.querySelectorAll('nav a');
+            navLinks.forEach(link => {
+                link.classList.remove('active');
+            });
+            event.target.classList.add('active');
+
+            // Scroll to top
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+        }
+
+        // ==================== KPI CALCULATION ====================
+        document.getElementById('kpiForm').addEventListener('submit', function(e) {
+            e.preventDefault();
+
+            // Get all input values
+            const data = {
+                // Info
+                nama: document.getElementById('namaKaryawan').value,
+                posisi: document.getElementById('posisi').value,
+                departemen: document.getElementById('departemen').value,
+                minggu: document.getElementById('mingguKe').value,
+                
+                // Productivity
+                output: parseFloat(document.getElementById('output').value),
+                targetOutput: parseFloat(document.getElementById('targetOutput').value),
+                error: parseFloat(document.getElementById('error').value) || 0,
+                completionRate: parseFloat(document.getElementById('completionRate').value),
+                
+                // Quality
+                audit: parseFloat(document.getElementById('audit').value),
+                sop: parseFloat(document.getElementById('sop').value),
+                revisi: parseFloat(document.getElementById('revisi').value) || 0,
+                
+                // Discipline
+                hadir: parseFloat(document.getElementById('hadir').value),
+                totalHari: parseFloat(document.getElementById('totalHari').value),
+                terlambat: parseFloat(document.getElementById('terlambat').value) || 0,
+                followup: parseFloat(document.getElementById('followup').value) || 0,
+                
+                // Initiative
+                ide: parseFloat(document.getElementById('ide').value) || 0,
+                keputusan: parseFloat(document.getElementById('keputusan').value),
+                belajar: parseFloat(document.getElementById('belajar').value) || 0,
+                
+                // Teamwork
+                kolaborasi: parseFloat(document.getElementById('kolaborasi').value),
+                grooming: parseFloat(document.getElementById('grooming').value),
+                sikap: parseFloat(document.getElementById('sikap').value),
+                
+                // Notes
+                catatan: document.getElementById('catatan').value
+            };
+
+            // Calculate KPI scores
+            const results = calculateKPI(data);
+
+            // Display results
+            displayResults(results);
+
+            // Save to localStorage (demo)
+            saveData(data, results);
+        });
+
+        function calculateKPI(data) {
+            // 1. PRODUCTIVITY (30%)
+            const outputScore = (data.output / data.targetOutput) * 100 * 0.4;
+            const completionScore = data.completionRate * 0.4;
+            const errorRate = data.output > 0 ? (data.error / data.output) * 100 : 0;
+            const errorScore = (100 - errorRate) * 0.2;
+            const productivity = (outputScore + completionScore + errorScore) * 0.3;
+            const achieveProductivity = productivity >= 27;
+
+            // 2. QUALITY (25%)
+            const auditScore = (data.audit / 5) * 100 * 0.4;
+            const sopScore = data.sop * 0.35;
+            const revisiScore = Math.max(0, (10 - data.revisi) / 10) * 100 * 0.25;
+            const quality = (auditScore + sopScore + revisiScore) * 0.25;
+            const achieveQuality = quality >= 22.5;
+
+            // 3. DISCIPLINE (20%)
+            const attendance = (data.hadir / data.totalHari) * 100 * 0.5;
+            const punctuality = Math.max(0, 100 - (data.terlambat / 2)) * 0.3;
+            const reliability = Math.max(0, 100 - (data.followup * 20)) * 0.2;
+            const discipline = (attendance + punctuality + reliability) * 0.2;
+            const achieveDiscipline = discipline >= 18;
+
+            // 4. INITIATIVE (15%)
+            const ideaScore = Math.min(100, data.ide * 25) * 0.35;
+            const decisionScore = (data.keputusan / 5) * 100 * 0.35;
+            const learningScore = Math.min(100, (data.belajar / 4) * 100) * 0.3;
+            const initiative = (ideaScore + decisionScore + learningScore) * 0.15;
+            const achieveInitiative = initiative >= 13.5;
+
+            // 5. TEAMWORK (10%)
+            const collaborationScore = (data.kolaborasi / 5) * 100 * 0.4;
+            const groomingScore = data.grooming * 0.3;
+            const attitudeScore = (data.sikap / 5) * 100 * 0.3;
+            const teamwork = (collaborationScore + groomingScore + attitudeScore) * 0.1;
+            const achieveTeamwork = teamwork >= 9;
+
+            // TOTAL
+            const total = productivity + quality + discipline + initiative + teamwork;
+
+            // GRADE
+            let grade;
+            if (total >= 90) grade = 'A';
+            else if (total >= 75) grade = 'B';
+            else if (total >= 60) grade = 'C';
+            else grade = 'D';
+
+            // CHECK IF LTPB NEEDED
+            const needLTPB = !achieveProductivity || !achieveQuality || !achieveDiscipline || !achieveInitiative || !achieveTeamwork || grade === 'C' || grade === 'D';
+
+            return {
+                productivity: productivity.toFixed(2),
+                quality: quality.toFixed(2),
+                discipline: discipline.toFixed(2),
+                initiative: initiative.toFixed(2),
+                teamwork: teamwork.toFixed(2),
+                total: total.toFixed(2),
+                grade: grade,
+                achieveProductivity: achieveProductivity,
+                achieveQuality: achieveQuality,
+                achieveDiscipline: achieveDiscipline,
+                achieveInitiative: achieveInitiative,
+                achieveTeamwork: achieveTeamwork,
+                needLTPB: needLTPB
+            };
+        }
+
+        function displayResults(results) {
+            // Show result card
+            document.getElementById('resultDisplay').style.display = 'block';
+            document.getElementById('resultDisplay').scrollIntoView({ behavior: 'smooth' });
+
+            // Total score
+            document.getElementById('totalScore').textContent = results.total;
+
+            // Grade
+            const gradeBadge = `<span class="badge badge-grade-${results.grade.toLowerCase()}" style="font-size: 2rem; padding: 1rem 2rem;">Grade ${results.grade}</span>`;
+            document.getElementById('gradeDisplay').innerHTML = gradeBadge;
+
+            // Breakdown
+            document.getElementById('scoreProductivity').textContent = results.productivity;
+            document.getElementById('achieveProductivity').innerHTML = results.achieveProductivity ? 
+                '<span class="badge badge-success">✅ ACHIEVE</span>' : 
+                '<span class="badge badge-danger">❌ NOT ACHIEVE</span>';
+
+            document.getElementById('scoreQuality').textContent = results.quality;
+            document.getElementById('achieveQuality').innerHTML = results.achieveQuality ? 
+                '<span class="badge badge-success">✅ ACHIEVE</span>' : 
+                '<span class="badge badge-danger">❌ NOT ACHIEVE</span>';
+
+            document.getElementById('scoreDiscipline').textContent = results.discipline;
+            document.getElementById('achieveDiscipline').innerHTML = results.achieveDiscipline ? 
+                '<span class="badge badge-success">✅ ACHIEVE</span>' : 
+                '<span class="badge badge-danger">❌ NOT ACHIEVE</span>';
+
+            document.getElementById('scoreInitiative').textContent = results.initiative;
+            document.getElementById('achieveInitiative').innerHTML = results.achieveInitiative ? 
+                '<span class="badge badge-success">✅ ACHIEVE</span>' : 
+                '<span class="badge badge-danger">❌ NOT ACHIEVE</span>';
+
+            document.getElementById('scoreTeamwork').textContent = results.teamwork;
+            document.getElementById('achieveTeamwork').innerHTML = results.achieveTeamwork ? 
+                '<span class="badge badge-success">✅ ACHIEVE</span>' : 
+                '<span class="badge badge-danger">❌ NOT ACHIEVE</span>';
+
+            // LTPB Alert
+            if (results.needLTPB) {
+                document.getElementById('ltpbAlert').style.display = 'block';
+            } else {
+                document.getElementById('ltpbAlert').style.display = 'none';
+            }
+        }
+
+        function saveData(data, results) {
+            // Save to localStorage (demo)
+            let allData = JSON.parse(localStorage.getItem('kpiData') || '[]');
+            allData.push({
+                timestamp: new Date().toISOString(),
+                data: data,
+                results: results
+            });
+            localStorage.setItem('kpiData', JSON.stringify(allData));
+
+            // Update dashboard
+            updateDashboard();
+        }
+
+        function exportData() {
+            alert('Fitur export sedang dalam development. Untuk sekarang, gunakan Print atau screenshot.');
+        }
+
+        // ==================== LTPB FORM ====================
+        document.getElementById('ltpbForm').addEventListener('submit', function(e) {
+            e.preventDefault();
+            
+            // Show success message
+            document.getElementById('ltpbSuccess').style.display = 'block';
+            
+            // Reset form
+            this.reset();
+            
+            // Scroll to success message
+            document.getElementById('ltpbSuccess').scrollIntoView({ behavior: 'smooth' });
+            
+            // Hide success after 5 seconds
+            setTimeout(() => {
+                document.getElementById('ltpbSuccess').style.display = 'none';
+            }, 5000);
+        });
+
+        // ==================== KPI PROJECT FORM ====================
+        document.getElementById('projectForm').addEventListener('submit', function(e) {
+            e.preventDefault();
+            
+            // Show success message
+            document.getElementById('projectSuccess').style.display = 'block';
+            
+            // Reset form
+            this.reset();
+            
+            // Scroll to success message
+            document.getElementById('projectSuccess').scrollIntoView({ behavior: 'smooth' });
+            
+            // Hide success after 5 seconds
+            setTimeout(() => {
+                document.getElementById('projectSuccess').style.display = 'none';
+            }, 5000);
+        });
+
+        // ==================== DASHBOARD UPDATE ====================
+        function updateDashboard() {
+            const allData = JSON.parse(localStorage.getItem('kpiData') || '[]');
+            
+            if (allData.length === 0) return;
+
+            // Update home stats
+            document.getElementById('totalKaryawan').textContent = allData.length;
+            
+            const avgKPI = allData.reduce((sum, item) => sum + parseFloat(item.results.total), 0) / allData.length;
+            document.getElementById('avgKPI').textContent = avgKPI.toFixed(1);
+            
+            const topPerformers = allData.filter(item => item.results.grade === 'A').length;
+            document.getElementById('topPerformers').textContent = topPerformers;
+            
+            const needImprovement = allData.filter(item => item.results.grade === 'C' || item.results.grade === 'D').length;
+            document.getElementById('needImprovement').textContent = needImprovement;
+
+            // Update grade distribution
+            document.getElementById('gradeA').textContent = allData.filter(item => item.results.grade === 'A').length;
+            document.getElementById('gradeB').textContent = allData.filter(item => item.results.grade === 'B').length;
+            document.getElementById('gradeC').textContent = allData.filter(item => item.results.grade === 'C').length;
+            document.getElementById('gradeD').textContent = allData.filter(item => item.results.grade === 'D').length;
+        }
+
+        // ==================== INIT ====================
+        window.addEventListener('DOMContentLoaded', () => {
+            updateDashboard();
+            
+            // Set current date for LTPB
+            document.getElementById('ltpbTanggal').valueAsDate = new Date();
+            
+            // Set current week
+            const currentWeek = Math.ceil((new Date() - new Date(new Date().getFullYear(), 0, 1)) / (7 * 24 * 60 * 60 * 1000));
+            document.getElementById('mingguKe').value = currentWeek;
+        });
+    </script>
+</body>
+</html>
