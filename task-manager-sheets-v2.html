@@ -552,11 +552,11 @@
     <!-- NAVIGATION -->
     <nav>
         <ul>
-            <li><a href="#" onclick="showSection('dashboard')" class="active">🏠 Dashboard</a></li>
-            <li><a href="#" onclick="showSection('tasks')">📋 My Tasks</a></li>
-            <li><a href="#" onclick="showSection('kpi')">📊 KPI Score</a></li>
-            <li><a href="#" onclick="showSection('team')">👥 Team</a></li>
-            <li><a href="#" onclick="showSection('add')">➕ Add Task</a></li>
+            <li><a href="javascript:void(0)" onclick="showSection('dashboard')" class="active" id="navDashboard">🏠 Dashboard</a></li>
+            <li><a href="javascript:void(0)" onclick="showSection('tasks')" id="navTasks">📋 My Tasks</a></li>
+            <li><a href="javascript:void(0)" onclick="showSection('kpi')" id="navKpi">📊 KPI Score</a></li>
+            <li><a href="javascript:void(0)" onclick="showSection('team')" id="navTeam">👥 Team</a></li>
+            <li><a href="javascript:void(0)" onclick="showSection('add')" id="navAdd">➕ Add Task</a></li>
         </ul>
     </nav>
 
@@ -565,20 +565,46 @@
         <div id="configAlert" class="alert alert-warning">
             <strong>⚠️ SETUP REQUIRED!</strong><br>
             Silakan masukkan Google Apps Script URL di bawah ini:<br>
-            <input type="text" id="apiUrlInput" placeholder="https://script.google.com/macros/s/AKfycbyBqaQ0VU_VGhSP8tt68OyjmyhDneGUoIc9P0NoQ7EZjpB-qFBtjXSFlaAcuW3CgIxE/exec" style="width: 100%; margin-top: 0.5rem; padding: 0.5rem;">
+            <input type="text" id="apiUrlInput" placeholder="Paste URL dari deployment Google Apps Script" style="width: 100%; margin-top: 0.5rem; padding: 0.5rem;">
             <button class="btn btn-primary" onclick="saveApiUrl()" style="margin-top: 0.5rem;">Save & Connect</button>
             <p style="margin-top: 0.5rem; font-size: 0.9rem;">Lihat file SETUP_GUIDE_SUPER_DETAIL.md untuk cara mendapatkan URL ini.</p>
         </div>
 
-        <!-- REST OF SECTIONS SAMA SEPERTI SEBELUMNYA -->
-        <!-- Dashboard, Tasks, KPI, Team, Add Task sections -->
-        <!-- (Abbreviated for brevity - akan saya lengkapi di final version) -->
-        
+        <!-- DASHBOARD SECTION -->
         <section id="dashboard" class="section active">
             <h2 style="color: var(--red-main); margin-bottom: 1.5rem;">📊 Dashboard Overview</h2>
-            <div id="dashboardContent">Loading...</div>
+            
+            <div class="stats-grid">
+                <div class="stat-card">
+                    <div class="label">Total Tasks</div>
+                    <div class="number" id="statTotal">0</div>
+                </div>
+                <div class="stat-card" style="background: linear-gradient(135deg, var(--blue) 0%, #2563EB 100%);">
+                    <div class="label">To Do</div>
+                    <div class="number" id="statTodo">0</div>
+                </div>
+                <div class="stat-card" style="background: linear-gradient(135deg, var(--orange) 0%, #EA580C 100%);">
+                    <div class="label">In Progress</div>
+                    <div class="number" id="statProgress">0</div>
+                </div>
+                <div class="stat-card" style="background: linear-gradient(135deg, var(--green) 0%, #16A34A 100%);">
+                    <div class="label">Completed</div>
+                    <div class="number" id="statDone">0</div>
+                </div>
+            </div>
+
+            <div style="background: var(--white); padding: 1.5rem; border-radius: 12px; margin-top: 1rem;">
+                <h3 style="color: var(--red-main); margin-bottom: 1rem;">⚡ Quick Actions</h3>
+                <div style="display: flex; gap: 1rem; flex-wrap: wrap;">
+                    <button class="btn btn-primary" onclick="showSection('add')">➕ Add New Task</button>
+                    <button class="btn btn-secondary" onclick="generateRecurringTasks()">🔄 Generate Today's Tasks</button>
+                    <button class="btn btn-secondary" onclick="showSection('tasks')">📋 View All Tasks</button>
+                    <button class="btn btn-secondary" onclick="showSection('kpi')">📊 Check KPI</button>
+                </div>
+            </div>
         </section>
 
+        <!-- TASKS SECTION -->
         <section id="tasks" class="section">
             <h2 style="color: var(--red-main); margin-bottom: 1.5rem;">📋 My Tasks</h2>
             <div style="margin-bottom: 1.5rem;">
@@ -605,7 +631,158 @@
             </div>
         </section>
 
-        <!-- KPI, Team, Add sections abbreviated -->
+        <!-- KPI SECTION -->
+        <section id="kpi" class="section">
+            <h2 style="color: var(--red-main); margin-bottom: 1.5rem;">📊 KPI Score</h2>
+            
+            <div class="kpi-card">
+                <div class="kpi-score">
+                    <div style="font-size: 1rem; color: var(--gray-dark); margin-bottom: 0.5rem;">Your Current Score</div>
+                    <div class="total" id="kpiTotal">0</div>
+                    <div style="margin-top: 0.5rem;">
+                        <span class="badge badge-d" id="kpiGrade">D</span>
+                    </div>
+                </div>
+                
+                <div class="kpi-breakdown">
+                    <div class="kpi-item">
+                        <div class="label">Productivity</div>
+                        <div class="score" id="kpiProductivity">0</div>
+                    </div>
+                    <div class="kpi-item">
+                        <div class="label">Discipline</div>
+                        <div class="score" id="kpiDiscipline">0</div>
+                    </div>
+                    <div class="kpi-item">
+                        <div class="label">Quality</div>
+                        <div class="score" id="kpiQuality">0</div>
+                    </div>
+                    <div class="kpi-item">
+                        <div class="label">Initiative</div>
+                        <div class="score" id="kpiInitiative">0</div>
+                    </div>
+                    <div class="kpi-item">
+                        <div class="label">Teamwork</div>
+                        <div class="score" id="kpiTeamwork">0</div>
+                    </div>
+                </div>
+            </div>
+
+            <div style="background: var(--white); padding: 1.5rem; border-radius: 12px; margin-top: 1rem;">
+                <h3 style="color: var(--red-main); margin-bottom: 1rem;">💡 Tips to Improve</h3>
+                <ul style="line-height: 2;">
+                    <li>✅ Complete tasks on time to boost Discipline score</li>
+                    <li>✅ Mark quality as "Excellent" when completing tasks</li>
+                    <li>✅ Take initiative by creating your own improvement tasks</li>
+                    <li>✅ Collaborate with team members regularly</li>
+                </ul>
+            </div>
+        </section>
+
+        <!-- TEAM SECTION -->
+        <section id="team" class="section">
+            <h2 style="color: var(--red-main); margin-bottom: 1.5rem;">👥 Team Overview</h2>
+            
+            <div class="leaderboard" id="teamLeaderboard">
+                <div class="leaderboard-item">
+                    <div class="leaderboard-rank">1</div>
+                    <div class="leaderboard-info">
+                        <div class="leaderboard-name">Loading team data...</div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- ADD TASK SECTION -->
+        <section id="add" class="section">
+            <h2 style="color: var(--red-main); margin-bottom: 1.5rem;">➕ Add New Task</h2>
+            
+            <form id="addTaskForm" onsubmit="handleAddTask(event)">
+                <div class="form-group">
+                    <label>Task Title *</label>
+                    <input type="text" id="taskTitle" required placeholder="e.g., Update sales report">
+                </div>
+
+                <div class="form-group">
+                    <label>Description</label>
+                    <textarea id="taskDescription" rows="3" placeholder="Task details..."></textarea>
+                </div>
+
+                <div class="form-row">
+                    <div class="form-group">
+                        <label>Task Type *</label>
+                        <select id="taskType" required onchange="handleTaskTypeChange()">
+                            <option value="onetime">One-time</option>
+                            <option value="daily">Daily</option>
+                            <option value="weekly">Weekly</option>
+                            <option value="monthly">Monthly</option>
+                        </select>
+                    </div>
+
+                    <div class="form-group">
+                        <label>Priority *</label>
+                        <select id="taskPriority" required>
+                            <option value="low">Low</option>
+                            <option value="medium" selected>Medium</option>
+                            <option value="high">High</option>
+                        </select>
+                    </div>
+                </div>
+
+                <div class="form-row">
+                    <div class="form-group">
+                        <label>Start Date</label>
+                        <input type="date" id="taskStartDate">
+                    </div>
+
+                    <div class="form-group">
+                        <label>Deadline Time</label>
+                        <input type="time" id="taskDeadline">
+                    </div>
+                </div>
+
+                <div class="form-group" id="weeklyDaysGroup" style="display: none;">
+                    <label>Repeat on (Weekly)</label>
+                    <div class="checkbox-group">
+                        <label><input type="checkbox" value="0"> Sunday</label>
+                        <label><input type="checkbox" value="1"> Monday</label>
+                        <label><input type="checkbox" value="2"> Tuesday</label>
+                        <label><input type="checkbox" value="3"> Wednesday</label>
+                        <label><input type="checkbox" value="4"> Thursday</label>
+                        <label><input type="checkbox" value="5"> Friday</label>
+                        <label><input type="checkbox" value="6"> Saturday</label>
+                    </div>
+                </div>
+
+                <div class="form-group" id="monthlyDateGroup" style="display: none;">
+                    <label>Repeat on Date (Monthly)</label>
+                    <input type="number" id="taskMonthlyDate" min="1" max="31" placeholder="e.g., 15">
+                </div>
+
+                <div class="form-group">
+                    <label>Assign To *</label>
+                    <select id="taskAssignee" required>
+                        <option value="faris">Mohammad Faris Rizal (Manager)</option>
+                        <option value="leony">Leony Hosna (PA Manager)</option>
+                        <option value="erma">Erma Sejati (Marketing)</option>
+                        <option value="amadea">Amadea Wafi Hidayani (Marketing)</option>
+                        <option value="sisca">Sisca (Sales Online)</option>
+                        <option value="willa">Willa Rachmah (Sales Online)</option>
+                        <option value="aisyatuz">Aisyatuz Zahroh (Sales Online)</option>
+                        <option value="naer">Naer Budhi Praytno (Koordinator Area)</option>
+                        <option value="talitha">Talitha Amalia Hidayanti (Marketing)</option>
+                        <option value="rosyat">Rosyat Ely Della (Koordinator Area)</option>
+                        <option value="masita">Masita Krismi Adianty (Koordinator Area)</option>
+                        <option value="ira">Ira Tri Handayanie (Koordinator Area)</option>
+                    </select>
+                </div>
+
+                <div style="margin-top: 2rem; display: flex; gap: 1rem;">
+                    <button type="submit" class="btn btn-primary">✅ Create Task</button>
+                    <button type="button" class="btn btn-secondary" onclick="document.getElementById('addTaskForm').reset()">🔄 Reset</button>
+                </div>
+            </form>
+        </section>
     </div>
 
     <script>
@@ -723,10 +900,16 @@
 
         // ==================== LOAD & RENDER ====================
         async function loadTasks() {
-            const currentUser = document.getElementById('currentUser').value;
-            const tasks = await getTasks(currentUser);
-            
-            renderTasks(tasks);
+            try {
+                const currentUser = document.getElementById('currentUser').value;
+                const tasks = await getTasks(currentUser);
+                
+                renderTasks(tasks);
+                updateDashboardStats(tasks);
+            } catch (error) {
+                console.error('Error loading tasks:', error);
+                alert('❌ Failed to load tasks. Please check your internet connection and API URL.');
+            }
         }
 
         function renderTasks(tasks) {
@@ -754,10 +937,10 @@
                 }
             });
             
-            if (todoEl.children.length === 0) todoEl.textContent = 'No tasks';
-            if (progressEl.children.length === 0) progressEl.textContent = 'No tasks';
-            if (doneEl.children.length === 0) doneEl.textContent = 'No tasks';
-            if (overdueEl.children.length === 0) overdueEl.textContent = 'No tasks';
+            if (todoEl.children.length === 0) todoEl.innerHTML = '<p style="color: #999; text-align: center; padding: 2rem;">No tasks</p>';
+            if (progressEl.children.length === 0) progressEl.innerHTML = '<p style="color: #999; text-align: center; padding: 2rem;">No tasks</p>';
+            if (doneEl.children.length === 0) doneEl.innerHTML = '<p style="color: #999; text-align: center; padding: 2rem;">No tasks</p>';
+            if (overdueEl.children.length === 0) overdueEl.innerHTML = '<p style="color: #999; text-align: center; padding: 2rem;">No tasks</p>';
         }
 
         function createTaskCard(task) {
@@ -768,18 +951,120 @@
             
             card.innerHTML = `
                 <div class="task-title">${task.Title}</div>
+                ${task.Description ? `<div style="font-size: 0.85rem; color: #666; margin: 0.5rem 0;">${task.Description}</div>` : ''}
                 <div class="task-meta">
                     <span class="task-type ${task.Type}">${task.Type.toUpperCase()}</span>
-                    <span>⏰ ${task.DeadlineTime}</span>
+                    <span>⏰ ${task.DeadlineTime || 'No deadline'}</span>
+                </div>
+                <div style="margin-top: 0.5rem; display: flex; gap: 0.5rem;">
+                    ${task.Status !== 'done' ? `<button onclick="changeTaskStatus('${task.ID}', 'done')" style="flex: 1; padding: 0.4rem; background: var(--green); color: white; border: none; border-radius: 5px; cursor: pointer; font-size: 0.8rem;">✅ Done</button>` : ''}
+                    ${task.Status === 'todo' ? `<button onclick="changeTaskStatus('${task.ID}', 'progress')" style="flex: 1; padding: 0.4rem; background: var(--orange); color: white; border: none; border-radius: 5px; cursor: pointer; font-size: 0.8rem;">🔄 Start</button>` : ''}
                 </div>
             `;
             
-            card.onclick = () => openTaskModal(task);
             return card;
+        }
+
+        async function changeTaskStatus(taskId, newStatus) {
+            try {
+                updateCloudStatus('syncing', 'Updating...');
+                
+                const updates = { Status: newStatus };
+                if (newStatus === 'done') {
+                    updates.CompletedAt = new Date().toISOString();
+                }
+                
+                await updateTask(taskId, updates);
+                await loadTasks();
+                
+                updateCloudStatus('synced', 'Synced');
+            } catch (error) {
+                console.error('Error updating task:', error);
+                alert('❌ Failed to update task');
+                updateCloudStatus('error', 'Sync Error');
+            }
+        }
+
+        function updateDashboardStats(tasks) {
+            const total = tasks.length;
+            const todo = tasks.filter(t => t.Status === 'todo').length;
+            const progress = tasks.filter(t => t.Status === 'progress').length;
+            const done = tasks.filter(t => t.Status === 'done').length;
+            
+            document.getElementById('statTotal').textContent = total;
+            document.getElementById('statTodo').textContent = todo;
+            document.getElementById('statProgress').textContent = progress;
+            document.getElementById('statDone').textContent = done;
         }
 
         function openTaskModal(task) {
             alert(`Task: ${task.Title}\nStatus: ${task.Status}\n\nFeature coming soon!`);
+        }
+
+        // ==================== ADD TASK ====================
+        async function handleAddTask(event) {
+            event.preventDefault();
+            
+            const title = document.getElementById('taskTitle').value;
+            const description = document.getElementById('taskDescription').value;
+            const type = document.getElementById('taskType').value;
+            const priority = document.getElementById('taskPriority').value;
+            const startDate = document.getElementById('taskStartDate').value;
+            const deadline = document.getElementById('taskDeadline').value;
+            const assignee = document.getElementById('taskAssignee').value;
+            
+            let weeklyDays = '';
+            if (type === 'weekly') {
+                const checkedDays = Array.from(document.querySelectorAll('#weeklyDaysGroup input:checked'))
+                    .map(cb => cb.value);
+                weeklyDays = checkedDays.join(',');
+            }
+            
+            let monthlyDate = '';
+            if (type === 'monthly') {
+                monthlyDate = document.getElementById('taskMonthlyDate').value;
+            }
+            
+            const task = {
+                Title: title,
+                Description: description,
+                Type: type,
+                Priority: priority,
+                Status: 'todo',
+                StartDate: startDate || new Date().toISOString().split('T')[0],
+                DeadlineTime: deadline,
+                Assignee: assignee,
+                WeeklyDays: weeklyDays,
+                MonthlyDate: monthlyDate,
+                CreatedAt: new Date().toISOString()
+            };
+            
+            try {
+                updateCloudStatus('syncing', 'Creating...');
+                const result = await addTask(task);
+                
+                if (result.success) {
+                    alert('✅ Task created successfully!');
+                    document.getElementById('addTaskForm').reset();
+                    showSection('tasks');
+                    await loadTasks();
+                } else {
+                    alert('❌ Failed to create task: ' + result.message);
+                }
+                
+                updateCloudStatus('synced', 'Synced');
+            } catch (error) {
+                console.error('Error adding task:', error);
+                alert('❌ Failed to create task. Please try again.');
+                updateCloudStatus('error', 'Sync Error');
+            }
+        }
+
+        function handleTaskTypeChange() {
+            const type = document.getElementById('taskType').value;
+            
+            document.getElementById('weeklyDaysGroup').style.display = type === 'weekly' ? 'block' : 'none';
+            document.getElementById('monthlyDateGroup').style.display = type === 'monthly' ? 'block' : 'none';
         }
 
         // ==================== NAVIGATION ====================
@@ -788,9 +1073,13 @@
             document.getElementById(sectionId).classList.add('active');
             
             document.querySelectorAll('nav a').forEach(a => a.classList.remove('active'));
-            event.target.classList.add('active');
+            const navId = 'nav' + sectionId.charAt(0).toUpperCase() + sectionId.slice(1);
+            const navEl = document.getElementById(navId);
+            if (navEl) navEl.classList.add('active');
             
-            if (sectionId === 'tasks') loadTasks();
+            if (sectionId === 'tasks' || sectionId === 'dashboard') {
+                loadTasks();
+            }
         }
 
         async function switchUser() {
@@ -799,6 +1088,14 @@
 
         // ==================== INIT ====================
         window.addEventListener('DOMContentLoaded', async () => {
+            // Set default date to today
+            const today = new Date().toISOString().split('T')[0];
+            document.getElementById('taskStartDate').value = today;
+            
+            // Set default assignee to current user
+            const currentUser = document.getElementById('currentUser').value;
+            document.getElementById('taskAssignee').value = currentUser;
+            
             if (CONFIG.API_URL) {
                 await loadTasks();
             }
