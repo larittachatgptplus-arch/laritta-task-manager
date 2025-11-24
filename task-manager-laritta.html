@@ -1,0 +1,1304 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>🔴 Laritta Task & KPI Manager</title>
+    <style>
+        /* WARNA LARITTA BAKERY */
+        :root {
+            --red-main: #DC143C;
+            --red-dark: #8B0000;
+            --red-light: #FFB6C1;
+            --red-lighter: #FFE4E1;
+            --green: #32CD32;
+            --yellow: #FFD700;
+            --orange: #FF8C00;
+            --blue: #4169E1;
+            --white: #FFFFFF;
+            --gray-light: #F5F5F5;
+            --gray-dark: #333333;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, var(--red-lighter) 0%, var(--white) 100%);
+            color: var(--gray-dark);
+            line-height: 1.6;
+        }
+
+        /* HEADER */
+        header {
+            background: linear-gradient(135deg, var(--red-dark) 0%, var(--red-main) 100%);
+            color: var(--white);
+            padding: 1.5rem;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+        }
+
+        .header-content {
+            max-width: 1400px;
+            margin: 0 auto;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .header-title h1 {
+            font-size: 1.8rem;
+            margin-bottom: 0.3rem;
+        }
+
+        .header-user {
+            text-align: right;
+        }
+
+        .user-select {
+            padding: 0.5rem 1rem;
+            border-radius: 8px;
+            border: 2px solid var(--white);
+            background: var(--white);
+            color: var(--red-dark);
+            font-weight: bold;
+            cursor: pointer;
+        }
+
+        /* NAVIGATION */
+        nav {
+            background: var(--white);
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+            position: sticky;
+            top: 0;
+            z-index: 100;
+        }
+
+        nav ul {
+            max-width: 1400px;
+            margin: 0 auto;
+            list-style: none;
+            display: flex;
+            justify-content: center;
+        }
+
+        nav ul li a {
+            display: block;
+            padding: 1rem 2rem;
+            color: var(--red-main);
+            text-decoration: none;
+            font-weight: bold;
+            transition: all 0.3s;
+            border-bottom: 3px solid transparent;
+        }
+
+        nav ul li a:hover,
+        nav ul li a.active {
+            background: var(--red-lighter);
+            border-bottom: 3px solid var(--red-main);
+        }
+
+        /* CONTAINER */
+        .container {
+            max-width: 1400px;
+            margin: 2rem auto;
+            padding: 0 1rem;
+        }
+
+        .section {
+            background: var(--white);
+            border-radius: 15px;
+            padding: 2rem;
+            margin-bottom: 2rem;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+            display: none;
+        }
+
+        .section.active {
+            display: block;
+            animation: fadeIn 0.3s;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        /* DASHBOARD CARDS */
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 1rem;
+            margin-bottom: 2rem;
+        }
+
+        .stat-card {
+            background: linear-gradient(135deg, var(--red-main) 0%, var(--red-dark) 100%);
+            color: var(--white);
+            padding: 1.5rem;
+            border-radius: 12px;
+            text-align: center;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+        }
+
+        .stat-card .number {
+            font-size: 2.5rem;
+            font-weight: bold;
+            margin: 0.5rem 0;
+        }
+
+        .stat-card .label {
+            font-size: 0.9rem;
+            opacity: 0.9;
+        }
+
+        /* TASK BOARD */
+        .task-board {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 1rem;
+            margin-top: 1.5rem;
+        }
+
+        .task-column {
+            background: var(--gray-light);
+            border-radius: 12px;
+            padding: 1rem;
+            min-height: 400px;
+        }
+
+        .task-column h3 {
+            color: var(--red-main);
+            margin-bottom: 1rem;
+            padding-bottom: 0.5rem;
+            border-bottom: 2px solid var(--red-main);
+        }
+
+        .task-card {
+            background: var(--white);
+            border-radius: 8px;
+            padding: 1rem;
+            margin-bottom: 0.75rem;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+            border-left: 4px solid var(--red-main);
+            cursor: pointer;
+            transition: transform 0.2s;
+        }
+
+        .task-card:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 8px rgba(0,0,0,0.15);
+        }
+
+        .task-card.overdue {
+            border-left-color: var(--orange);
+            background: #FFF5F5;
+        }
+
+        .task-card.completed {
+            opacity: 0.7;
+            border-left-color: var(--green);
+        }
+
+        .task-title {
+            font-weight: bold;
+            color: var(--gray-dark);
+            margin-bottom: 0.5rem;
+        }
+
+        .task-meta {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            font-size: 0.85rem;
+            color: #666;
+            margin-top: 0.5rem;
+        }
+
+        .task-type {
+            display: inline-block;
+            padding: 0.2rem 0.6rem;
+            border-radius: 12px;
+            font-size: 0.75rem;
+            font-weight: bold;
+        }
+
+        .task-type.daily { background: var(--blue); color: var(--white); }
+        .task-type.weekly { background: var(--green); color: var(--white); }
+        .task-type.monthly { background: var(--orange); color: var(--white); }
+        .task-type.onetime { background: var(--gray-dark); color: var(--white); }
+
+        /* BUTTONS */
+        .btn {
+            padding: 0.75rem 1.5rem;
+            border: none;
+            border-radius: 8px;
+            font-size: 1rem;
+            font-weight: bold;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+
+        .btn-primary {
+            background: var(--red-main);
+            color: var(--white);
+        }
+
+        .btn-primary:hover {
+            background: var(--red-dark);
+            transform: translateY(-2px);
+        }
+
+        .btn-success {
+            background: var(--green);
+            color: var(--white);
+        }
+
+        .btn-secondary {
+            background: var(--gray-light);
+            color: var(--gray-dark);
+        }
+
+        /* FORM */
+        .form-group {
+            margin-bottom: 1.5rem;
+        }
+
+        .form-group label {
+            display: block;
+            font-weight: bold;
+            color: var(--red-dark);
+            margin-bottom: 0.5rem;
+        }
+
+        .form-group input,
+        .form-group select,
+        .form-group textarea {
+            width: 100%;
+            padding: 0.75rem;
+            border: 2px solid var(--red-light);
+            border-radius: 8px;
+            font-size: 1rem;
+        }
+
+        .form-group input:focus,
+        .form-group select:focus,
+        .form-group textarea:focus {
+            outline: none;
+            border-color: var(--red-main);
+            box-shadow: 0 0 0 3px rgba(220, 20, 60, 0.1);
+        }
+
+        .form-row {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 1rem;
+        }
+
+        /* MODAL */
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0,0,0,0.5);
+            z-index: 1000;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .modal.active {
+            display: flex;
+        }
+
+        .modal-content {
+            background: var(--white);
+            border-radius: 15px;
+            padding: 2rem;
+            max-width: 600px;
+            width: 90%;
+            max-height: 90vh;
+            overflow-y: auto;
+        }
+
+        .modal-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 1.5rem;
+        }
+
+        .modal-close {
+            font-size: 2rem;
+            cursor: pointer;
+            color: var(--red-main);
+        }
+
+        /* KPI DISPLAY */
+        .kpi-card {
+            background: linear-gradient(135deg, var(--white) 0%, var(--red-lighter) 100%);
+            border: 3px solid var(--red-main);
+            border-radius: 15px;
+            padding: 2rem;
+            margin-bottom: 1.5rem;
+        }
+
+        .kpi-score {
+            text-align: center;
+            margin-bottom: 1.5rem;
+        }
+
+        .kpi-score .total {
+            font-size: 4rem;
+            font-weight: bold;
+            color: var(--red-main);
+        }
+
+        .kpi-breakdown {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+            gap: 1rem;
+        }
+
+        .kpi-item {
+            background: var(--white);
+            padding: 1rem;
+            border-radius: 10px;
+            text-align: center;
+            border: 2px solid var(--red-light);
+        }
+
+        .kpi-item .score {
+            font-size: 1.8rem;
+            font-weight: bold;
+            color: var(--red-main);
+        }
+
+        /* BADGE */
+        .badge {
+            display: inline-block;
+            padding: 0.3rem 0.75rem;
+            border-radius: 15px;
+            font-size: 0.85rem;
+            font-weight: bold;
+        }
+
+        .badge-a { background: var(--green); color: var(--white); }
+        .badge-b { background: var(--blue); color: var(--white); }
+        .badge-c { background: var(--yellow); color: var(--gray-dark); }
+        .badge-d { background: var(--red-main); color: var(--white); }
+
+        /* LEADERBOARD */
+        .leaderboard {
+            margin-top: 1.5rem;
+        }
+
+        .leaderboard-item {
+            display: flex;
+            align-items: center;
+            padding: 1rem;
+            background: var(--white);
+            border-radius: 10px;
+            margin-bottom: 0.75rem;
+            border-left: 4px solid var(--red-main);
+        }
+
+        .leaderboard-rank {
+            font-size: 1.5rem;
+            font-weight: bold;
+            color: var(--red-main);
+            width: 50px;
+            text-align: center;
+        }
+
+        .leaderboard-info {
+            flex: 1;
+        }
+
+        .leaderboard-name {
+            font-weight: bold;
+            color: var(--gray-dark);
+        }
+
+        .leaderboard-score {
+            font-size: 1.2rem;
+            font-weight: bold;
+            color: var(--red-main);
+        }
+
+        /* CHECKBOX GROUP */
+        .checkbox-group {
+            display: flex;
+            gap: 1rem;
+            flex-wrap: wrap;
+        }
+
+        .checkbox-group label {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        /* RESPONSIVE */
+        @media (max-width: 768px) {
+            .header-content {
+                flex-direction: column;
+                gap: 1rem;
+            }
+
+            nav ul {
+                flex-direction: column;
+            }
+
+            nav ul li a {
+                padding: 0.75rem 1rem;
+            }
+
+            .task-board {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        /* LOADING */
+        .loading {
+            display: inline-block;
+            width: 20px;
+            height: 20px;
+            border: 3px solid var(--red-light);
+            border-radius: 50%;
+            border-top-color: var(--red-main);
+            animation: spin 1s linear infinite;
+        }
+
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+
+        /* ALERT */
+        .alert {
+            padding: 1rem;
+            border-radius: 8px;
+            margin-bottom: 1rem;
+            border-left: 5px solid;
+        }
+
+        .alert-info {
+            background: #E3F2FD;
+            border-color: #2196F3;
+            color: #1976D2;
+        }
+
+        .alert-success {
+            background: #E8F5E9;
+            border-color: var(--green);
+            color: #2E7D32;
+        }
+
+        .alert-warning {
+            background: #FFF3E0;
+            border-color: var(--yellow);
+            color: #F57C00;
+        }
+
+        .alert-danger {
+            background: #FFEBEE;
+            border-color: var(--red-main);
+            color: #C62828;
+        }
+    </style>
+</head>
+<body>
+    <!-- HEADER -->
+    <header>
+        <div class="header-content">
+            <div class="header-title">
+                <h1>🔴 LARITTA TASK & KPI MANAGER</h1>
+                <p>Real-time Task Tracking & Performance Management</p>
+            </div>
+            <div class="header-user">
+                <p style="margin-bottom: 0.5rem;">Logged in as:</p>
+                <select id="currentUser" class="user-select" onchange="switchUser()">
+                    <option value="faris">Mohammad Faris Rizal (Manager)</option>
+                    <option value="leony">Leony Hosna (PA Manager)</option>
+                    <option value="erma">Erma Sejati (Marketing)</option>
+                    <option value="amadea">Amadea Wafi Hidayani (Marketing)</option>
+                    <option value="sisca">Sisca (Sales Online)</option>
+                    <option value="willa">Willa Rachmah (Sales Online)</option>
+                    <option value="aisyatuz">Aisyatuz Zahroh (Sales Online)</option>
+                    <option value="naer">Naer Budhi Praytno (Koordinator Area)</option>
+                    <option value="talitha">Talitha Amalia Hidayanti (Marketing)</option>
+                    <option value="rosyat">Rosyat Ely Della (Koordinator Area)</option>
+                    <option value="masita">Masita Krismi Adianty (Koordinator Area)</option>
+                    <option value="ira">Ira Tri Handayanie (Koordinator Area)</option>
+                </select>
+            </div>
+        </div>
+    </header>
+
+    <!-- NAVIGATION -->
+    <nav>
+        <ul>
+            <li><a href="#" onclick="showSection('dashboard')" class="active">🏠 Dashboard</a></li>
+            <li><a href="#" onclick="showSection('tasks')">📋 My Tasks</a></li>
+            <li><a href="#" onclick="showSection('kpi')">📊 KPI Score</a></li>
+            <li><a href="#" onclick="showSection('team')">👥 Team</a></li>
+            <li><a href="#" onclick="showSection('add')">➕ Add Task</a></li>
+        </ul>
+    </nav>
+
+    <div class="container">
+        <!-- DASHBOARD SECTION -->
+        <section id="dashboard" class="section active">
+            <h2 style="color: var(--red-main); margin-bottom: 1.5rem;">📊 Dashboard Overview</h2>
+            
+            <div class="stats-grid">
+                <div class="stat-card">
+                    <div class="label">Total Tasks Today</div>
+                    <div class="number" id="totalTasksToday">0</div>
+                    <div class="label">Assigned to you</div>
+                </div>
+                <div class="stat-card">
+                    <div class="label">Completed</div>
+                    <div class="number" id="completedToday">0</div>
+                    <div class="label">✅ Done</div>
+                </div>
+                <div class="stat-card">
+                    <div class="label">In Progress</div>
+                    <div class="number" id="inProgressToday">0</div>
+                    <div class="label">🔄 Active</div>
+                </div>
+                <div class="stat-card">
+                    <div class="label">Overdue</div>
+                    <div class="number" id="overdueToday">0</div>
+                    <div class="label">🚨 Late</div>
+                </div>
+            </div>
+
+            <div class="alert alert-warning">
+                <strong>⏰ Urgent Tasks (Deadline &lt; 2 hours):</strong>
+                <div id="urgentTasks" style="margin-top: 0.5rem;">No urgent tasks</div>
+            </div>
+
+            <h3 style="color: var(--red-main); margin-top: 2rem; margin-bottom: 1rem;">📅 This Week's Performance</h3>
+            <div class="kpi-card">
+                <div class="kpi-score">
+                    <div class="label">Your KPI Score</div>
+                    <div class="total" id="dashboardKPIScore">0</div>
+                    <div id="dashboardGrade"></div>
+                </div>
+                <div class="kpi-breakdown">
+                    <div class="kpi-item">
+                        <div class="label">Productivity</div>
+                        <div class="score" id="dashProd">0</div>
+                    </div>
+                    <div class="kpi-item">
+                        <div class="label">Discipline</div>
+                        <div class="score" id="dashDisc">0</div>
+                    </div>
+                    <div class="kpi-item">
+                        <div class="label">Quality</div>
+                        <div class="score" id="dashQual">0</div>
+                    </div>
+                    <div class="kpi-item">
+                        <div class="label">Initiative</div>
+                        <div class="score" id="dashInit">0</div>
+                    </div>
+                    <div class="kpi-item">
+                        <div class="label">Teamwork</div>
+                        <div class="score" id="dashTeam">0</div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- TASKS SECTION -->
+        <section id="tasks" class="section">
+            <h2 style="color: var(--red-main); margin-bottom: 1.5rem;">📋 My Tasks</h2>
+            
+            <div style="margin-bottom: 1.5rem;">
+                <button class="btn btn-primary" onclick="showSection('add')">➕ Add New Task</button>
+                <button class="btn btn-secondary" style="margin-left: 0.5rem;" onclick="generateRecurringTasks()">🔄 Generate Today's Tasks</button>
+            </div>
+
+            <div class="task-board">
+                <div class="task-column">
+                    <h3>📝 To Do</h3>
+                    <div id="todoColumn"></div>
+                </div>
+                <div class="task-column">
+                    <h3>🔄 In Progress</h3>
+                    <div id="progressColumn"></div>
+                </div>
+                <div class="task-column">
+                    <h3>✅ Done</h3>
+                    <div id="doneColumn"></div>
+                </div>
+                <div class="task-column">
+                    <h3>🚨 Overdue</h3>
+                    <div id="overdueColumn"></div>
+                </div>
+            </div>
+        </section>
+
+        <!-- KPI SECTION -->
+        <section id="kpi" class="section">
+            <h2 style="color: var(--red-main); margin-bottom: 1.5rem;">📊 Your KPI Score</h2>
+            
+            <div class="kpi-card">
+                <div class="kpi-score">
+                    <div class="label">Current KPI Score</div>
+                    <div class="total" id="kpiTotal">0</div>
+                    <div id="kpiGrade"></div>
+                </div>
+                
+                <h3 style="color: var(--red-main); margin: 1.5rem 0 1rem;">Breakdown by Pilar:</h3>
+                <div class="kpi-breakdown">
+                    <div class="kpi-item">
+                        <div class="label">Productivity</div>
+                        <div class="score" id="kpiProd">0</div>
+                        <div class="label" style="font-size: 0.8rem; margin-top: 0.5rem;">Target: 27/30</div>
+                    </div>
+                    <div class="kpi-item">
+                        <div class="label">Discipline</div>
+                        <div class="score" id="kpiDisc">0</div>
+                        <div class="label" style="font-size: 0.8rem; margin-top: 0.5rem;">Target: 18/20</div>
+                    </div>
+                    <div class="kpi-item">
+                        <div class="label">Quality</div>
+                        <div class="score" id="kpiQual">0</div>
+                        <div class="label" style="font-size: 0.8rem; margin-top: 0.5rem;">Target: 22.5/25</div>
+                    </div>
+                    <div class="kpi-item">
+                        <div class="label">Initiative</div>
+                        <div class="score" id="kpiInit">0</div>
+                        <div class="label" style="font-size: 0.8rem; margin-top: 0.5rem;">Target: 13.5/15</div>
+                    </div>
+                    <div class="kpi-item">
+                        <div class="label">Teamwork</div>
+                        <div class="score" id="kpiTeam">0</div>
+                        <div class="label" style="font-size: 0.8rem; margin-top: 0.5rem;">Target: 9/10</div>
+                    </div>
+                </div>
+
+                <div class="alert alert-info" style="margin-top: 1.5rem;">
+                    <strong>📈 How KPI is Calculated:</strong><br>
+                    • <strong>Productivity (30%):</strong> Task completion rate<br>
+                    • <strong>Discipline (20%):</strong> On-time completion %<br>
+                    • <strong>Quality (25%):</strong> Average task quality rating<br>
+                    • <strong>Initiative (15%):</strong> Extra tasks completed<br>
+                    • <strong>Teamwork (10%):</strong> Collaboration score
+                </div>
+            </div>
+        </section>
+
+        <!-- TEAM SECTION -->
+        <section id="team" class="section">
+            <h2 style="color: var(--red-main); margin-bottom: 1.5rem;">👥 Team Performance</h2>
+            
+            <div class="stats-grid">
+                <div class="stat-card">
+                    <div class="label">Total Team Members</div>
+                    <div class="number">12</div>
+                </div>
+                <div class="stat-card">
+                    <div class="label">Avg Team Score</div>
+                    <div class="number" id="avgTeamScore">0</div>
+                </div>
+                <div class="stat-card">
+                    <div class="label">Top Performers</div>
+                    <div class="number" id="topPerformersCount">0</div>
+                    <div class="label">Grade A</div>
+                </div>
+                <div class="stat-card">
+                    <div class="label">Need Attention</div>
+                    <div class="number" id="needAttentionCount">0</div>
+                    <div class="label">Grade C & D</div>
+                </div>
+            </div>
+
+            <h3 style="color: var(--red-main); margin-top: 2rem; margin-bottom: 1rem;">🏆 Leaderboard</h3>
+            <div class="leaderboard" id="leaderboard"></div>
+        </section>
+
+        <!-- ADD TASK SECTION -->
+        <section id="add" class="section">
+            <h2 style="color: var(--red-main); margin-bottom: 1.5rem;">➕ Add New Task</h2>
+            
+            <form id="addTaskForm">
+                <div class="form-group">
+                    <label>Task Title *</label>
+                    <input type="text" id="taskTitle" required placeholder="e.g., Update sales report">
+                </div>
+
+                <div class="form-group">
+                    <label>Description</label>
+                    <textarea id="taskDesc" rows="3" placeholder="Task details..."></textarea>
+                </div>
+
+                <div class="form-row">
+                    <div class="form-group">
+                        <label>Task Type *</label>
+                        <select id="taskType" required onchange="toggleRecurringOptions()">
+                            <option value="">Select type</option>
+                            <option value="daily">Daily (Repeat every day)</option>
+                            <option value="weekly">Weekly (Repeat weekly)</option>
+                            <option value="biweekly">Bi-Weekly (Every 2 weeks)</option>
+                            <option value="monthly">Monthly (Repeat monthly)</option>
+                            <option value="onetime">One-time (No repeat)</option>
+                        </select>
+                    </div>
+
+                    <div class="form-group">
+                        <label>Priority *</label>
+                        <select id="taskPriority" required>
+                            <option value="high">🔴 High</option>
+                            <option value="medium">🟡 Medium</option>
+                            <option value="low">🟢 Low</option>
+                        </select>
+                    </div>
+                </div>
+
+                <div id="weeklyOptions" style="display: none;" class="form-group">
+                    <label>Repeat on (for Weekly tasks):</label>
+                    <div class="checkbox-group">
+                        <label><input type="checkbox" value="1"> Mon</label>
+                        <label><input type="checkbox" value="2"> Tue</label>
+                        <label><input type="checkbox" value="3"> Wed</label>
+                        <label><input type="checkbox" value="4"> Thu</label>
+                        <label><input type="checkbox" value="5"> Fri</label>
+                        <label><input type="checkbox" value="6"> Sat</label>
+                        <label><input type="checkbox" value="0"> Sun</label>
+                    </div>
+                </div>
+
+                <div id="monthlyOptions" style="display: none;" class="form-group">
+                    <label>Repeat on date (for Monthly tasks):</label>
+                    <input type="number" id="monthlyDate" min="1" max="31" placeholder="e.g., 5">
+                </div>
+
+                <div class="form-row">
+                    <div class="form-group">
+                        <label>Start Date *</label>
+                        <input type="date" id="taskStartDate" required>
+                    </div>
+
+                    <div class="form-group">
+                        <label>End Date</label>
+                        <input type="date" id="taskEndDate">
+                    </div>
+                </div>
+
+                <div class="form-row">
+                    <div class="form-group">
+                        <label>Deadline Time *</label>
+                        <input type="time" id="taskDeadlineTime" required>
+                    </div>
+
+                    <div class="form-group">
+                        <label>Assigned To *</label>
+                        <select id="taskAssignee" required>
+                            <option value="faris">Mohammad Faris Rizal</option>
+                            <option value="leony">Leony Hosna</option>
+                            <option value="erma">Erma Sejati</option>
+                            <option value="amadea">Amadea Wafi Hidayani</option>
+                            <option value="sisca">Sisca</option>
+                            <option value="willa">Willa Rachmah</option>
+                            <option value="aisyatuz">Aisyatuz Zahroh</option>
+                            <option value="naer">Naer Budhi Praytno</option>
+                            <option value="talitha">Talitha Amalia Hidayanti</option>
+                            <option value="rosyat">Rosyat Ely Della</option>
+                            <option value="masita">Masita Krismi Adianty</option>
+                            <option value="ira">Ira Tri Handayanie</option>
+                        </select>
+                    </div>
+                </div>
+
+                <div style="text-align: center; margin-top: 2rem;">
+                    <button type="submit" class="btn btn-primary">✅ Create Task</button>
+                    <button type="reset" class="btn btn-secondary" style="margin-left: 0.5rem;">🔄 Reset</button>
+                </div>
+            </form>
+
+            <div id="taskSuccess" class="alert alert-success" style="display: none; margin-top: 1.5rem;">
+                ✅ Task created successfully!
+            </div>
+        </section>
+    </div>
+
+    <!-- TASK DETAIL MODAL -->
+    <div id="taskModal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2 style="color: var(--red-main);">Task Details</h2>
+                <span class="modal-close" onclick="closeModal()">&times;</span>
+            </div>
+            <div id="taskModalBody"></div>
+        </div>
+    </div>
+
+    <script>
+        // ==================== DATA STRUCTURE ====================
+        const USERS = {
+            faris: { name: 'Mohammad Faris Rizal', role: 'Manager Sales & Marketing', dept: 'Sales & Marketing' },
+            leony: { name: 'Leony Hosna', role: 'PA Manager Sales & Marketing', dept: 'Sales & Marketing' },
+            erma: { name: 'Erma Sejati', role: 'Marketing', dept: 'Sales & Marketing' },
+            amadea: { name: 'Amadea Wafi Hidayani', role: 'Marketing', dept: 'Sales & Marketing' },
+            sisca: { name: 'Sisca', role: 'Sales Online', dept: 'Sales & Marketing' },
+            willa: { name: 'Willa Rachmah', role: 'Sales Online', dept: 'Sales & Marketing' },
+            aisyatuz: { name: 'Aisyatuz Zahroh', role: 'Sales Online', dept: 'Sales & Marketing' },
+            naer: { name: 'Naer Budhi Praytno', role: 'Koordinator Area', dept: 'Sales & Marketing' },
+            talitha: { name: 'Talitha Amalia Hidayanti', role: 'Marketing', dept: 'Sales & Marketing' },
+            rosyat: { name: 'Rosyat Ely Della', role: 'Koordinator Area', dept: 'Sales & Marketing' },
+            masita: { name: 'Masita Krismi Adianty', role: 'Koordinator Area', dept: 'Sales & Marketing' },
+            ira: { name: 'Ira Tri Handayanie', role: 'Koordinator Area', dept: 'Sales & Marketing' }
+        };
+
+        let currentUser = 'faris';
+        let tasks = [];
+
+        // ==================== INITIALIZATION ====================
+        function init() {
+            // Load from localStorage
+            const savedTasks = localStorage.getItem('larittaTasks');
+            if (savedTasks) {
+                tasks = JSON.parse(savedTasks);
+            } else {
+                // Create sample tasks
+                createSampleTasks();
+            }
+
+            // Set today's date as default
+            document.getElementById('taskStartDate').valueAsDate = new Date();
+            
+            // Set current user from select
+            currentUser = document.getElementById('currentUser').value;
+            
+            // Initial render
+            updateDashboard();
+            renderTasks();
+            updateKPI();
+            updateTeam();
+        }
+
+        // ==================== SAMPLE TASKS ====================
+        function createSampleTasks() {
+            const today = new Date();
+            const templates = [
+                { title: 'Review sales dashboard', type: 'daily', time: '08:00', assignee: 'faris', priority: 'high' },
+                { title: 'Morning briefing with team', type: 'daily', time: '09:00', assignee: 'faris', priority: 'high' },
+                { title: 'Update daily sales report', type: 'daily', time: '16:00', assignee: 'faris', priority: 'medium' },
+                { title: 'Check social media', type: 'daily', time: '09:00', assignee: 'erma', priority: 'medium' },
+                { title: 'Process customer orders', type: 'daily', time: '10:00', assignee: 'sisca', priority: 'high' },
+                { title: 'Visit outlet A', type: 'weekly', time: '14:00', assignee: 'naer', priority: 'high', days: [1,4] },
+                { title: 'Team meeting', type: 'weekly', time: '10:00', assignee: 'faris', priority: 'high', days: [1] },
+                { title: 'Monthly report', type: 'monthly', time: '17:00', assignee: 'faris', priority: 'high', date: 5 }
+            ];
+
+            templates.forEach((tmpl, idx) => {
+                tasks.push({
+                    id: Date.now() + idx,
+                    title: tmpl.title,
+                    description: '',
+                    type: tmpl.type,
+                    assignee: tmpl.assignee,
+                    priority: tmpl.priority,
+                    status: 'todo',
+                    startDate: today.toISOString().split('T')[0],
+                    endDate: null,
+                    deadlineTime: tmpl.time,
+                    weeklyDays: tmpl.days || [],
+                    monthlyDate: tmpl.date || null,
+                    createdAt: today.toISOString(),
+                    completedAt: null,
+                    quality: null
+                });
+            });
+
+            saveTasks();
+        }
+
+        // ==================== SAVE/LOAD ====================
+        function saveTasks() {
+            localStorage.setItem('larittaTasks', JSON.stringify(tasks));
+        }
+
+        // ==================== NAVIGATION ====================
+        function showSection(sectionId) {
+            document.querySelectorAll('.section').forEach(s => s.classList.remove('active'));
+            document.getElementById(sectionId).classList.add('active');
+            
+            document.querySelectorAll('nav a').forEach(a => a.classList.remove('active'));
+            event.target.classList.add('active');
+
+            if (sectionId === 'tasks') renderTasks();
+            if (sectionId === 'kpi') updateKPI();
+            if (sectionId === 'team') updateTeam();
+            if (sectionId === 'dashboard') updateDashboard();
+        }
+
+        function switchUser() {
+            currentUser = document.getElementById('currentUser').value;
+            updateDashboard();
+            renderTasks();
+            updateKPI();
+        }
+
+        // ==================== TASK FUNCTIONS ====================
+        function toggleRecurringOptions() {
+            const type = document.getElementById('taskType').value;
+            document.getElementById('weeklyOptions').style.display = type === 'weekly' ? 'block' : 'none';
+            document.getElementById('monthlyOptions').style.display = type === 'monthly' ? 'block' : 'none';
+        }
+
+        document.getElementById('addTaskForm').addEventListener('submit', function(e) {
+            e.preventDefault();
+            
+            const weeklyDays = [];
+            if (document.getElementById('taskType').value === 'weekly') {
+                document.querySelectorAll('#weeklyOptions input:checked').forEach(cb => {
+                    weeklyDays.push(parseInt(cb.value));
+                });
+            }
+
+            const newTask = {
+                id: Date.now(),
+                title: document.getElementById('taskTitle').value,
+                description: document.getElementById('taskDesc').value,
+                type: document.getElementById('taskType').value,
+                assignee: document.getElementById('taskAssignee').value,
+                priority: document.getElementById('taskPriority').value,
+                status: 'todo',
+                startDate: document.getElementById('taskStartDate').value,
+                endDate: document.getElementById('taskEndDate').value || null,
+                deadlineTime: document.getElementById('taskDeadlineTime').value,
+                weeklyDays: weeklyDays,
+                monthlyDate: document.getElementById('monthlyDate').value || null,
+                createdAt: new Date().toISOString(),
+                completedAt: null,
+                quality: null
+            };
+
+            tasks.push(newTask);
+            saveTasks();
+
+            document.getElementById('taskSuccess').style.display = 'block';
+            setTimeout(() => {
+                document.getElementById('taskSuccess').style.display = 'none';
+                document.getElementById('addTaskForm').reset();
+            }, 3000);
+
+            renderTasks();
+            updateDashboard();
+        });
+
+        function generateRecurringTasks() {
+            const today = new Date();
+            const dayOfWeek = today.getDay();
+            const dateOfMonth = today.getDate();
+
+            // Check if tasks already generated today
+            const todayStr = today.toISOString().split('T')[0];
+            const existingTodayTasks = tasks.filter(t => t.createdAt.split('T')[0] === todayStr && t.status === 'todo');
+            
+            if (existingTodayTasks.length > 0) {
+                alert('Tasks for today already generated!');
+                return;
+            }
+
+            let newCount = 0;
+
+            // Generate daily tasks
+            tasks.filter(t => t.type === 'daily' && t.assignee === currentUser).forEach(template => {
+                const newTask = { ...template };
+                newTask.id = Date.now() + Math.random();
+                newTask.status = 'todo';
+                newTask.createdAt = today.toISOString();
+                newTask.completedAt = null;
+                tasks.push(newTask);
+                newCount++;
+            });
+
+            // Generate weekly tasks
+            tasks.filter(t => t.type === 'weekly' && t.weeklyDays.includes(dayOfWeek) && t.assignee === currentUser).forEach(template => {
+                const newTask = { ...template };
+                newTask.id = Date.now() + Math.random();
+                newTask.status = 'todo';
+                newTask.createdAt = today.toISOString();
+                newTask.completedAt = null;
+                tasks.push(newTask);
+                newCount++;
+            });
+
+            // Generate monthly tasks
+            tasks.filter(t => t.type === 'monthly' && parseInt(t.monthlyDate) === dateOfMonth && t.assignee === currentUser).forEach(template => {
+                const newTask = { ...template };
+                newTask.id = Date.now() + Math.random();
+                newTask.status = 'todo';
+                newTask.createdAt = today.toISOString();
+                newTask.completedAt = null;
+                tasks.push(newTask);
+                newCount++;
+            });
+
+            saveTasks();
+            alert(`✅ Generated ${newCount} tasks for today!`);
+            renderTasks();
+            updateDashboard();
+        }
+
+        function renderTasks() {
+            const userTasks = tasks.filter(t => t.assignee === currentUser);
+            const today = new Date();
+            
+            document.getElementById('todoColumn').innerHTML = '';
+            document.getElementById('progressColumn').innerHTML = '';
+            document.getElementById('doneColumn').innerHTML = '';
+            document.getElementById('overdueColumn').innerHTML = '';
+
+            userTasks.forEach(task => {
+                const card = createTaskCard(task);
+                
+                // Check if overdue
+                const deadlineStr = task.startDate + 'T' + task.deadlineTime;
+                const deadline = new Date(deadlineStr);
+                const isOverdue = today > deadline && task.status !== 'done';
+
+                if (isOverdue && task.status === 'todo') {
+                    task.status = 'overdue';
+                    saveTasks();
+                }
+
+                if (task.status === 'todo') {
+                    document.getElementById('todoColumn').appendChild(card);
+                } else if (task.status === 'progress') {
+                    document.getElementById('progressColumn').appendChild(card);
+                } else if (task.status === 'done') {
+                    document.getElementById('doneColumn').appendChild(card);
+                } else if (task.status === 'overdue') {
+                    document.getElementById('overdueColumn').appendChild(card);
+                }
+            });
+        }
+
+        function createTaskCard(task) {
+            const card = document.createElement('div');
+            card.className = 'task-card';
+            if (task.status === 'overdue') card.classList.add('overdue');
+            if (task.status === 'done') card.classList.add('completed');
+
+            const typeClass = task.type === 'daily' ? 'daily' : 
+                             task.type === 'weekly' ? 'weekly' : 
+                             task.type === 'monthly' ? 'monthly' : 'onetime';
+
+            card.innerHTML = `
+                <div class="task-title">${task.title}</div>
+                <div class="task-meta">
+                    <span class="task-type ${typeClass}">${task.type.toUpperCase()}</span>
+                    <span>⏰ ${task.deadlineTime}</span>
+                </div>
+            `;
+
+            card.onclick = () => openTaskModal(task);
+            return card;
+        }
+
+        function openTaskModal(task) {
+            const modal = document.getElementById('taskModal');
+            const body = document.getElementById('taskModalBody');
+
+            body.innerHTML = `
+                <h3>${task.title}</h3>
+                <p><strong>Description:</strong> ${task.description || 'No description'}</p>
+                <p><strong>Type:</strong> ${task.type}</p>
+                <p><strong>Priority:</strong> ${task.priority}</p>
+                <p><strong>Deadline:</strong> ${task.startDate} at ${task.deadlineTime}</p>
+                <p><strong>Status:</strong> ${task.status}</p>
+                
+                <div style="margin-top: 1.5rem;">
+                    ${task.status !== 'done' ? `
+                        <button class="btn btn-success" onclick="completeTask(${task.id})">✅ Mark Complete</button>
+                        <button class="btn btn-secondary" onclick="updateTaskStatus(${task.id}, 'progress')" style="margin-left: 0.5rem;">🔄 In Progress</button>
+                    ` : `
+                        <p style="color: var(--green); font-weight: bold;">✅ Task completed!</p>
+                    `}
+                </div>
+            `;
+
+            modal.classList.add('active');
+        }
+
+        function closeModal() {
+            document.getElementById('taskModal').classList.remove('active');
+        }
+
+        function completeTask(taskId) {
+            const task = tasks.find(t => t.id === taskId);
+            if (task) {
+                task.status = 'done';
+                task.completedAt = new Date().toISOString();
+                // For demo, set random quality
+                task.quality = 3 + Math.random() * 2; // 3-5 rating
+                saveTasks();
+                closeModal();
+                renderTasks();
+                updateDashboard();
+                updateKPI();
+            }
+        }
+
+        function updateTaskStatus(taskId, status) {
+            const task = tasks.find(t => t.id === taskId);
+            if (task) {
+                task.status = status;
+                saveTasks();
+                closeModal();
+                renderTasks();
+                updateDashboard();
+            }
+        }
+
+        // ==================== DASHBOARD ====================
+        function updateDashboard() {
+            const userTasks = tasks.filter(t => t.assignee === currentUser);
+            const today = new Date().toISOString().split('T')[0];
+            const todayTasks = userTasks.filter(t => t.createdAt.split('T')[0] === today || t.startDate === today);
+
+            document.getElementById('totalTasksToday').textContent = todayTasks.length;
+            document.getElementById('completedToday').textContent = todayTasks.filter(t => t.status === 'done').length;
+            document.getElementById('inProgressToday').textContent = todayTasks.filter(t => t.status === 'progress').length;
+            document.getElementById('overdueToday').textContent = todayTasks.filter(t => t.status === 'overdue').length;
+
+            // Urgent tasks
+            const now = new Date();
+            const twoHoursLater = new Date(now.getTime() + 2 * 60 * 60 * 1000);
+            const urgent = todayTasks.filter(t => {
+                const deadline = new Date(t.startDate + 'T' + t.deadlineTime);
+                return deadline > now && deadline < twoHoursLater && t.status !== 'done';
+            });
+
+            const urgentDiv = document.getElementById('urgentTasks');
+            if (urgent.length > 0) {
+                urgentDiv.innerHTML = urgent.map(t => `🔴 ${t.title} (Due: ${t.deadlineTime})`).join('<br>');
+            } else {
+                urgentDiv.textContent = 'No urgent tasks';
+            }
+
+            // KPI on dashboard
+            const kpi = calculateKPI(currentUser);
+            document.getElementById('dashboardKPIScore').textContent = kpi.total.toFixed(1);
+            document.getElementById('dashProd').textContent = kpi.productivity.toFixed(1);
+            document.getElementById('dashDisc').textContent = kpi.discipline.toFixed(1);
+            document.getElementById('dashQual').textContent = kpi.quality.toFixed(1);
+            document.getElementById('dashInit').textContent = kpi.initiative.toFixed(1);
+            document.getElementById('dashTeam').textContent = kpi.teamwork.toFixed(1);
+
+            const grade = getGrade(kpi.total);
+            document.getElementById('dashboardGrade').innerHTML = `<span class="badge badge-${grade.toLowerCase()}" style="font-size: 1.5rem; padding: 0.5rem 1.5rem;">Grade ${grade}</span>`;
+        }
+
+        // ==================== KPI CALCULATION ====================
+        function calculateKPI(userId) {
+            const userTasks = tasks.filter(t => t.assignee === userId);
+            const completedTasks = userTasks.filter(t => t.status === 'done');
+            const total = userTasks.length || 1;
+
+            // Productivity (30%)
+            const productivity = (completedTasks.length / total) * 30;
+
+            // Discipline (20%) - on-time completion
+            const onTime = completedTasks.filter(t => {
+                const deadline = new Date(t.startDate + 'T' + t.deadlineTime);
+                const completed = new Date(t.completedAt);
+                return completed <= deadline;
+            }).length;
+            const discipline = (onTime / (completedTasks.length || 1)) * 20;
+
+            // Quality (25%) - average rating
+            const qualityRatings = completedTasks.filter(t => t.quality).map(t => t.quality);
+            const avgQuality = qualityRatings.length > 0 ? 
+                qualityRatings.reduce((a,b) => a+b, 0) / qualityRatings.length : 4;
+            const quality = (avgQuality / 5) * 25;
+
+            // Initiative (15%) - extra tasks
+            const extraTasks = userTasks.filter(t => t.type === 'onetime').length;
+            const initiative = Math.min(15, (extraTasks / 5) * 15);
+
+            // Teamwork (10%) - collaborative tasks (for demo, use average)
+            const teamwork = 8; // Default 8/10
+
+            const totalScore = productivity + discipline + quality + initiative + teamwork;
+
+            return {
+                productivity,
+                discipline,
+                quality,
+                initiative,
+                teamwork,
+                total: totalScore
+            };
+        }
+
+        function getGrade(score) {
+            if (score >= 90) return 'A';
+            if (score >= 75) return 'B';
+            if (score >= 60) return 'C';
+            return 'D';
+        }
+
+        function updateKPI() {
+            const kpi = calculateKPI(currentUser);
+
+            document.getElementById('kpiTotal').textContent = kpi.total.toFixed(1);
+            document.getElementById('kpiProd').textContent = kpi.productivity.toFixed(1);
+            document.getElementById('kpiDisc').textContent = kpi.discipline.toFixed(1);
+            document.getElementById('kpiQual').textContent = kpi.quality.toFixed(1);
+            document.getElementById('kpiInit').textContent = kpi.initiative.toFixed(1);
+            document.getElementById('kpiTeam').textContent = kpi.teamwork.toFixed(1);
+
+            const grade = getGrade(kpi.total);
+            document.getElementById('kpiGrade').innerHTML = `<span class="badge badge-${grade.toLowerCase()}" style="font-size: 2rem; padding: 0.75rem 2rem;">Grade ${grade}</span>`;
+        }
+
+        // ==================== TEAM ====================
+        function updateTeam() {
+            const allKPIs = Object.keys(USERS).map(userId => ({
+                userId,
+                name: USERS[userId].name,
+                role: USERS[userId].role,
+                kpi: calculateKPI(userId)
+            })).sort((a, b) => b.kpi.total - a.kpi.total);
+
+            const avgScore = allKPIs.reduce((sum, u) => sum + u.kpi.total, 0) / allKPIs.length;
+            document.getElementById('avgTeamScore').textContent = avgScore.toFixed(1);
+            document.getElementById('topPerformersCount').textContent = allKPIs.filter(u => u.kpi.total >= 90).length;
+            document.getElementById('needAttentionCount').textContent = allKPIs.filter(u => u.kpi.total < 75).length;
+
+            const leaderboard = document.getElementById('leaderboard');
+            leaderboard.innerHTML = allKPIs.map((user, idx) => {
+                const grade = getGrade(user.kpi.total);
+                return `
+                    <div class="leaderboard-item">
+                        <div class="leaderboard-rank">#${idx + 1}</div>
+                        <div class="leaderboard-info">
+                            <div class="leaderboard-name">${user.name}</div>
+                            <div style="font-size: 0.85rem; color: #666;">${user.role}</div>
+                        </div>
+                        <div style="text-align: right;">
+                            <div class="leaderboard-score">${user.kpi.total.toFixed(1)}</div>
+                            <span class="badge badge-${grade.toLowerCase()}">Grade ${grade}</span>
+                        </div>
+                    </div>
+                `;
+            }).join('');
+        }
+
+        // ==================== INIT ====================
+        window.addEventListener('DOMContentLoaded', init);
+    </script>
+</body>
+</html>
