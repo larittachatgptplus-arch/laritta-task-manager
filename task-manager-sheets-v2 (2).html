@@ -1,0 +1,1125 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>🔴 Laritta Task & KPI Manager v2.0 (Cloud)</title>
+    <style>
+        /* SAMA SEPERTI SEBELUMNYA - COPY DARI task-manager-laritta.html */
+        :root {
+            --red-main: #DC143C;
+            --red-dark: #8B0000;
+            --red-light: #FFB6C1;
+            --red-lighter: #FFE4E1;
+            --green: #32CD32;
+            --yellow: #FFD700;
+            --orange: #FF8C00;
+            --blue: #4169E1;
+            --white: #FFFFFF;
+            --gray-light: #F5F5F5;
+            --gray-dark: #333333;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, var(--red-lighter) 0%, var(--white) 100%);
+            color: var(--gray-dark);
+            line-height: 1.6;
+        }
+
+        header {
+            background: linear-gradient(135deg, var(--red-dark) 0%, var(--red-main) 100%);
+            color: var(--white);
+            padding: 1.5rem;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+        }
+
+        .header-content {
+            max-width: 1400px;
+            margin: 0 auto;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .header-title h1 {
+            font-size: 1.8rem;
+            margin-bottom: 0.3rem;
+        }
+
+        .header-user {
+            text-align: right;
+        }
+
+        .user-select {
+            padding: 0.5rem 1rem;
+            border-radius: 8px;
+            border: 2px solid var(--white);
+            background: var(--white);
+            color: var(--red-dark);
+            font-weight: bold;
+            cursor: pointer;
+        }
+
+        nav {
+            background: var(--white);
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+            position: sticky;
+            top: 0;
+            z-index: 100;
+        }
+
+        nav ul {
+            max-width: 1400px;
+            margin: 0 auto;
+            list-style: none;
+            display: flex;
+            justify-content: center;
+        }
+
+        nav ul li a {
+            display: block;
+            padding: 1rem 2rem;
+            color: var(--red-main);
+            text-decoration: none;
+            font-weight: bold;
+            transition: all 0.3s;
+            border-bottom: 3px solid transparent;
+        }
+
+        nav ul li a:hover,
+        nav ul li a.active {
+            background: var(--red-lighter);
+            border-bottom: 3px solid var(--red-main);
+        }
+
+        .container {
+            max-width: 1400px;
+            margin: 2rem auto;
+            padding: 0 1rem;
+        }
+
+        .section {
+            background: var(--white);
+            border-radius: 15px;
+            padding: 2rem;
+            margin-bottom: 2rem;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+            display: none;
+        }
+
+        .section.active {
+            display: block;
+            animation: fadeIn 0.3s;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 1rem;
+            margin-bottom: 2rem;
+        }
+
+        .stat-card {
+            background: linear-gradient(135deg, var(--red-main) 0%, var(--red-dark) 100%);
+            color: var(--white);
+            padding: 1.5rem;
+            border-radius: 12px;
+            text-align: center;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+        }
+
+        .stat-card .number {
+            font-size: 2.5rem;
+            font-weight: bold;
+            margin: 0.5rem 0;
+        }
+
+        .stat-card .label {
+            font-size: 0.9rem;
+            opacity: 0.9;
+        }
+
+        .task-board {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 1rem;
+            margin-top: 1.5rem;
+        }
+
+        .task-column {
+            background: var(--gray-light);
+            border-radius: 12px;
+            padding: 1rem;
+            min-height: 400px;
+        }
+
+        .task-column h3 {
+            color: var(--red-main);
+            margin-bottom: 1rem;
+            padding-bottom: 0.5rem;
+            border-bottom: 2px solid var(--red-main);
+        }
+
+        .task-card {
+            background: var(--white);
+            border-radius: 8px;
+            padding: 1rem;
+            margin-bottom: 0.75rem;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+            border-left: 4px solid var(--red-main);
+            cursor: pointer;
+            transition: transform 0.2s;
+        }
+
+        .task-card:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 8px rgba(0,0,0,0.15);
+        }
+
+        .task-card.overdue {
+            border-left-color: var(--orange);
+            background: #FFF5F5;
+        }
+
+        .task-card.completed {
+            opacity: 0.7;
+            border-left-color: var(--green);
+        }
+
+        .task-title {
+            font-weight: bold;
+            color: var(--gray-dark);
+            margin-bottom: 0.5rem;
+        }
+
+        .task-meta {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            font-size: 0.85rem;
+            color: #666;
+            margin-top: 0.5rem;
+        }
+
+        .task-type {
+            display: inline-block;
+            padding: 0.2rem 0.6rem;
+            border-radius: 12px;
+            font-size: 0.75rem;
+            font-weight: bold;
+        }
+
+        .task-type.daily { background: var(--blue); color: var(--white); }
+        .task-type.weekly { background: var(--green); color: var(--white); }
+        .task-type.monthly { background: var(--orange); color: var(--white); }
+        .task-type.onetime { background: var(--gray-dark); color: var(--white); }
+
+        .btn {
+            padding: 0.75rem 1.5rem;
+            border: none;
+            border-radius: 8px;
+            font-size: 1rem;
+            font-weight: bold;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+
+        .btn-primary {
+            background: var(--red-main);
+            color: var(--white);
+        }
+
+        .btn-primary:hover {
+            background: var(--red-dark);
+            transform: translateY(-2px);
+        }
+
+        .btn-primary:disabled {
+            background: #ccc;
+            cursor: not-allowed;
+            transform: none;
+        }
+
+        .btn-success {
+            background: var(--green);
+            color: var(--white);
+        }
+
+        .btn-secondary {
+            background: var(--gray-light);
+            color: var(--gray-dark);
+        }
+
+        .form-group {
+            margin-bottom: 1.5rem;
+        }
+
+        .form-group label {
+            display: block;
+            font-weight: bold;
+            color: var(--red-dark);
+            margin-bottom: 0.5rem;
+        }
+
+        .form-group input,
+        .form-group select,
+        .form-group textarea {
+            width: 100%;
+            padding: 0.75rem;
+            border: 2px solid var(--red-light);
+            border-radius: 8px;
+            font-size: 1rem;
+        }
+
+        .form-group input:focus,
+        .form-group select:focus,
+        .form-group textarea:focus {
+            outline: none;
+            border-color: var(--red-main);
+            box-shadow: 0 0 0 3px rgba(220, 20, 60, 0.1);
+        }
+
+        .form-row {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 1rem;
+        }
+
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0,0,0,0.5);
+            z-index: 1000;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .modal.active {
+            display: flex;
+        }
+
+        .modal-content {
+            background: var(--white);
+            border-radius: 15px;
+            padding: 2rem;
+            max-width: 600px;
+            width: 90%;
+            max-height: 90vh;
+            overflow-y: auto;
+        }
+
+        .modal-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 1.5rem;
+        }
+
+        .modal-close {
+            font-size: 2rem;
+            cursor: pointer;
+            color: var(--red-main);
+        }
+
+        .kpi-card {
+            background: linear-gradient(135deg, var(--white) 0%, var(--red-lighter) 100%);
+            border: 3px solid var(--red-main);
+            border-radius: 15px;
+            padding: 2rem;
+            margin-bottom: 1.5rem;
+        }
+
+        .kpi-score {
+            text-align: center;
+            margin-bottom: 1.5rem;
+        }
+
+        .kpi-score .total {
+            font-size: 4rem;
+            font-weight: bold;
+            color: var(--red-main);
+        }
+
+        .kpi-breakdown {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+            gap: 1rem;
+        }
+
+        .kpi-item {
+            background: var(--white);
+            padding: 1rem;
+            border-radius: 10px;
+            text-align: center;
+            border: 2px solid var(--red-light);
+        }
+
+        .kpi-item .score {
+            font-size: 1.8rem;
+            font-weight: bold;
+            color: var(--red-main);
+        }
+
+        .badge {
+            display: inline-block;
+            padding: 0.3rem 0.75rem;
+            border-radius: 15px;
+            font-size: 0.85rem;
+            font-weight: bold;
+        }
+
+        .badge-a { background: var(--green); color: var(--white); }
+        .badge-b { background: var(--blue); color: var(--white); }
+        .badge-c { background: var(--yellow); color: var(--gray-dark); }
+        .badge-d { background: var(--red-main); color: var(--white); }
+
+        .leaderboard {
+            margin-top: 1.5rem;
+        }
+
+        .leaderboard-item {
+            display: flex;
+            align-items: center;
+            padding: 1rem;
+            background: var(--white);
+            border-radius: 10px;
+            margin-bottom: 0.75rem;
+            border-left: 4px solid var(--red-main);
+        }
+
+        .leaderboard-rank {
+            font-size: 1.5rem;
+            font-weight: bold;
+            color: var(--red-main);
+            width: 50px;
+            text-align: center;
+        }
+
+        .leaderboard-info {
+            flex: 1;
+        }
+
+        .leaderboard-name {
+            font-weight: bold;
+            color: var(--gray-dark);
+        }
+
+        .leaderboard-score {
+            font-size: 1.2rem;
+            font-weight: bold;
+            color: var(--red-main);
+        }
+
+        .checkbox-group {
+            display: flex;
+            gap: 1rem;
+            flex-wrap: wrap;
+        }
+
+        .checkbox-group label {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .loading {
+            display: inline-block;
+            width: 20px;
+            height: 20px;
+            border: 3px solid var(--red-light);
+            border-radius: 50%;
+            border-top-color: var(--red-main);
+            animation: spin 1s linear infinite;
+        }
+
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+
+        .alert {
+            padding: 1rem;
+            border-radius: 8px;
+            margin-bottom: 1rem;
+            border-left: 5px solid;
+        }
+
+        .alert-info {
+            background: #E3F2FD;
+            border-color: #2196F3;
+            color: #1976D2;
+        }
+
+        .alert-success {
+            background: #E8F5E9;
+            border-color: var(--green);
+            color: #2E7D32;
+        }
+
+        .alert-warning {
+            background: #FFF3E0;
+            border-color: var(--yellow);
+            color: #F57C00;
+        }
+
+        .alert-danger {
+            background: #FFEBEE;
+            border-color: var(--red-main);
+            color: #C62828;
+        }
+
+        .cloud-status {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+            padding: 0.5rem 1rem;
+            border-radius: 20px;
+            background: rgba(255,255,255,0.2);
+            font-size: 0.9rem;
+        }
+
+        .cloud-status.synced { color: var(--green); }
+        .cloud-status.syncing { color: var(--yellow); }
+        .cloud-status.error { color: var(--orange); }
+
+        @media (max-width: 768px) {
+            .header-content {
+                flex-direction: column;
+                gap: 1rem;
+            }
+
+            nav ul {
+                flex-direction: column;
+            }
+
+            nav ul li a {
+                padding: 0.75rem 1rem;
+            }
+
+            .task-board {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- HEADER -->
+    <header>
+        <div class="header-content">
+            <div class="header-title">
+                <h1>🔴 LARITTA TASK & KPI MANAGER v2.0</h1>
+                <p>Real-time Cloud Sync with Google Sheets</p>
+                <span class="cloud-status synced" id="cloudStatus">
+                    <span id="statusIcon">☁️</span>
+                    <span id="statusText">Synced</span>
+                </span>
+            </div>
+            <div class="header-user">
+                <p style="margin-bottom: 0.5rem;">Logged in as:</p>
+                <select id="currentUser" class="user-select" onchange="switchUser()">
+                    <option value="faris">Mohammad Faris Rizal (Manager)</option>
+                    <option value="leony">Leony Hosna (PA Manager)</option>
+                    <option value="erma">Erma Sejati (Marketing)</option>
+                    <option value="amadea">Amadea Wafi Hidayani (Marketing)</option>
+                    <option value="sisca">Sisca (Sales Online)</option>
+                    <option value="willa">Willa Rachmah (Sales Online)</option>
+                    <option value="aisyatuz">Aisyatuz Zahroh (Sales Online)</option>
+                    <option value="naer">Naer Budhi Praytno (Koordinator Area)</option>
+                    <option value="talitha">Talitha Amalia Hidayanti (Marketing)</option>
+                    <option value="rosyat">Rosyat Ely Della (Koordinator Area)</option>
+                    <option value="masita">Masita Krismi Adianty (Koordinator Area)</option>
+                    <option value="ira">Ira Tri Handayanie (Koordinator Area)</option>
+                </select>
+            </div>
+        </div>
+    </header>
+
+    <!-- NAVIGATION -->
+    <nav>
+        <ul>
+            <li><a href="javascript:void(0)" onclick="showSection('dashboard')" class="active" id="navDashboard">🏠 Dashboard</a></li>
+            <li><a href="javascript:void(0)" onclick="showSection('tasks')" id="navTasks">📋 My Tasks</a></li>
+            <li><a href="javascript:void(0)" onclick="showSection('kpi')" id="navKpi">📊 KPI Score</a></li>
+            <li><a href="javascript:void(0)" onclick="showSection('team')" id="navTeam">👥 Team</a></li>
+            <li><a href="javascript:void(0)" onclick="showSection('add')" id="navAdd">➕ Add Task</a></li>
+        </ul>
+    </nav>
+
+    <div class="container">
+        <!-- CONFIG ALERT -->
+        <div id="configAlert" class="alert alert-warning">
+            <strong>⚠️ SETUP REQUIRED!</strong><br>
+            Silakan masukkan Google Apps Script URL di bawah ini:<br>
+            <input type="text" id="apiUrlInput" placeholder="Paste URL dari deployment Google Apps Script" style="width: 100%; margin-top: 0.5rem; padding: 0.5rem;">
+            <button class="btn btn-primary" onclick="saveApiUrl()" style="margin-top: 0.5rem;">Save & Connect</button>
+            <p style="margin-top: 0.5rem; font-size: 0.9rem;">Lihat file SETUP_GUIDE_SUPER_DETAIL.md untuk cara mendapatkan URL ini.</p>
+        </div>
+
+        <!-- DASHBOARD SECTION -->
+        <section id="dashboard" class="section active">
+            <h2 style="color: var(--red-main); margin-bottom: 1.5rem;">📊 Dashboard Overview</h2>
+            
+            <div class="stats-grid">
+                <div class="stat-card">
+                    <div class="label">Total Tasks</div>
+                    <div class="number" id="statTotal">0</div>
+                </div>
+                <div class="stat-card" style="background: linear-gradient(135deg, var(--blue) 0%, #2563EB 100%);">
+                    <div class="label">To Do</div>
+                    <div class="number" id="statTodo">0</div>
+                </div>
+                <div class="stat-card" style="background: linear-gradient(135deg, var(--orange) 0%, #EA580C 100%);">
+                    <div class="label">In Progress</div>
+                    <div class="number" id="statProgress">0</div>
+                </div>
+                <div class="stat-card" style="background: linear-gradient(135deg, var(--green) 0%, #16A34A 100%);">
+                    <div class="label">Completed</div>
+                    <div class="number" id="statDone">0</div>
+                </div>
+            </div>
+
+            <div style="background: var(--white); padding: 1.5rem; border-radius: 12px; margin-top: 1rem;">
+                <h3 style="color: var(--red-main); margin-bottom: 1rem;">⚡ Quick Actions</h3>
+                <div style="display: flex; gap: 1rem; flex-wrap: wrap;">
+                    <button class="btn btn-primary" onclick="showSection('add')">➕ Add New Task</button>
+                    <button class="btn btn-secondary" onclick="generateRecurringTasks()">🔄 Generate Today's Tasks</button>
+                    <button class="btn btn-secondary" onclick="showSection('tasks')">📋 View All Tasks</button>
+                    <button class="btn btn-secondary" onclick="showSection('kpi')">📊 Check KPI</button>
+                </div>
+            </div>
+        </section>
+
+        <!-- TASKS SECTION -->
+        <section id="tasks" class="section">
+            <h2 style="color: var(--red-main); margin-bottom: 1.5rem;">📋 My Tasks</h2>
+            <div style="margin-bottom: 1.5rem;">
+                <button class="btn btn-primary" onclick="showSection('add')">➕ Add New Task</button>
+                <button class="btn btn-secondary" style="margin-left: 0.5rem;" onclick="generateRecurringTasks()">🔄 Generate Today's Tasks</button>
+            </div>
+            <div class="task-board" id="taskBoard">
+                <div class="task-column">
+                    <h3>📝 To Do</h3>
+                    <div id="todoColumn">Loading...</div>
+                </div>
+                <div class="task-column">
+                    <h3>🔄 In Progress</h3>
+                    <div id="progressColumn">Loading...</div>
+                </div>
+                <div class="task-column">
+                    <h3>✅ Done</h3>
+                    <div id="doneColumn">Loading...</div>
+                </div>
+                <div class="task-column">
+                    <h3>🚨 Overdue</h3>
+                    <div id="overdueColumn">Loading...</div>
+                </div>
+            </div>
+        </section>
+
+        <!-- KPI SECTION -->
+        <section id="kpi" class="section">
+            <h2 style="color: var(--red-main); margin-bottom: 1.5rem;">📊 KPI Score</h2>
+            
+            <div class="kpi-card">
+                <div class="kpi-score">
+                    <div style="font-size: 1rem; color: var(--gray-dark); margin-bottom: 0.5rem;">Your Current Score</div>
+                    <div class="total" id="kpiTotal">0</div>
+                    <div style="margin-top: 0.5rem;">
+                        <span class="badge badge-d" id="kpiGrade">D</span>
+                    </div>
+                </div>
+                
+                <div class="kpi-breakdown">
+                    <div class="kpi-item">
+                        <div class="label">Productivity</div>
+                        <div class="score" id="kpiProductivity">0</div>
+                    </div>
+                    <div class="kpi-item">
+                        <div class="label">Discipline</div>
+                        <div class="score" id="kpiDiscipline">0</div>
+                    </div>
+                    <div class="kpi-item">
+                        <div class="label">Quality</div>
+                        <div class="score" id="kpiQuality">0</div>
+                    </div>
+                    <div class="kpi-item">
+                        <div class="label">Initiative</div>
+                        <div class="score" id="kpiInitiative">0</div>
+                    </div>
+                    <div class="kpi-item">
+                        <div class="label">Teamwork</div>
+                        <div class="score" id="kpiTeamwork">0</div>
+                    </div>
+                </div>
+            </div>
+
+            <div style="background: var(--white); padding: 1.5rem; border-radius: 12px; margin-top: 1rem;">
+                <h3 style="color: var(--red-main); margin-bottom: 1rem;">💡 Tips to Improve</h3>
+                <ul style="line-height: 2;">
+                    <li>✅ Complete tasks on time to boost Discipline score</li>
+                    <li>✅ Mark quality as "Excellent" when completing tasks</li>
+                    <li>✅ Take initiative by creating your own improvement tasks</li>
+                    <li>✅ Collaborate with team members regularly</li>
+                </ul>
+            </div>
+        </section>
+
+        <!-- TEAM SECTION -->
+        <section id="team" class="section">
+            <h2 style="color: var(--red-main); margin-bottom: 1.5rem;">👥 Team Overview</h2>
+            
+            <div class="leaderboard" id="teamLeaderboard">
+                <div class="leaderboard-item">
+                    <div class="leaderboard-rank">1</div>
+                    <div class="leaderboard-info">
+                        <div class="leaderboard-name">Loading team data...</div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- ADD TASK SECTION -->
+        <section id="add" class="section">
+            <h2 style="color: var(--red-main); margin-bottom: 1.5rem;">➕ Add New Task</h2>
+            
+            <form id="addTaskForm" onsubmit="handleAddTask(event)">
+                <div class="form-group">
+                    <label>Task Title *</label>
+                    <input type="text" id="taskTitle" required placeholder="e.g., Update sales report">
+                </div>
+
+                <div class="form-group">
+                    <label>Description</label>
+                    <textarea id="taskDescription" rows="3" placeholder="Task details..."></textarea>
+                </div>
+
+                <div class="form-row">
+                    <div class="form-group">
+                        <label>Task Type *</label>
+                        <select id="taskType" required onchange="handleTaskTypeChange()">
+                            <option value="onetime">One-time</option>
+                            <option value="daily">Daily</option>
+                            <option value="weekly">Weekly</option>
+                            <option value="monthly">Monthly</option>
+                        </select>
+                    </div>
+
+                    <div class="form-group">
+                        <label>Priority *</label>
+                        <select id="taskPriority" required>
+                            <option value="low">Low</option>
+                            <option value="medium" selected>Medium</option>
+                            <option value="high">High</option>
+                        </select>
+                    </div>
+                </div>
+
+                <div class="form-row">
+                    <div class="form-group">
+                        <label>Start Date</label>
+                        <input type="date" id="taskStartDate">
+                    </div>
+
+                    <div class="form-group">
+                        <label>Deadline Time</label>
+                        <input type="time" id="taskDeadline">
+                    </div>
+                </div>
+
+                <div class="form-group" id="weeklyDaysGroup" style="display: none;">
+                    <label>Repeat on (Weekly)</label>
+                    <div class="checkbox-group">
+                        <label><input type="checkbox" value="0"> Sunday</label>
+                        <label><input type="checkbox" value="1"> Monday</label>
+                        <label><input type="checkbox" value="2"> Tuesday</label>
+                        <label><input type="checkbox" value="3"> Wednesday</label>
+                        <label><input type="checkbox" value="4"> Thursday</label>
+                        <label><input type="checkbox" value="5"> Friday</label>
+                        <label><input type="checkbox" value="6"> Saturday</label>
+                    </div>
+                </div>
+
+                <div class="form-group" id="monthlyDateGroup" style="display: none;">
+                    <label>Repeat on Date (Monthly)</label>
+                    <input type="number" id="taskMonthlyDate" min="1" max="31" placeholder="e.g., 15">
+                </div>
+
+                <div class="form-group">
+                    <label>Assign To *</label>
+                    <select id="taskAssignee" required>
+                        <option value="faris">Mohammad Faris Rizal (Manager)</option>
+                        <option value="leony">Leony Hosna (PA Manager)</option>
+                        <option value="erma">Erma Sejati (Marketing)</option>
+                        <option value="amadea">Amadea Wafi Hidayani (Marketing)</option>
+                        <option value="sisca">Sisca (Sales Online)</option>
+                        <option value="willa">Willa Rachmah (Sales Online)</option>
+                        <option value="aisyatuz">Aisyatuz Zahroh (Sales Online)</option>
+                        <option value="naer">Naer Budhi Praytno (Koordinator Area)</option>
+                        <option value="talitha">Talitha Amalia Hidayanti (Marketing)</option>
+                        <option value="rosyat">Rosyat Ely Della (Koordinator Area)</option>
+                        <option value="masita">Masita Krismi Adianty (Koordinator Area)</option>
+                        <option value="ira">Ira Tri Handayanie (Koordinator Area)</option>
+                    </select>
+                </div>
+
+                <div style="margin-top: 2rem; display: flex; gap: 1rem;">
+                    <button type="submit" class="btn btn-primary">✅ Create Task</button>
+                    <button type="button" class="btn btn-secondary" onclick="document.getElementById('addTaskForm').reset()">🔄 Reset</button>
+                </div>
+            </form>
+        </section>
+    </div>
+
+    <script>
+        // ==================== CONFIGURATION ====================
+        const CONFIG = {
+            API_URL: localStorage.getItem('larittaApiUrl') || '',
+            VERSION: '2.0'
+        };
+
+        // Check if API URL is configured
+        if (!CONFIG.API_URL) {
+            document.getElementById('configAlert').style.display = 'block';
+        } else {
+            document.getElementById('configAlert').style.display = 'none';
+        }
+
+        function saveApiUrl() {
+            const url = document.getElementById('apiUrlInput').value.trim();
+            if (url) {
+                localStorage.setItem('larittaApiUrl', url);
+                CONFIG.API_URL = url;
+                document.getElementById('configAlert').style.display = 'none';
+                alert('✅ API URL saved! Reloading...');
+                location.reload();
+            } else {
+                alert('❌ Please enter a valid URL');
+            }
+        }
+
+        // ==================== CLOUD STATUS ====================
+        function updateCloudStatus(status, text) {
+            const statusEl = document.getElementById('cloudStatus');
+            const iconEl = document.getElementById('statusIcon');
+            const textEl = document.getElementById('statusText');
+            
+            statusEl.className = `cloud-status ${status}`;
+            textEl.textContent = text;
+            
+            if (status === 'synced') iconEl.textContent = '☁️';
+            else if (status === 'syncing') iconEl.textContent = '🔄';
+            else iconEl.textContent = '⚠️';
+        }
+
+        // ==================== API CALLS ====================
+        // Use CORS proxy to bypass Google Apps Script CORS limitations
+        const CORS_PROXY = 'https://corsproxy.io/?';
+        
+        async function apiCall(endpoint, method = 'GET', data = null) {
+            updateCloudStatus('syncing', 'Syncing...');
+            
+            try {
+                let url = CONFIG.API_URL;
+                
+                // Always use GET to avoid CORS preflight
+                if (data) {
+                    const params = new URLSearchParams(data);
+                    url += '?' + params.toString();
+                }
+                
+                // Use CORS proxy to bypass restrictions
+                const proxiedUrl = CORS_PROXY + encodeURIComponent(url);
+                
+                const response = await fetch(proxiedUrl);
+                const result = await response.json();
+                
+                updateCloudStatus('synced', 'Synced');
+                return result;
+            } catch (error) {
+                updateCloudStatus('error', 'Sync Error');
+                console.error('API Error:', error);
+                throw error;
+            }
+        }
+                }
+                
+                const options = {
+                    method: method,
+                    headers: {
+                        'Content-Type': 'application/json'
+                    }
+                };
+                
+                if (method === 'POST' && data) {
+                    options.body = JSON.stringify(data);
+                }
+                
+                const response = await fetch(url, options);
+                const result = await response.json();
+                
+                updateCloudStatus('synced', 'Synced');
+                return result;
+            } catch (error) {
+                updateCloudStatus('error', 'Sync Error');
+                console.error('API Error:', error);
+                throw error;
+            }
+        }
+
+        // ==================== TASK FUNCTIONS ====================
+        async function getTasks(assignee = null) {
+            const params = { action: 'getTasks' };
+            if (assignee) params.assignee = assignee;
+            
+            const result = await apiCall('', 'GET', params);
+            return result.data || [];
+        }
+
+        async function addTask(task) {
+            const result = await apiCall('', 'POST', {
+                action: 'addTask',
+                task: task
+            });
+            return result;
+        }
+
+        async function updateTask(taskId, updates) {
+            const result = await apiCall('', 'POST', {
+                action: 'updateTask',
+                taskId: taskId,
+                updates: updates
+            });
+            return result;
+        }
+
+        async function generateRecurringTasks() {
+            const currentUser = document.getElementById('currentUser').value;
+            const result = await apiCall('', 'POST', {
+                action: 'generateTasks',
+                userId: currentUser
+            });
+            
+            alert(`✅ ${result.message}`);
+            await loadTasks();
+        }
+
+        // ==================== LOAD & RENDER ====================
+        async function loadTasks() {
+            try {
+                const currentUser = document.getElementById('currentUser').value;
+                const tasks = await getTasks(currentUser);
+                
+                renderTasks(tasks);
+                updateDashboardStats(tasks);
+            } catch (error) {
+                console.error('Error loading tasks:', error);
+                alert('❌ Failed to load tasks. Please check your internet connection and API URL.');
+            }
+        }
+
+        function renderTasks(tasks) {
+            const todoEl = document.getElementById('todoColumn');
+            const progressEl = document.getElementById('progressColumn');
+            const doneEl = document.getElementById('doneColumn');
+            const overdueEl = document.getElementById('overdueColumn');
+            
+            todoEl.innerHTML = '';
+            progressEl.innerHTML = '';
+            doneEl.innerHTML = '';
+            overdueEl.innerHTML = '';
+            
+            tasks.forEach(task => {
+                const card = createTaskCard(task);
+                
+                if (task.Status === 'todo') {
+                    todoEl.appendChild(card);
+                } else if (task.Status === 'progress') {
+                    progressEl.appendChild(card);
+                } else if (task.Status === 'done') {
+                    doneEl.appendChild(card);
+                } else if (task.Status === 'overdue') {
+                    overdueEl.appendChild(card);
+                }
+            });
+            
+            if (todoEl.children.length === 0) todoEl.innerHTML = '<p style="color: #999; text-align: center; padding: 2rem;">No tasks</p>';
+            if (progressEl.children.length === 0) progressEl.innerHTML = '<p style="color: #999; text-align: center; padding: 2rem;">No tasks</p>';
+            if (doneEl.children.length === 0) doneEl.innerHTML = '<p style="color: #999; text-align: center; padding: 2rem;">No tasks</p>';
+            if (overdueEl.children.length === 0) overdueEl.innerHTML = '<p style="color: #999; text-align: center; padding: 2rem;">No tasks</p>';
+        }
+
+        function createTaskCard(task) {
+            const card = document.createElement('div');
+            card.className = 'task-card';
+            if (task.Status === 'overdue') card.classList.add('overdue');
+            if (task.Status === 'done') card.classList.add('completed');
+            
+            card.innerHTML = `
+                <div class="task-title">${task.Title}</div>
+                ${task.Description ? `<div style="font-size: 0.85rem; color: #666; margin: 0.5rem 0;">${task.Description}</div>` : ''}
+                <div class="task-meta">
+                    <span class="task-type ${task.Type}">${task.Type.toUpperCase()}</span>
+                    <span>⏰ ${task.DeadlineTime || 'No deadline'}</span>
+                </div>
+                <div style="margin-top: 0.5rem; display: flex; gap: 0.5rem;">
+                    ${task.Status !== 'done' ? `<button onclick="changeTaskStatus('${task.ID}', 'done')" style="flex: 1; padding: 0.4rem; background: var(--green); color: white; border: none; border-radius: 5px; cursor: pointer; font-size: 0.8rem;">✅ Done</button>` : ''}
+                    ${task.Status === 'todo' ? `<button onclick="changeTaskStatus('${task.ID}', 'progress')" style="flex: 1; padding: 0.4rem; background: var(--orange); color: white; border: none; border-radius: 5px; cursor: pointer; font-size: 0.8rem;">🔄 Start</button>` : ''}
+                </div>
+            `;
+            
+            return card;
+        }
+
+        async function changeTaskStatus(taskId, newStatus) {
+            try {
+                updateCloudStatus('syncing', 'Updating...');
+                
+                const updates = { Status: newStatus };
+                if (newStatus === 'done') {
+                    updates.CompletedAt = new Date().toISOString();
+                }
+                
+                await updateTask(taskId, updates);
+                await loadTasks();
+                
+                updateCloudStatus('synced', 'Synced');
+            } catch (error) {
+                console.error('Error updating task:', error);
+                alert('❌ Failed to update task');
+                updateCloudStatus('error', 'Sync Error');
+            }
+        }
+
+        function updateDashboardStats(tasks) {
+            const total = tasks.length;
+            const todo = tasks.filter(t => t.Status === 'todo').length;
+            const progress = tasks.filter(t => t.Status === 'progress').length;
+            const done = tasks.filter(t => t.Status === 'done').length;
+            
+            document.getElementById('statTotal').textContent = total;
+            document.getElementById('statTodo').textContent = todo;
+            document.getElementById('statProgress').textContent = progress;
+            document.getElementById('statDone').textContent = done;
+        }
+
+        function openTaskModal(task) {
+            alert(`Task: ${task.Title}\nStatus: ${task.Status}\n\nFeature coming soon!`);
+        }
+
+        // ==================== ADD TASK ====================
+        async function handleAddTask(event) {
+            event.preventDefault();
+            
+            const title = document.getElementById('taskTitle').value;
+            const description = document.getElementById('taskDescription').value;
+            const type = document.getElementById('taskType').value;
+            const priority = document.getElementById('taskPriority').value;
+            const startDate = document.getElementById('taskStartDate').value;
+            const deadline = document.getElementById('taskDeadline').value;
+            const assignee = document.getElementById('taskAssignee').value;
+            
+            let weeklyDays = '';
+            if (type === 'weekly') {
+                const checkedDays = Array.from(document.querySelectorAll('#weeklyDaysGroup input:checked'))
+                    .map(cb => cb.value);
+                weeklyDays = checkedDays.join(',');
+            }
+            
+            let monthlyDate = '';
+            if (type === 'monthly') {
+                monthlyDate = document.getElementById('taskMonthlyDate').value;
+            }
+            
+            const task = {
+                Title: title,
+                Description: description,
+                Type: type,
+                Priority: priority,
+                Status: 'todo',
+                StartDate: startDate || new Date().toISOString().split('T')[0],
+                DeadlineTime: deadline,
+                Assignee: assignee,
+                WeeklyDays: weeklyDays,
+                MonthlyDate: monthlyDate,
+                CreatedAt: new Date().toISOString()
+            };
+            
+            try {
+                updateCloudStatus('syncing', 'Creating...');
+                const result = await addTask(task);
+                
+                if (result.success) {
+                    alert('✅ Task created successfully!');
+                    document.getElementById('addTaskForm').reset();
+                    showSection('tasks');
+                    await loadTasks();
+                } else {
+                    alert('❌ Failed to create task: ' + result.message);
+                }
+                
+                updateCloudStatus('synced', 'Synced');
+            } catch (error) {
+                console.error('Error adding task:', error);
+                alert('❌ Failed to create task. Please try again.');
+                updateCloudStatus('error', 'Sync Error');
+            }
+        }
+
+        function handleTaskTypeChange() {
+            const type = document.getElementById('taskType').value;
+            
+            document.getElementById('weeklyDaysGroup').style.display = type === 'weekly' ? 'block' : 'none';
+            document.getElementById('monthlyDateGroup').style.display = type === 'monthly' ? 'block' : 'none';
+        }
+
+        // ==================== NAVIGATION ====================
+        function showSection(sectionId) {
+            document.querySelectorAll('.section').forEach(s => s.classList.remove('active'));
+            document.getElementById(sectionId).classList.add('active');
+            
+            document.querySelectorAll('nav a').forEach(a => a.classList.remove('active'));
+            const navId = 'nav' + sectionId.charAt(0).toUpperCase() + sectionId.slice(1);
+            const navEl = document.getElementById(navId);
+            if (navEl) navEl.classList.add('active');
+            
+            if (sectionId === 'tasks' || sectionId === 'dashboard') {
+                loadTasks();
+            }
+        }
+
+        async function switchUser() {
+            await loadTasks();
+        }
+
+        // ==================== INIT ====================
+        window.addEventListener('DOMContentLoaded', async () => {
+            // Set default date to today
+            const today = new Date().toISOString().split('T')[0];
+            document.getElementById('taskStartDate').value = today;
+            
+            // Set default assignee to current user
+            const currentUser = document.getElementById('currentUser').value;
+            document.getElementById('taskAssignee').value = currentUser;
+            
+            if (CONFIG.API_URL) {
+                await loadTasks();
+            }
+        });
+    </script>
+</body>
+</html>
