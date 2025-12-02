@@ -1,0 +1,993 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Laritta Task Manager - Final Complete</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        
+        :root {
+            --red: #c41e3a;
+            --red-dark: #a01830;
+            --red-light: #fef5f6;
+            --orange: #ff6b35;
+            --blue: #4285f4;
+            --green: #34a853;
+            --yellow: #fbbc04;
+            --gray: #333;
+            --gray-mid: #666;
+            --gray-light: #f5f5f5;
+            --white: #fff;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: var(--gray-light);
+            color: var(--gray);
+            line-height: 1.6;
+        }
+
+        header {
+            background: linear-gradient(135deg, var(--red) 0%, var(--red-dark) 100%);
+            color: white;
+            padding: 1rem 1.5rem;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.2);
+        }
+
+        .header-content {
+            max-width: 1400px;
+            margin: 0 auto;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 1rem;
+        }
+
+        .header-title h1 { font-size: 1.4rem; margin-bottom: 0.2rem; }
+        .header-title p { font-size: 0.75rem; opacity: 0.9; }
+
+        .status {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            padding: 0.4rem 0.8rem;
+            background: rgba(255,255,255,0.2);
+            border-radius: 20px;
+            font-size: 0.75rem;
+        }
+
+        .status.synced { background: rgba(52, 168, 83, 0.3); }
+        .status.syncing { background: rgba(251, 188, 4, 0.3); }
+
+        select {
+            padding: 0.4rem 0.8rem;
+            border-radius: 8px;
+            border: 2px solid white;
+            background: white;
+            color: var(--red);
+            font-weight: bold;
+            cursor: pointer;
+            font-size: 0.8rem;
+        }
+
+        nav {
+            background: white;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+            position: sticky;
+            top: 0;
+            z-index: 100;
+        }
+
+        nav ul {
+            max-width: 1400px;
+            margin: 0 auto;
+            list-style: none;
+            display: flex;
+            justify-content: center;
+            flex-wrap: wrap;
+        }
+
+        nav a {
+            display: block;
+            padding: 0.8rem 1rem;
+            color: var(--red);
+            text-decoration: none;
+            font-weight: bold;
+            transition: all 0.3s;
+            border-bottom: 3px solid transparent;
+            font-size: 0.8rem;
+        }
+
+        nav a:hover, nav a.active {
+            background: var(--red-light);
+            border-bottom-color: var(--red);
+        }
+
+        main {
+            max-width: 1400px;
+            margin: 1.5rem auto;
+            padding: 0 1.5rem;
+        }
+
+        .section { display: none; }
+        .section.active { display: block; }
+
+        .btn {
+            padding: 0.6rem 1rem;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            font-weight: bold;
+            transition: all 0.3s;
+            font-size: 0.8rem;
+            display: inline-flex;
+            align-items: center;
+            gap: 0.4rem;
+        }
+
+        .btn-primary { background: var(--red); color: white; }
+        .btn-primary:hover { background: var(--red-dark); }
+        .btn-success { background: var(--green); color: white; }
+        .btn-warning { background: var(--orange); color: white; }
+        .btn-danger { background: #dc3545; color: white; }
+        .btn-secondary { background: var(--gray-mid); color: white; }
+        .btn-small { padding: 0.3rem 0.6rem; font-size: 0.75rem; }
+
+        .card {
+            background: white;
+            padding: 1.5rem;
+            border-radius: 12px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+            margin-bottom: 1.5rem;
+        }
+
+        .quote-card {
+            background: linear-gradient(135deg, var(--blue), var(--green));
+            color: white;
+            padding: 2rem;
+            border-radius: 12px;
+            margin-bottom: 1.5rem;
+            text-align: center;
+        }
+
+        .quote-text {
+            font-size: 1.3rem;
+            font-weight: 600;
+            margin-bottom: 0.5rem;
+            font-style: italic;
+        }
+
+        .quote-author {
+            font-size: 0.9rem;
+            opacity: 0.9;
+        }
+
+        .task-item {
+            padding: 1rem;
+            margin-bottom: 1rem;
+            border-left: 4px solid var(--blue);
+            background: var(--gray-light);
+            border-radius: 8px;
+            position: relative;
+        }
+
+        .task-item.completed { opacity: 0.7; border-left-color: var(--green); }
+        .task-item.overdue { border-left-color: var(--orange); background: #fff5f5; }
+        .task-item h4 { color: var(--red); margin-bottom: 0.5rem; font-size: 1rem; }
+
+        .task-actions {
+            position: absolute;
+            top: 1rem;
+            right: 1rem;
+            display: flex;
+            gap: 0.4rem;
+        }
+
+        .tab-buttons {
+            display: flex;
+            gap: 0.5rem;
+            margin-bottom: 1rem;
+            flex-wrap: wrap;
+        }
+
+        .tab-btn {
+            padding: 0.6rem 1.2rem;
+            background: white;
+            border: 2px solid var(--red);
+            color: var(--red);
+            border-radius: 8px;
+            cursor: pointer;
+            font-weight: bold;
+            font-size: 0.85rem;
+            transition: all 0.3s;
+        }
+
+        .tab-btn.active {
+            background: var(--red);
+            color: white;
+        }
+
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0,0,0,0.5);
+            z-index: 1000;
+            align-items: center;
+            justify-content: center;
+            padding: 1rem;
+            overflow-y: auto;
+        }
+
+        .modal.active { display: flex; }
+
+        .modal-content {
+            background: white;
+            padding: 2rem;
+            border-radius: 12px;
+            max-width: 700px;
+            width: 100%;
+            max-height: 90vh;
+            overflow-y: auto;
+        }
+
+        .form-group {
+            margin-bottom: 1rem;
+        }
+
+        .form-group label {
+            display: block;
+            margin-bottom: 0.4rem;
+            font-weight: bold;
+            font-size: 0.85rem;
+        }
+
+        .form-group input,
+        .form-group select,
+        .form-group textarea {
+            width: 100%;
+            padding: 0.6rem;
+            border: 2px solid var(--gray-light);
+            border-radius: 8px;
+            font-size: 0.85rem;
+        }
+
+        .form-row {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 1rem;
+        }
+
+        .user-item {
+            padding: 1rem;
+            margin-bottom: 0.8rem;
+            background: var(--gray-light);
+            border-radius: 8px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .loading {
+            text-align: center;
+            padding: 2rem;
+            color: var(--gray-mid);
+        }
+
+        @media (max-width: 768px) {
+            .form-row { grid-template-columns: 1fr; }
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <div class="header-content">
+            <div class="header-title">
+                <h1>🍰 LARITTA TASK MANAGER</h1>
+                <p>Complete System - Sales & Marketing Team</p>
+            </div>
+            <div class="status syncing" id="status">
+                <span id="statusIcon">🔄</span>
+                <span id="statusText">Loading...</span>
+            </div>
+            <select id="userSelect" onchange="switchUser()">
+                <option value="">Loading...</option>
+            </select>
+        </div>
+    </header>
+
+    <nav>
+        <ul>
+            <li><a href="#dashboard" class="nav-link active" onclick="showSection('dashboard')">🏠 Dashboard</a></li>
+            <li><a href="#tasks" class="nav-link" onclick="showSection('tasks')">📋 My Tasks</a></li>
+            <li><a href="#recurring" class="nav-link" onclick="showSection('recurring')">🔄 Recurring</a></li>
+            <li><a href="#manager" class="nav-link" onclick="showSection('manager')">👔 Manager</a></li>
+            <li><a href="#staff" class="nav-link" onclick="showSection('staff')">👥 Master Staff</a></li>
+        </ul>
+    </nav>
+
+    <main>
+        <section id="dashboard" class="section active">
+            <div class="quote-card" id="quoteCard">
+                <div class="quote-text">"Loading quote..."</div>
+                <div class="quote-author">- Motivation</div>
+            </div>
+            
+            <h2 style="color: var(--red); margin-bottom: 1rem;">📊 Dashboard Overview</h2>
+            <div id="dashStats"></div>
+            <div style="text-align: center; margin-top: 1.5rem;">
+                <button class="btn btn-primary" onclick="showTaskModal()">➕ Add New Task</button>
+            </div>
+        </section>
+
+        <section id="tasks" class="section">
+            <div style="display: flex; justify-content: space-between; margin-bottom: 1rem; flex-wrap: wrap; gap: 1rem;">
+                <h2 style="color: var(--red);">📋 My Tasks</h2>
+                <button class="btn btn-primary" onclick="showTaskModal()">➕ Add</button>
+            </div>
+            
+            <div class="tab-buttons">
+                <button class="tab-btn active" onclick="switchTaskTab('onetime')" id="tabOnetime">One-Time Tasks</button>
+                <button class="tab-btn" onclick="switchTaskTab('recurring')" id="tabRecurring">Recurring Tasks</button>
+            </div>
+            
+            <div id="onetimeTasksView">
+                <div class="tab-buttons">
+                    <button class="btn btn-small" onclick="filterTasks('all')" id="fAll" style="background: var(--red); color: white;">All</button>
+                    <button class="btn btn-small" onclick="filterTasks('queue')" id="fQueue" style="background: var(--blue); color: white; opacity: 0.6;">Queue</button>
+                    <button class="btn btn-small" onclick="filterTasks('overdue')" id="fOverdue" style="background: var(--orange); color: white; opacity: 0.6;">Overdue</button>
+                    <button class="btn btn-small" onclick="filterTasks('completed')" id="fCompleted" style="background: var(--green); color: white; opacity: 0.6;">Completed</button>
+                </div>
+                <div class="card" id="onetimeTasksList">
+                    <div class="loading">Loading...</div>
+                </div>
+            </div>
+            
+            <div id="recurringTasksView" style="display: none;">
+                <h3 style="color: var(--red); margin-bottom: 1rem;">📅 Daily Tasks (Mon-Sat)</h3>
+                <div id="dailyTasksList" class="card"></div>
+                
+                <h3 style="color: var(--red); margin-bottom: 1rem; margin-top: 1.5rem;">📅 Weekly Tasks</h3>
+                <div id="weeklyTasksList" class="card"></div>
+                
+                <h3 style="color: var(--red); margin-bottom: 1rem; margin-top: 1.5rem;">📅 Monthly Tasks</h3>
+                <div id="monthlyTasksList" class="card"></div>
+            </div>
+        </section>
+
+        <section id="recurring" class="section">
+            <h2 style="color: var(--red); margin-bottom: 1rem;">🔄 Recurring Tasks - This Month</h2>
+            <div id="recurringView">
+                <div class="loading">Loading...</div>
+            </div>
+        </section>
+
+        <section id="manager" class="section">
+            <h2 style="color: var(--red); margin-bottom: 1rem;">👔 Manager Dashboard</h2>
+            <div id="managerView">
+                <div class="loading">Loading...</div>
+            </div>
+        </section>
+
+        <section id="staff" class="section">
+            <div style="display: flex; justify-content: space-between; margin-bottom: 1rem;">
+                <h2 style="color: var(--red);">👥 Master Staff</h2>
+                <button class="btn btn-primary" onclick="showStaffModal()">➕ Add Staff</button>
+            </div>
+            <div id="staffList">
+                <div class="loading">Loading...</div>
+            </div>
+        </section>
+    </main>
+
+    <!-- Task Modal -->
+    <div id="taskModal" class="modal">
+        <div class="modal-content">
+            <h2 style="color: var(--red); margin-bottom: 1rem;" id="taskModalTitle">➕ Add Task</h2>
+            <form id="taskForm" onsubmit="saveTask(event)">
+                <input type="hidden" id="editTaskId">
+                <div class="form-group">
+                    <label>Title *</label>
+                    <input type="text" id="title" required>
+                </div>
+                <div class="form-group">
+                    <label>Description</label>
+                    <textarea id="desc" rows="3"></textarea>
+                </div>
+                <div class="form-row">
+                    <div class="form-group">
+                        <label>Type *</label>
+                        <select id="type" required onchange="toggleSchedule()">
+                            <option value="onetime">One-time</option>
+                            <option value="daily">Daily (Mon-Sat)</option>
+                            <option value="weekly">Weekly</option>
+                            <option value="monthly">Monthly</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label>Priority *</label>
+                        <select id="priority" required>
+                            <option value="low">Low</option>
+                            <option value="medium" selected>Medium</option>
+                            <option value="high">High</option>
+                        </select>
+                    </div>
+                </div>
+                
+                <div id="onetimeOpts" style="display: block;">
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label>Start Date</label>
+                            <input type="date" id="start1">
+                        </div>
+                        <div class="form-group">
+                            <label>Due Date</label>
+                            <input type="date" id="due1">
+                        </div>
+                    </div>
+                </div>
+
+                <div style="display: flex; gap: 1rem; margin-top: 1.5rem;">
+                    <button type="submit" class="btn btn-primary">Save</button>
+                    <button type="button" class="btn btn-secondary" onclick="closeModal('taskModal')">Cancel</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Staff Modal -->
+    <div id="staffModal" class="modal">
+        <div class="modal-content">
+            <h2 style="color: var(--red); margin-bottom: 1rem;" id="staffModalTitle">➕ Add Staff</h2>
+            <form id="staffForm" onsubmit="saveStaff(event)">
+                <input type="hidden" id="editStaffId">
+                <div class="form-group">
+                    <label>Full Name *</label>
+                    <input type="text" id="staffName" required>
+                </div>
+                <div class="form-group">
+                    <label>User ID * (lowercase, no spaces)</label>
+                    <input type="text" id="staffUserId" required pattern="[a-z]+" title="Lowercase letters only">
+                </div>
+                <div class="form-group">
+                    <label>Role/Position *</label>
+                    <select id="staffRole" required>
+                        <option value="Manager">Manager</option>
+                        <option value="PA Manager">PA Manager</option>
+                        <option value="Marketing">Marketing</option>
+                        <option value="Sales Online">Sales Online</option>
+                        <option value="Koordinator Area">Koordinator Area</option>
+                    </select>
+                </div>
+                <div style="display: flex; gap: 1rem; margin-top: 1.5rem;">
+                    <button type="submit" class="btn btn-success">Save Staff</button>
+                    <button type="button" class="btn btn-secondary" onclick="closeModal('staffModal')">Cancel</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <script type="module">
+        import { initializeApp } from 'https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js';
+        import { getFirestore, collection, addDoc, getDocs, query, where, onSnapshot, doc, updateDoc, deleteDoc, serverTimestamp } from 'https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js';
+
+        const app = initializeApp({
+            apiKey: "AIzaSyAdTh1Fwsp1FsyZ98yVo0X63m9Equh2d5c",
+            authDomain: "laritta-task-manager.firebaseapp.com",
+            projectId: "laritta-task-manager",
+            storageBucket: "laritta-task-manager.firebasestorage.app",
+            messagingSenderId: "408024084018",
+            appId: "1:408024084018:web:8739f2654a71cdaf04962b"
+        });
+
+        const db = getFirestore(app);
+        let currentUser = 'faris';
+        let tasks = [];
+        let users = [];
+        let currentFilter = 'all';
+        let currentTaskTab = 'onetime';
+
+        const quotes = [
+            { text: "Teamwork makes the dream work!", author: "Together We Achieve More" },
+            { text: "Communication is the key to success", author: "Sales & Marketing Excellence" },
+            { text: "Take action today for a better tomorrow", author: "Laritta Spirit" },
+            { text: "Bersyukur atas setiap pencapaian kecil", author: "Grateful Team" },
+            { text: "Open communication builds trust", author: "Team Laritta" },
+            { text: "Success is the result of teamwork", author: "Sales Team Motto" },
+            { text: "Be grateful, stay positive, take action", author: "Daily Reminder" }
+        ];
+
+        window.addEventListener('DOMContentLoaded', init);
+
+        async function init() {
+            setStatus('syncing', 'Loading...');
+            
+            const today = new Date().toISOString().split('T')[0];
+            document.getElementById('start1').value = today;
+            document.getElementById('due1').value = today;
+            
+            await initUsers();
+            await loadUsers();
+            await loadTasks();
+            setupListeners();
+            displayDailyQuote();
+            
+            setStatus('synced', 'Ready');
+        }
+
+        function displayDailyQuote() {
+            const dayOfYear = Math.floor((new Date() - new Date(new Date().getFullYear(), 0, 0)) / 86400000);
+            const quote = quotes[dayOfYear % quotes.length];
+            document.getElementById('quoteCard').innerHTML = `
+                <div class="quote-text">"${quote.text}"</div>
+                <div class="quote-author">- ${quote.author}</div>
+            `;
+        }
+
+        async function initUsers() {
+            const snap = await getDocs(collection(db, 'users'));
+            if (snap.empty) {
+                const defaultUsers = [
+                    { userId: 'faris', name: 'Mohammad Faris Rizal', role: 'Manager' },
+                    { userId: 'leony', name: 'Leony Hosna', role: 'PA Manager' },
+                    { userId: 'erina', name: 'Erina Sejati', role: 'Marketing' },
+                    { userId: 'dea', name: 'Amadea Wari Hidayani', role: 'Marketing' },
+                    { userId: 'sisca', name: 'Sisca', role: 'Sales Online' },
+                    { userId: 'yulia', name: 'Yulia', role: 'Sales Online' },
+                    { userId: 'ais', name: 'Aisyatuz Zahrah', role: 'Sales Online' },
+                    { userId: 'budo', name: 'Agus Budi', role: 'Koordinator Area' },
+                    { userId: 'isa', name: 'Isa Yuhani', role: 'Koordinator Area' },
+                    { userId: 'talitha', name: 'Talitha', role: 'Koordinator Area' },
+                    { userId: 'kiky', name: 'Kiky Surya Ningsih', role: 'Koordinator Area' },
+                    { userId: 'sita', name: 'Masita Krisni Adianty', role: 'Koordinator Area' },
+                    { userId: 'ira', name: 'Ita Tri Handayanie', role: 'Koordinator Area' }
+                ];
+                for (const u of defaultUsers) {
+                    await addDoc(collection(db, 'users'), u);
+                }
+            }
+        }
+
+        async function loadUsers() {
+            const snap = await getDocs(collection(db, 'users'));
+            users = snap.docs.map(d => ({id: d.id, ...d.data()}));
+            users.sort((a, b) => a.name.localeCompare(b.name));
+            
+            const sel = document.getElementById('userSelect');
+            sel.innerHTML = users.map(u => 
+                `<option value="${u.userId}" ${u.userId===currentUser?'selected':''}>${u.name} (${u.role})</option>`
+            ).join('');
+            
+            renderStaffList();
+        }
+
+        async function loadTasks() {
+            const q = query(collection(db, 'tasks'), where('assignee', '==', currentUser));
+            const snap = await getDocs(q);
+            tasks = snap.docs.map(d => ({id: d.id, ...d.data()}));
+            renderAll();
+        }
+
+        function setupListeners() {
+            const q = query(collection(db, 'tasks'), where('assignee', '==', currentUser));
+            onSnapshot(q, (snap) => {
+                tasks = snap.docs.map(d => ({id: d.id, ...d.data()}));
+                renderAll();
+            });
+        }
+
+        function renderAll() {
+            renderDashboard();
+            renderTasksView();
+            renderRecurringView();
+        }
+
+        async function renderDashboard() {
+            const onetime = tasks.filter(t => t.type === 'onetime');
+            const oneTotal = onetime.length;
+            const oneTodo = onetime.filter(t => !t.status || t.status === 'todo').length;
+            const oneProg = onetime.filter(t => t.status === 'in-progress').length;
+            const oneDone = onetime.filter(t => t.status === 'completed').length;
+            
+            const recurring = tasks.filter(t => ['daily', 'weekly', 'monthly'].includes(t.type));
+            const recTotal = recurring.length;
+            
+            document.getElementById('dashStats').innerHTML = `
+                <h3 style="color: var(--red); margin-bottom: 1rem;">One-Time Tasks</h3>
+                <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 1rem; margin-bottom: 2rem;">
+                    <div class="card" style="text-align: center; border-top: 4px solid var(--red); padding: 1rem;">
+                        <h3 style="color: #999; font-size: 0.75rem;">TOTAL</h3>
+                        <div style="font-size: 2rem; font-weight: bold; color: var(--red);">${oneTotal}</div>
+                    </div>
+                    <div class="card" style="text-align: center; border-top: 4px solid var(--blue); padding: 1rem;">
+                        <h3 style="color: #999; font-size: 0.75rem;">TO DO</h3>
+                        <div style="font-size: 2rem; font-weight: bold; color: var(--blue);">${oneTodo}</div>
+                    </div>
+                    <div class="card" style="text-align: center; border-top: 4px solid var(--orange); padding: 1rem;">
+                        <h3 style="color: #999; font-size: 0.75rem;">IN PROGRESS</h3>
+                        <div style="font-size: 2rem; font-weight: bold; color: var(--orange);">${oneProg}</div>
+                    </div>
+                    <div class="card" style="text-align: center; border-top: 4px solid var(--green); padding: 1rem;">
+                        <h3 style="color: #999; font-size: 0.75rem;">COMPLETED</h3>
+                        <div style="font-size: 2rem; font-weight: bold; color: var(--green);">${oneDone}</div>
+                    </div>
+                </div>
+                
+                <h3 style="color: var(--red); margin-bottom: 1rem;">Recurring Tasks</h3>
+                <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 1rem;">
+                    <div class="card" style="text-align: center; border-top: 4px solid var(--blue); padding: 1rem;">
+                        <h3 style="color: #999; font-size: 0.75rem;">ACTIVE</h3>
+                        <div style="font-size: 2rem; font-weight: bold; color: var(--blue);">${recTotal}</div>
+                    </div>
+                </div>
+            `;
+        }
+
+        function renderTasksView() {
+            if (currentTaskTab === 'onetime') {
+                renderOnetimeTasks();
+                document.getElementById('onetimeTasksView').style.display = 'block';
+                document.getElementById('recurringTasksView').style.display = 'none';
+            } else {
+                renderRecurringTasks();
+                document.getElementById('onetimeTasksView').style.display = 'none';
+                document.getElementById('recurringTasksView').style.display = 'block';
+            }
+        }
+
+        function renderOnetimeTasks() {
+            const now = new Date();
+            let filtered = tasks.filter(t => t.type === 'onetime');
+            
+            if (currentFilter === 'queue') {
+                filtered = filtered.filter(t => t.status !== 'completed');
+            } else if (currentFilter === 'overdue') {
+                filtered = filtered.filter(t => {
+                    if (t.status === 'completed' || !t.dueDate) return false;
+                    return new Date(t.dueDate) < now;
+                });
+            } else if (currentFilter === 'completed') {
+                filtered = filtered.filter(t => t.status === 'completed');
+            }
+            
+            const el = document.getElementById('onetimeTasksList');
+            
+            if (filtered.length === 0) {
+                el.innerHTML = '<p style="text-align: center; color: #999;">No tasks</p>';
+                return;
+            }
+            
+            el.innerHTML = filtered.map(t => {
+                const isOverdue = t.dueDate && new Date(t.dueDate) < now && t.status !== 'completed';
+                
+                return `
+                    <div class="task-item ${t.status==='completed'?'completed':''} ${isOverdue?'overdue':''}">
+                        <div class="task-actions">
+                            <button class="btn btn-small btn-warning" onclick="editTask('${t.id}')">✏️ Edit</button>
+                            <button class="btn btn-small btn-danger" onclick="deleteTask('${t.id}')">🗑️ Delete</button>
+                        </div>
+                        <h4>${t.title}</h4>
+                        ${t.description ? `<p style="font-size: 0.85rem; margin-bottom: 0.5rem;">${t.description}</p>` : ''}
+                        ${t.dueDate ? `<p style="font-size: 0.8rem; color: #666;">📅 Due: ${new Date(t.dueDate).toLocaleDateString('id-ID')}</p>` : ''}
+                        <div style="margin-top: 0.5rem;">
+                            <button class="btn btn-small ${t.status==='completed'?'btn-secondary':'btn-success'}" onclick="toggleStatus('${t.id}')">
+                                ${t.status==='completed'?'Reopen':'Complete'}
+                            </button>
+                        </div>
+                    </div>
+                `;
+            }).join('');
+        }
+
+        function renderRecurringTasks() {
+            const daily = tasks.filter(t => t.type === 'daily');
+            const weekly = tasks.filter(t => t.type === 'weekly');
+            const monthly = tasks.filter(t => t.type === 'monthly');
+            
+            document.getElementById('dailyTasksList').innerHTML = daily.length > 0 ? daily.map(t => `
+                <div class="task-item">
+                    <div class="task-actions">
+                        <button class="btn btn-small btn-warning" onclick="editTask('${t.id}')">✏️</button>
+                        <button class="btn btn-small btn-danger" onclick="deleteTask('${t.id}')">🗑️</button>
+                    </div>
+                    <h4>${t.title}</h4>
+                    ${t.description ? `<p style="font-size: 0.85rem;">${t.description}</p>` : ''}
+                    <p style="font-size: 0.8rem; color: #666; margin-top: 0.5rem;">⏰ Every Mon-Sat at ${t.schedule?.time||'09:00'}</p>
+                </div>
+            `).join('') : '<p style="text-align: center; color: #999;">No daily tasks</p>';
+            
+            document.getElementById('weeklyTasksList').innerHTML = weekly.length > 0 ? weekly.map(t => `
+                <div class="task-item">
+                    <div class="task-actions">
+                        <button class="btn btn-small btn-warning" onclick="editTask('${t.id}')">✏️</button>
+                        <button class="btn btn-small btn-danger" onclick="deleteTask('${t.id}')">🗑️</button>
+                    </div>
+                    <h4>${t.title}</h4>
+                    ${t.description ? `<p style="font-size: 0.85rem;">${t.description}</p>` : ''}
+                    <p style="font-size: 0.8rem; color: #666; margin-top: 0.5rem;">📅 Weekly schedule</p>
+                </div>
+            `).join('') : '<p style="text-align: center; color: #999;">No weekly tasks</p>';
+            
+            document.getElementById('monthlyTasksList').innerHTML = monthly.length > 0 ? monthly.map(t => `
+                <div class="task-item">
+                    <div class="task-actions">
+                        <button class="btn btn-small btn-warning" onclick="editTask('${t.id}')">✏️</button>
+                        <button class="btn btn-small btn-danger" onclick="deleteTask('${t.id}')">🗑️</button>
+                    </div>
+                    <h4>${t.title}</h4>
+                    ${t.description ? `<p style="font-size: 0.85rem;">${t.description}</p>` : ''}
+                    <p style="font-size: 0.8rem; color: #666; margin-top: 0.5rem;">📅 Monthly on day ${t.schedule?.monthlyDay||1}</p>
+                </div>
+            `).join('') : '<p style="text-align: center; color: #999;">No monthly tasks</p>';
+        }
+
+        function renderRecurringView() {
+            document.getElementById('recurringView').innerHTML = '<div class="card"><p>Recurring view - check My Tasks → Recurring Tasks tab</p></div>';
+        }
+
+        function renderStaffList() {
+            const grouped = {};
+            users.forEach(u => {
+                if (!grouped[u.role]) grouped[u.role] = [];
+                grouped[u.role].push(u);
+            });
+            
+            const el = document.getElementById('staffList');
+            el.innerHTML = Object.entries(grouped).map(([role, members]) => `
+                <h3 style="color: var(--red); margin-bottom: 1rem; margin-top: 1rem;">${role} (${members.length})</h3>
+                ${members.map(m => `
+                    <div class="user-item">
+                        <div>
+                            <strong>${m.name}</strong>
+                            <p style="font-size: 0.85rem; color: #666;">@${m.userId}</p>
+                        </div>
+                        <div style="display: flex; gap: 0.5rem;">
+                            <button class="btn btn-small btn-warning" onclick="editStaff('${m.id}')">✏️ Edit</button>
+                            <button class="btn btn-small btn-danger" onclick="deleteStaff('${m.id}')">🗑️</button>
+                        </div>
+                    </div>
+                `).join('')}
+            `).join('');
+        }
+
+        async function renderManagerDashboard() {
+            const el = document.getElementById('managerView');
+            
+            try {
+                setStatus('syncing', 'Loading...');
+                
+                const allTasksSnap = await getDocs(collection(db, 'tasks'));
+                const allTasks = allTasksSnap.docs.map(d => ({id: d.id, ...d.data()}));
+                
+                const grouped = {};
+                users.forEach(u => {
+                    if (!grouped[u.role]) grouped[u.role] = [];
+                    const userTasks = allTasks.filter(t => t.assignee === u.userId && t.type === 'onetime');
+                    const completed = userTasks.filter(t => t.status === 'completed').length;
+                    const total = userTasks.length;
+                    const rate = total > 0 ? Math.round((completed / total) * 100) : 0;
+                    
+                    grouped[u.role].push({ ...u, taskCount: total, completed, rate });
+                });
+                
+                el.innerHTML = Object.entries(grouped).map(([role, members]) => `
+                    <div class="card">
+                        <h3 style="color: var(--red); margin-bottom: 1rem;">${role} (${members.length} people)</h3>
+                        ${members.map(m => `
+                            <div style="padding: 1rem; margin-bottom: 0.8rem; background: var(--gray-light); border-radius: 8px;">
+                                <div style="display: flex; justify-content: space-between; margin-bottom: 0.5rem;">
+                                    <strong>${m.name}</strong>
+                                    <span style="color: ${m.rate>=70?'var(--green)':'var(--orange)'}; font-weight: bold;">${m.rate}%</span>
+                                </div>
+                                <div style="display: flex; gap: 1rem; font-size: 0.85rem;">
+                                    <span>Tasks: ${m.taskCount}</span>
+                                    <span style="color: var(--green);">Done: ${m.completed}</span>
+                                </div>
+                            </div>
+                        `).join('')}
+                    </div>
+                `).join('');
+                
+                setStatus('synced', 'Ready');
+            } catch (err) {
+                el.innerHTML = `<div class="card"><p style="color: var(--orange);">Error: ${err.message}</p></div>`;
+            }
+        }
+
+        window.switchTaskTab = (tab) => {
+            currentTaskTab = tab;
+            document.getElementById('tabOnetime').classList.toggle('active', tab === 'onetime');
+            document.getElementById('tabRecurring').classList.toggle('active', tab === 'recurring');
+            renderTasksView();
+        };
+
+        window.filterTasks = (filter) => {
+            currentFilter = filter;
+            ['All', 'Queue', 'Overdue', 'Completed'].forEach(f => {
+                const btn = document.getElementById('f' + f);
+                if (btn) btn.style.opacity = filter === f.toLowerCase() ? '1' : '0.6';
+            });
+            renderOnetimeTasks();
+        };
+
+        window.editTask = async (taskId) => {
+            const task = tasks.find(t => t.id === taskId);
+            if (!task) return;
+            
+            document.getElementById('taskModalTitle').textContent = '✏️ Edit Task';
+            document.getElementById('editTaskId').value = taskId;
+            document.getElementById('title').value = task.title;
+            document.getElementById('desc').value = task.description || '';
+            document.getElementById('type').value = task.type;
+            document.getElementById('priority').value = task.priority;
+            
+            if (task.type === 'onetime') {
+                document.getElementById('start1').value = task.startDate || '';
+                document.getElementById('due1').value = task.dueDate || '';
+            }
+            
+            document.getElementById('taskModal').classList.add('active');
+        };
+
+        window.deleteTask = async (taskId) => {
+            if (!confirm('Delete this task?')) return;
+            
+            try {
+                setStatus('syncing', 'Deleting...');
+                await deleteDoc(doc(db, 'tasks', taskId));
+                setStatus('synced', 'Deleted!');
+            } catch (err) {
+                alert('Error: ' + err.message);
+            }
+        };
+
+        window.toggleStatus = async (taskId) => {
+            const task = tasks.find(t => t.id === taskId);
+            const newStatus = task.status === 'completed' ? 'todo' : 'completed';
+            await updateDoc(doc(db, 'tasks', taskId), { status: newStatus });
+        };
+
+        window.saveTask = async (e) => {
+            e.preventDefault();
+            setStatus('syncing', 'Saving...');
+            
+            try {
+                const data = {
+                    title: document.getElementById('title').value,
+                    description: document.getElementById('desc').value,
+                    type: document.getElementById('type').value,
+                    priority: document.getElementById('priority').value,
+                    assignee: currentUser,
+                    status: 'todo'
+                };
+                
+                if (data.type === 'onetime') {
+                    data.startDate = document.getElementById('start1').value;
+                    data.dueDate = document.getElementById('due1').value;
+                }
+                
+                const editId = document.getElementById('editTaskId').value;
+                if (editId) {
+                    await updateDoc(doc(db, 'tasks', editId), data);
+                } else {
+                    data.createdAt = serverTimestamp();
+                    await addDoc(collection(db, 'tasks'), data);
+                }
+                
+                closeModal('taskModal');
+                document.getElementById('taskForm').reset();
+                document.getElementById('editTaskId').value = '';
+                setStatus('synced', 'Saved!');
+            } catch (err) {
+                alert('Error: ' + err.message);
+            }
+        };
+
+        window.showStaffModal = () => {
+            document.getElementById('staffModalTitle').textContent = '➕ Add Staff';
+            document.getElementById('editStaffId').value = '';
+            document.getElementById('staffForm').reset();
+            document.getElementById('staffModal').classList.add('active');
+        };
+
+        window.editStaff = (staffId) => {
+            const staff = users.find(u => u.id === staffId);
+            if (!staff) return;
+            
+            document.getElementById('staffModalTitle').textContent = '✏️ Edit Staff';
+            document.getElementById('editStaffId').value = staffId;
+            document.getElementById('staffName').value = staff.name;
+            document.getElementById('staffUserId').value = staff.userId;
+            document.getElementById('staffRole').value = staff.role;
+            document.getElementById('staffModal').classList.add('active');
+        };
+
+        window.deleteStaff = async (staffId) => {
+            if (!confirm('Delete this staff member? This will remove all their tasks!')) return;
+            
+            try {
+                setStatus('syncing', 'Deleting...');
+                await deleteDoc(doc(db, 'users', staffId));
+                await loadUsers();
+                setStatus('synced', 'Deleted!');
+            } catch (err) {
+                alert('Error: ' + err.message);
+            }
+        };
+
+        window.saveStaff = async (e) => {
+            e.preventDefault();
+            setStatus('syncing', 'Saving...');
+            
+            try {
+                const data = {
+                    name: document.getElementById('staffName').value,
+                    userId: document.getElementById('staffUserId').value.toLowerCase(),
+                    role: document.getElementById('staffRole').value
+                };
+                
+                const editId = document.getElementById('editStaffId').value;
+                if (editId) {
+                    await updateDoc(doc(db, 'users', editId), data);
+                } else {
+                    await addDoc(collection(db, 'users'), data);
+                }
+                
+                await loadUsers();
+                closeModal('staffModal');
+                document.getElementById('staffForm').reset();
+                setStatus('synced', 'Saved!');
+            } catch (err) {
+                alert('Error: ' + err.message);
+            }
+        };
+
+        window.switchUser = () => {
+            currentUser = document.getElementById('userSelect').value;
+            loadTasks();
+        };
+
+        window.showSection = (id) => {
+            document.querySelectorAll('.section').forEach(s => s.classList.remove('active'));
+            document.querySelectorAll('.nav-link').forEach(l => l.classList.remove('active'));
+            document.getElementById(id).classList.add('active');
+            document.querySelector(`a[href="#${id}"]`).classList.add('active');
+            
+            if (id === 'manager') renderManagerDashboard();
+        };
+
+        window.showTaskModal = () => {
+            document.getElementById('taskModalTitle').textContent = '➕ Add Task';
+            document.getElementById('editTaskId').value = '';
+            document.getElementById('taskForm').reset();
+            const today = new Date().toISOString().split('T')[0];
+            document.getElementById('start1').value = today;
+            document.getElementById('due1').value = today;
+            document.getElementById('taskModal').classList.add('active');
+        };
+
+        window.closeModal = (id) => {
+            document.getElementById(id).classList.remove('active');
+        };
+
+        window.toggleSchedule = () => {
+            // Simplified - always show onetime fields
+        };
+
+        function setStatus(status, text) {
+            const el = document.getElementById('status');
+            const icon = document.getElementById('statusIcon');
+            const txt = document.getElementById('statusText');
+            
+            el.className = `status ${status}`;
+            txt.textContent = text;
+            icon.textContent = status === 'synced' ? '☁️' : '🔄';
+        }
+    </script>
+</body>
+</html>
