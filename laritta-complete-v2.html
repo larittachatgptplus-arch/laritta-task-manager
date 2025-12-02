@@ -1,0 +1,1021 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Laritta Task Manager v2 - Complete System</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        
+        :root {
+            --red: #c41e3a;
+            --red-dark: #a01830;
+            --red-light: #fef5f6;
+            --orange: #ff6b35;
+            --blue: #4285f4;
+            --green: #34a853;
+            --yellow: #fbbc04;
+            --gray: #333;
+            --gray-mid: #666;
+            --gray-light: #f5f5f5;
+            --white: #fff;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: var(--gray-light);
+            color: var(--gray);
+            line-height: 1.6;
+        }
+
+        header {
+            background: linear-gradient(135deg, var(--red) 0%, var(--red-dark) 100%);
+            color: white;
+            padding: 1rem 1.5rem;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.2);
+        }
+
+        .header-content {
+            max-width: 1400px;
+            margin: 0 auto;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 1rem;
+        }
+
+        .header-title h1 { font-size: 1.4rem; margin-bottom: 0.2rem; }
+        .header-title p { font-size: 0.75rem; opacity: 0.9; }
+
+        .status {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            padding: 0.4rem 0.8rem;
+            background: rgba(255,255,255,0.2);
+            border-radius: 20px;
+            font-size: 0.75rem;
+        }
+
+        .status.synced { background: rgba(52, 168, 83, 0.3); }
+        .status.syncing { background: rgba(251, 188, 4, 0.3); }
+
+        select {
+            padding: 0.4rem 0.8rem;
+            border-radius: 8px;
+            border: 2px solid white;
+            background: white;
+            color: var(--red);
+            font-weight: bold;
+            cursor: pointer;
+            font-size: 0.8rem;
+        }
+
+        nav {
+            background: white;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+            position: sticky;
+            top: 0;
+            z-index: 100;
+        }
+
+        nav ul {
+            max-width: 1400px;
+            margin: 0 auto;
+            list-style: none;
+            display: flex;
+            justify-content: center;
+            flex-wrap: wrap;
+        }
+
+        nav a {
+            display: block;
+            padding: 0.8rem 1rem;
+            color: var(--red);
+            text-decoration: none;
+            font-weight: bold;
+            transition: all 0.3s;
+            border-bottom: 3px solid transparent;
+            font-size: 0.8rem;
+        }
+
+        nav a:hover, nav a.active {
+            background: var(--red-light);
+            border-bottom-color: var(--red);
+        }
+
+        main {
+            max-width: 1400px;
+            margin: 1.5rem auto;
+            padding: 0 1.5rem;
+        }
+
+        .section { display: none; }
+        .section.active { display: block; }
+
+        .btn {
+            padding: 0.6rem 1rem;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            font-weight: bold;
+            transition: all 0.3s;
+            font-size: 0.8rem;
+            display: inline-flex;
+            align-items: center;
+            gap: 0.4rem;
+        }
+
+        .btn-primary { background: var(--red); color: white; }
+        .btn-primary:hover { background: var(--red-dark); }
+        .btn-success { background: var(--green); color: white; }
+        .btn-secondary { background: var(--gray-mid); color: white; }
+
+        .card {
+            background: white;
+            padding: 1.5rem;
+            border-radius: 12px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+            margin-bottom: 1.5rem;
+        }
+
+        .task-item {
+            padding: 1rem;
+            margin-bottom: 1rem;
+            border-left: 4px solid var(--blue);
+            background: var(--gray-light);
+            border-radius: 8px;
+            cursor: pointer;
+        }
+
+        .task-item.completed { opacity: 0.7; border-left-color: var(--green); }
+        .task-item.overdue { border-left-color: var(--orange); background: #fff5f5; }
+        .task-item h4 { color: var(--red); margin-bottom: 0.5rem; font-size: 1rem; }
+
+        .checklist {
+            margin-top: 0.8rem;
+            padding: 0.8rem;
+            background: white;
+            border-radius: 6px;
+        }
+
+        .checklist-item {
+            display: flex;
+            align-items: start;
+            gap: 0.5rem;
+            margin-bottom: 0.5rem;
+            padding: 0.4rem;
+            border-radius: 4px;
+        }
+
+        .checklist-item:hover { background: var(--gray-light); }
+
+        .checklist-item input[type="checkbox"] {
+            margin-top: 0.2rem;
+            cursor: pointer;
+        }
+
+        .checklist-item.done {
+            opacity: 0.6;
+            text-decoration: line-through;
+        }
+
+        .recurring-day {
+            background: white;
+            padding: 1rem;
+            border-radius: 8px;
+            margin-bottom: 1rem;
+            border-left: 4px solid var(--blue);
+        }
+
+        .recurring-day h4 {
+            color: var(--red);
+            margin-bottom: 0.8rem;
+            font-size: 1rem;
+        }
+
+        .recurring-task {
+            display: flex;
+            align-items: center;
+            gap: 0.8rem;
+            padding: 0.6rem;
+            background: var(--gray-light);
+            border-radius: 6px;
+            margin-bottom: 0.5rem;
+        }
+
+        .recurring-task input[type="checkbox"] {
+            width: 20px;
+            height: 20px;
+            cursor: pointer;
+        }
+
+        .recurring-task.done {
+            opacity: 0.6;
+        }
+
+        .recurring-task.done .task-title {
+            text-decoration: line-through;
+        }
+
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0,0,0,0.5);
+            z-index: 1000;
+            align-items: center;
+            justify-content: center;
+            padding: 1rem;
+            overflow-y: auto;
+        }
+
+        .modal.active { display: flex; }
+
+        .modal-content {
+            background: white;
+            padding: 2rem;
+            border-radius: 12px;
+            max-width: 700px;
+            width: 100%;
+            max-height: 90vh;
+            overflow-y: auto;
+        }
+
+        .form-group {
+            margin-bottom: 1rem;
+        }
+
+        .form-group label {
+            display: block;
+            margin-bottom: 0.4rem;
+            font-weight: bold;
+            font-size: 0.85rem;
+        }
+
+        .form-group input,
+        .form-group select,
+        .form-group textarea {
+            width: 100%;
+            padding: 0.6rem;
+            border: 2px solid var(--gray-light);
+            border-radius: 8px;
+            font-size: 0.85rem;
+        }
+
+        .form-row {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 1rem;
+        }
+
+        .schedule-opts {
+            display: none;
+            margin-top: 0.8rem;
+            padding: 1rem;
+            background: var(--gray-light);
+            border-radius: 8px;
+        }
+
+        .schedule-opts.active { display: block; }
+
+        .checkbox-group {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 0.5rem;
+        }
+
+        .checkbox-item {
+            display: flex;
+            align-items: center;
+            gap: 0.3rem;
+        }
+
+        .tag {
+            padding: 0.2rem 0.6rem;
+            border-radius: 10px;
+            font-size: 0.75rem;
+            font-weight: 600;
+        }
+
+        .progress-bar {
+            height: 6px;
+            background: var(--gray-light);
+            border-radius: 3px;
+            overflow: hidden;
+            margin-top: 0.5rem;
+        }
+
+        .progress-fill {
+            height: 100%;
+            background: var(--green);
+            transition: width 0.3s;
+        }
+
+        .add-checklist {
+            display: flex;
+            gap: 0.5rem;
+            margin-top: 0.5rem;
+        }
+
+        .add-checklist input {
+            flex: 1;
+            padding: 0.4rem;
+            border: 1px solid var(--gray-light);
+            border-radius: 4px;
+            font-size: 0.8rem;
+        }
+
+        .add-checklist button {
+            padding: 0.4rem 0.8rem;
+            background: var(--green);
+            color: white;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 0.8rem;
+        }
+
+        .loading {
+            text-align: center;
+            padding: 2rem;
+            color: var(--gray-mid);
+        }
+
+        @media (max-width: 768px) {
+            .form-row { grid-template-columns: 1fr; }
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <div class="header-content">
+            <div class="header-title">
+                <h1>🍰 LARITTA TASK MANAGER V2</h1>
+                <p>Complete with Checklist & Recurring Tasks</p>
+            </div>
+            <div class="status syncing" id="status">
+                <span id="statusIcon">🔄</span>
+                <span id="statusText">Loading...</span>
+            </div>
+            <select id="userSelect" onchange="switchUser()">
+                <option value="">Loading...</option>
+            </select>
+        </div>
+    </header>
+
+    <nav>
+        <ul>
+            <li><a href="#dashboard" class="nav-link active" onclick="showSection('dashboard')">🏠 Dashboard</a></li>
+            <li><a href="#tasks" class="nav-link" onclick="showSection('tasks')">📋 My Tasks</a></li>
+            <li><a href="#recurring" class="nav-link" onclick="showSection('recurring')">🔄 Recurring</a></li>
+            <li><a href="#calendar" class="nav-link" onclick="showSection('calendar')">📅 Calendar</a></li>
+            <li><a href="#manager" class="nav-link" onclick="showSection('manager')">👔 Manager</a></li>
+        </ul>
+    </nav>
+
+    <main>
+        <section id="dashboard" class="section active">
+            <h2 style="color: var(--red); margin-bottom: 1rem;">📊 Dashboard</h2>
+            <div id="dashStats"></div>
+            <div style="text-align: center; margin-top: 1.5rem;">
+                <button class="btn btn-primary" onclick="showTaskModal()">➕ Add Task</button>
+            </div>
+        </section>
+
+        <section id="tasks" class="section">
+            <div style="display: flex; justify-content: space-between; margin-bottom: 1rem; flex-wrap: wrap; gap: 1rem;">
+                <h2 style="color: var(--red);">📋 My Tasks</h2>
+                <button class="btn btn-primary" onclick="showTaskModal()">➕ Add</button>
+            </div>
+            
+            <div style="display: flex; gap: 0.5rem; margin-bottom: 1rem; flex-wrap: wrap;">
+                <button class="btn" onclick="filterTasks('all')" id="fAll" style="background: var(--red); color: white;">All</button>
+                <button class="btn" onclick="filterTasks('queue')" id="fQueue" style="background: var(--blue); color: white; opacity: 0.6;">Queue</button>
+                <button class="btn" onclick="filterTasks('overdue')" id="fOverdue" style="background: var(--orange); color: white; opacity: 0.6;">Overdue</button>
+                <button class="btn" onclick="filterTasks('completed')" id="fCompleted" style="background: var(--green); color: white; opacity: 0.6;">Completed</button>
+            </div>
+            
+            <div class="card" id="tasksList">
+                <div class="loading">Loading tasks...</div>
+            </div>
+        </section>
+
+        <section id="recurring" class="section">
+            <h2 style="color: var(--red); margin-bottom: 1rem;">🔄 Recurring Tasks</h2>
+            <p style="margin-bottom: 1rem; color: var(--gray-mid);">Daily, Weekly, and Monthly tasks with checklist view</p>
+            <div id="recurringView">
+                <div class="loading">Loading recurring tasks...</div>
+            </div>
+        </section>
+
+        <section id="calendar" class="section">
+            <h2 style="color: var(--red); margin-bottom: 1rem;">📅 Calendar</h2>
+            <div class="card">
+                <p style="text-align: center; color: var(--gray-mid);">Calendar view coming soon...</p>
+            </div>
+        </section>
+
+        <section id="manager" class="section">
+            <h2 style="color: var(--red); margin-bottom: 1rem;">👔 Manager Dashboard</h2>
+            <div id="managerView">
+                <div class="loading">Loading...</div>
+            </div>
+        </section>
+    </main>
+
+    <!-- Add Task Modal -->
+    <div id="taskModal" class="modal">
+        <div class="modal-content">
+            <h2 style="color: var(--red); margin-bottom: 1rem;">➕ Add Task</h2>
+            <form id="taskForm" onsubmit="saveTask(event)">
+                <div class="form-group">
+                    <label>Title *</label>
+                    <input type="text" id="title" required>
+                </div>
+                <div class="form-group">
+                    <label>Description</label>
+                    <textarea id="desc" rows="3"></textarea>
+                </div>
+                <div class="form-row">
+                    <div class="form-group">
+                        <label>Type *</label>
+                        <select id="type" required onchange="toggleSchedule()">
+                            <option value="onetime">One-time</option>
+                            <option value="daily">Daily (Mon-Sat)</option>
+                            <option value="weekly">Weekly</option>
+                            <option value="monthly">Monthly</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label>Priority *</label>
+                        <select id="priority" required>
+                            <option value="low">Low</option>
+                            <option value="medium" selected>Medium</option>
+                            <option value="high">High</option>
+                        </select>
+                    </div>
+                </div>
+                
+                <div id="onetimeOpts" class="schedule-opts active">
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label>Start Date</label>
+                            <input type="date" id="start1">
+                        </div>
+                        <div class="form-group">
+                            <label>Due Date</label>
+                            <input type="date" id="due1">
+                        </div>
+                    </div>
+                </div>
+
+                <div id="dailyOpts" class="schedule-opts">
+                    <div class="form-group">
+                        <label>Time (Mon-Sat, Sunday off)</label>
+                        <input type="time" id="dailyTime" value="09:00">
+                    </div>
+                </div>
+
+                <div id="weeklyOpts" class="schedule-opts">
+                    <div class="form-group">
+                        <label>Days</label>
+                        <div class="checkbox-group">
+                            <label class="checkbox-item"><input type="checkbox" value="1" class="weekday"> Mon</label>
+                            <label class="checkbox-item"><input type="checkbox" value="2" class="weekday"> Tue</label>
+                            <label class="checkbox-item"><input type="checkbox" value="3" class="weekday"> Wed</label>
+                            <label class="checkbox-item"><input type="checkbox" value="4" class="weekday"> Thu</label>
+                            <label class="checkbox-item"><input type="checkbox" value="5" class="weekday"> Fri</label>
+                            <label class="checkbox-item"><input type="checkbox" value="6" class="weekday"> Sat</label>
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label>Time</label>
+                        <input type="time" id="weeklyTime" value="09:00">
+                    </div>
+                </div>
+
+                <div id="monthlyOpts" class="schedule-opts">
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label>Day (1-31)</label>
+                            <input type="number" id="monthlyDay" min="1" max="31" value="1">
+                        </div>
+                        <div class="form-group">
+                            <label>Time</label>
+                            <input type="time" id="monthlyTime" value="09:00">
+                        </div>
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label>Checklist Items (Optional)</label>
+                    <div id="checklistInputs">
+                        <div class="add-checklist">
+                            <input type="text" placeholder="Item 1 description" class="checklist-input">
+                            <button type="button" onclick="addChecklistInput()">+</button>
+                        </div>
+                    </div>
+                </div>
+
+                <div style="display: flex; gap: 1rem; margin-top: 1.5rem;">
+                    <button type="submit" class="btn btn-primary">Save</button>
+                    <button type="button" class="btn btn-secondary" onclick="closeModal()">Cancel</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <script type="module">
+        import { initializeApp } from 'https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js';
+        import { getFirestore, collection, addDoc, getDocs, query, where, onSnapshot, doc, updateDoc, deleteDoc, serverTimestamp, Timestamp } from 'https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js';
+
+        const app = initializeApp({
+            apiKey: "AIzaSyAdTh1Fwsp1FsyZ98yVo0X63m9Equh2d5c",
+            authDomain: "laritta-task-manager.firebaseapp.com",
+            projectId: "laritta-task-manager",
+            storageBucket: "laritta-task-manager.firebasestorage.app",
+            messagingSenderId: "408024084018",
+            appId: "1:408024084018:web:8739f2654a71cdaf04962b"
+        });
+
+        const db = getFirestore(app);
+        let currentUser = 'faris';
+        let tasks = [];
+        let users = [];
+        let currentFilter = 'all';
+
+        window.addEventListener('DOMContentLoaded', init);
+
+        async function init() {
+            setStatus('syncing', 'Loading...');
+            
+            const today = new Date().toISOString().split('T')[0];
+            document.getElementById('start1').value = today;
+            document.getElementById('due1').value = today;
+            
+            await initUsers();
+            await loadUsers();
+            await loadTasks();
+            setupListeners();
+            
+            // Generate recurring task instances daily
+            await generateRecurringInstances();
+            
+            setStatus('synced', 'Ready');
+        }
+
+        async function initUsers() {
+            const snap = await getDocs(collection(db, 'users'));
+            if (snap.empty) {
+                const defaultUsers = [
+                    { userId: 'faris', name: 'Mohammad Faris Rizal', role: 'Manager' },
+                    { userId: 'leony', name: 'Leony Hosna', role: 'PA Manager' },
+                    { userId: 'erma', name: 'Erma Sejati', role: 'Marketing' }
+                ];
+                for (const u of defaultUsers) {
+                    await addDoc(collection(db, 'users'), u);
+                }
+            }
+        }
+
+        async function loadUsers() {
+            const snap = await getDocs(collection(db, 'users'));
+            users = snap.docs.map(d => ({id: d.id, ...d.data()}));
+            
+            const sel = document.getElementById('userSelect');
+            sel.innerHTML = users.map(u => 
+                `<option value="${u.userId}" ${u.userId===currentUser?'selected':''}>${u.name}</option>`
+            ).join('');
+        }
+
+        async function loadTasks() {
+            const q = query(collection(db, 'tasks'), where('assignee', '==', currentUser));
+            const snap = await getDocs(q);
+            tasks = snap.docs.map(d => ({id: d.id, ...d.data()}));
+            renderAll();
+        }
+
+        function setupListeners() {
+            const q = query(collection(db, 'tasks'), where('assignee', '==', currentUser));
+            onSnapshot(q, (snap) => {
+                tasks = snap.docs.map(d => ({id: d.id, ...d.data()}));
+                renderAll();
+            });
+        }
+
+        async function generateRecurringInstances() {
+            // Get all recurring tasks for current user
+            const recurringTasks = tasks.filter(t => 
+                ['daily', 'weekly', 'monthly'].includes(t.type)
+            );
+            
+            const today = new Date();
+            const todayStr = today.toISOString().split('T')[0];
+            
+            for (const task of recurringTasks) {
+                // Check if instance exists for today
+                const instanceQuery = query(
+                    collection(db, 'task_instances'),
+                    where('taskId', '==', task.id),
+                    where('date', '==', todayStr)
+                );
+                const instanceSnap = await getDocs(instanceQuery);
+                
+                if (instanceSnap.empty && shouldGenerateInstance(task, today)) {
+                    // Create instance for today
+                    await addDoc(collection(db, 'task_instances'), {
+                        taskId: task.id,
+                        title: task.title,
+                        description: task.description,
+                        assignee: task.assignee,
+                        type: task.type,
+                        priority: task.priority,
+                        date: todayStr,
+                        completed: false,
+                        checklist: task.checklist || [],
+                        createdAt: serverTimestamp()
+                    });
+                }
+            }
+        }
+
+        function shouldGenerateInstance(task, date) {
+            const dayOfWeek = date.getDay(); // 0 = Sunday, 6 = Saturday
+            
+            if (task.type === 'daily') {
+                // Daily tasks: Mon-Sat (1-6), no Sunday (0)
+                return dayOfWeek >= 1 && dayOfWeek <= 6;
+            }
+            
+            if (task.type === 'weekly' && task.schedule && task.schedule.weekdays) {
+                return task.schedule.weekdays.includes(dayOfWeek);
+            }
+            
+            if (task.type === 'monthly' && task.schedule && task.schedule.monthlyDay) {
+                return date.getDate() === task.schedule.monthlyDay;
+            }
+            
+            return false;
+        }
+
+        function renderAll() {
+            renderDashboard();
+            renderTasksList();
+            renderRecurringView();
+        }
+
+        function renderDashboard() {
+            const total = tasks.filter(t => t.type === 'onetime').length;
+            const todo = tasks.filter(t => t.type === 'onetime' && (!t.status || t.status === 'todo')).length;
+            const prog = tasks.filter(t => t.type === 'onetime' && t.status === 'in-progress').length;
+            const done = tasks.filter(t => t.type === 'onetime' && t.status === 'completed').length;
+            
+            document.getElementById('dashStats').innerHTML = `
+                <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 1rem;">
+                    <div class="card" style="text-align: center; border-top: 4px solid var(--red);">
+                        <h3 style="color: #999; font-size: 0.8rem;">TOTAL</h3>
+                        <div style="font-size: 2.5rem; font-weight: bold; color: var(--red);">${total}</div>
+                    </div>
+                    <div class="card" style="text-align: center; border-top: 4px solid var(--blue);">
+                        <h3 style="color: #999; font-size: 0.8rem;">TO DO</h3>
+                        <div style="font-size: 2.5rem; font-weight: bold; color: var(--blue);">${todo}</div>
+                    </div>
+                    <div class="card" style="text-align: center; border-top: 4px solid var(--orange);">
+                        <h3 style="color: #999; font-size: 0.8rem;">IN PROGRESS</h3>
+                        <div style="font-size: 2.5rem; font-weight: bold; color: var(--orange);">${prog}</div>
+                    </div>
+                    <div class="card" style="text-align: center; border-top: 4px solid var(--green);">
+                        <h3 style="color: #999; font-size: 0.8rem;">COMPLETED</h3>
+                        <div style="font-size: 2.5rem; font-weight: bold; color: var(--green);">${done}</div>
+                    </div>
+                </div>
+            `;
+        }
+
+        function renderTasksList() {
+            const now = new Date();
+            
+            // Filter one-time tasks only
+            let filtered = tasks.filter(t => t.type === 'onetime');
+            
+            if (currentFilter === 'queue') {
+                filtered = filtered.filter(t => t.status !== 'completed');
+            } else if (currentFilter === 'overdue') {
+                filtered = filtered.filter(t => {
+                    if (t.status === 'completed' || !t.dueDate) return false;
+                    return new Date(t.dueDate) < now;
+                });
+            } else if (currentFilter === 'completed') {
+                filtered = filtered.filter(t => t.status === 'completed');
+            }
+            
+            const el = document.getElementById('tasksList');
+            
+            if (filtered.length === 0) {
+                el.innerHTML = '<p style="text-align: center; color: #999;">No tasks</p>';
+                return;
+            }
+            
+            el.innerHTML = filtered.map(t => {
+                const isOverdue = t.dueDate && new Date(t.dueDate) < now && t.status !== 'completed';
+                const checklist = t.checklist || [];
+                const checklistDone = checklist.filter(c => c.done).length;
+                const checklistTotal = checklist.length;
+                const progress = checklistTotal > 0 ? (checklistDone / checklistTotal) * 100 : 0;
+                
+                return `
+                    <div class="task-item ${t.status==='completed'?'completed':''} ${isOverdue?'overdue':''}" onclick="toggleTask('${t.id}')">
+                        <h4>${t.title}</h4>
+                        ${t.description ? `<p style="font-size: 0.85rem; margin-bottom: 0.5rem;">${t.description}</p>` : ''}
+                        ${t.dueDate ? `<p style="font-size: 0.8rem; color: #666; margin-bottom: 0.5rem;">📅 ${new Date(t.dueDate).toLocaleDateString('id-ID')}</p>` : ''}
+                        
+                        <div style="display: flex; gap: 0.4rem; flex-wrap: wrap; font-size: 0.7rem; margin-bottom: 0.5rem;">
+                            <span class="tag" style="background: var(--red-light); color: var(--red);">${t.type}</span>
+                            <span class="tag" style="background: ${t.priority==='high'?'var(--orange)':'#e0e0e0'}; color: ${t.priority==='high'?'white':'black'};">${t.priority}</span>
+                            <span class="tag" style="background: ${t.status==='completed'?'var(--green)':t.status==='in-progress'?'var(--orange)':'var(--blue)'}; color: white;">${t.status||'todo'}</span>
+                            ${isOverdue ? '<span class="tag" style="background: var(--orange); color: white;">⚠️ OVERDUE</span>' : ''}
+                        </div>
+                        
+                        ${checklistTotal > 0 ? `
+                            <div class="checklist" onclick="event.stopPropagation();">
+                                <div style="display: flex; justify-content: space-between; margin-bottom: 0.5rem;">
+                                    <strong style="font-size: 0.85rem;">Checklist</strong>
+                                    <span style="font-size: 0.75rem; color: #666;">${checklistDone}/${checklistTotal} done</span>
+                                </div>
+                                <div class="progress-bar">
+                                    <div class="progress-fill" style="width: ${progress}%;"></div>
+                                </div>
+                                ${checklist.map((item, idx) => `
+                                    <div class="checklist-item ${item.done?'done':''}">
+                                        <input type="checkbox" ${item.done?'checked':''} 
+                                            onchange="toggleChecklistItem('${t.id}', ${idx})">
+                                        <span style="font-size: 0.85rem;">${item.text}</span>
+                                    </div>
+                                `).join('')}
+                            </div>
+                        ` : ''}
+                    </div>
+                `;
+            }).join('');
+        }
+
+        async function renderRecurringView() {
+            const el = document.getElementById('recurringView');
+            
+            // Get recurring tasks
+            const recurring = tasks.filter(t => ['daily', 'weekly', 'monthly'].includes(t.type));
+            
+            if (recurring.length === 0) {
+                el.innerHTML = '<div class="card"><p style="text-align: center; color: #999;">No recurring tasks</p></div>';
+                return;
+            }
+            
+            // Get instances for the next 7 days
+            const today = new Date();
+            const days = [];
+            
+            for (let i = 0; i < 7; i++) {
+                const date = new Date(today);
+                date.setDate(today.getDate() + i);
+                const dateStr = date.toISOString().split('T')[0];
+                const dayName = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'][date.getDay()];
+                
+                days.push({
+                    date: dateStr,
+                    dayName,
+                    dayOfWeek: date.getDay(),
+                    display: date.toLocaleDateString('id-ID', { weekday: 'long', day: 'numeric', month: 'long' })
+                });
+            }
+            
+            // Get all instances
+            const instancesQuery = query(collection(db, 'task_instances'), where('assignee', '==', currentUser));
+            const instancesSnap = await getDocs(instancesQuery);
+            const instances = instancesSnap.docs.map(d => ({id: d.id, ...d.data()}));
+            
+            el.innerHTML = days.map(day => {
+                // Find tasks that should appear on this day
+                const dayTasks = recurring.filter(t => shouldGenerateInstance(t, new Date(day.date)));
+                
+                if (dayTasks.length === 0 && day.dayOfWeek !== 0) {
+                    return ''; // Skip days with no tasks (except Sunday for visibility)
+                }
+                
+                if (day.dayOfWeek === 0) {
+                    return `
+                        <div class="recurring-day" style="border-left-color: #ccc; opacity: 0.6;">
+                            <h4>${day.display} - 🌴 Day Off</h4>
+                            <p style="font-size: 0.85rem; color: #999;">No tasks scheduled on Sunday</p>
+                        </div>
+                    `;
+                }
+                
+                return `
+                    <div class="recurring-day">
+                        <h4>${day.display}</h4>
+                        ${dayTasks.map(t => {
+                            const instance = instances.find(i => i.taskId === t.id && i.date === day.date);
+                            const isCompleted = instance?.completed || false;
+                            
+                            return `
+                                <div class="recurring-task ${isCompleted?'done':''}">
+                                    <input type="checkbox" ${isCompleted?'checked':''} 
+                                        onchange="toggleRecurringInstance('${t.id}', '${day.date}', '${instance?.id||''}')">
+                                    <div style="flex: 1;">
+                                        <div class="task-title" style="font-weight: bold; font-size: 0.9rem;">${t.title}</div>
+                                        ${t.description ? `<div style="font-size: 0.8rem; color: #666; margin-top: 0.2rem;">${t.description}</div>` : ''}
+                                        ${t.schedule?.time ? `<div style="font-size: 0.75rem; color: #999; margin-top: 0.2rem;">⏰ ${t.schedule.time}</div>` : ''}
+                                    </div>
+                                    <span class="tag" style="background: ${t.priority==='high'?'var(--orange)':'#e0e0e0'}; color: ${t.priority==='high'?'white':'black'};">${t.priority}</span>
+                                </div>
+                            `;
+                        }).join('')}
+                    </div>
+                `;
+            }).join('');
+        }
+
+        window.toggleRecurringInstance = async (taskId, date, instanceId) => {
+            try {
+                if (instanceId) {
+                    // Update existing instance
+                    await updateDoc(doc(db, 'task_instances', instanceId), {
+                        completed: true,
+                        completedAt: serverTimestamp()
+                    });
+                } else {
+                    // Create new completed instance
+                    const task = tasks.find(t => t.id === taskId);
+                    await addDoc(collection(db, 'task_instances'), {
+                        taskId,
+                        title: task.title,
+                        description: task.description,
+                        assignee: currentUser,
+                        type: task.type,
+                        priority: task.priority,
+                        date,
+                        completed: true,
+                        completedAt: serverTimestamp(),
+                        checklist: task.checklist || []
+                    });
+                }
+                
+                renderRecurringView();
+            } catch (err) {
+                console.error('Error toggling instance:', err);
+                alert('Error: ' + err.message);
+            }
+        };
+
+        window.filterTasks = (filter) => {
+            currentFilter = filter;
+            ['All', 'Queue', 'Overdue', 'Completed'].forEach(f => {
+                const btn = document.getElementById('f' + f);
+                if (btn) btn.style.opacity = filter === f.toLowerCase() ? '1' : '0.6';
+            });
+            renderTasksList();
+        };
+
+        window.toggleChecklistItem = async (taskId, itemIdx) => {
+            const task = tasks.find(t => t.id === taskId);
+            if (!task || !task.checklist) return;
+            
+            task.checklist[itemIdx].done = !task.checklist[itemIdx].done;
+            
+            await updateDoc(doc(db, 'tasks', taskId), {
+                checklist: task.checklist
+            });
+        };
+
+        window.toggleTask = async (taskId) => {
+            const task = tasks.find(t => t.id === taskId);
+            if (!task) return;
+            
+            let newStatus;
+            if (!task.status || task.status === 'todo') newStatus = 'in-progress';
+            else if (task.status === 'in-progress') newStatus = 'completed';
+            else newStatus = 'todo';
+            
+            if (confirm(`Change to ${newStatus}?`)) {
+                await updateDoc(doc(db, 'tasks', taskId), { status: newStatus });
+            }
+        };
+
+        window.saveTask = async (e) => {
+            e.preventDefault();
+            setStatus('syncing', 'Saving...');
+            
+            try {
+                const type = document.getElementById('type').value;
+                const data = {
+                    title: document.getElementById('title').value,
+                    description: document.getElementById('desc').value,
+                    type,
+                    priority: document.getElementById('priority').value,
+                    assignee: currentUser,
+                    status: 'todo',
+                    createdAt: serverTimestamp()
+                };
+                
+                // Get checklist items
+                const checklistInputs = document.querySelectorAll('.checklist-input');
+                const checklist = Array.from(checklistInputs)
+                    .map(input => input.value.trim())
+                    .filter(text => text.length > 0)
+                    .map(text => ({ text, done: false }));
+                
+                if (checklist.length > 0) {
+                    data.checklist = checklist;
+                }
+                
+                if (type === 'onetime') {
+                    data.startDate = document.getElementById('start1').value;
+                    data.dueDate = document.getElementById('due1').value;
+                } else if (type === 'daily') {
+                    data.schedule = {
+                        time: document.getElementById('dailyTime').value
+                    };
+                } else if (type === 'weekly') {
+                    const weekdays = Array.from(document.querySelectorAll('.weekday:checked'))
+                        .map(cb => parseInt(cb.value));
+                    data.schedule = {
+                        weekdays,
+                        time: document.getElementById('weeklyTime').value
+                    };
+                } else if (type === 'monthly') {
+                    data.schedule = {
+                        monthlyDay: parseInt(document.getElementById('monthlyDay').value),
+                        time: document.getElementById('monthlyTime').value
+                    };
+                }
+                
+                await addDoc(collection(db, 'tasks'), data);
+                await generateRecurringInstances(); // Generate instance if recurring
+                closeModal();
+                document.getElementById('taskForm').reset();
+                setStatus('synced', 'Saved!');
+                setTimeout(() => setStatus('synced', 'Ready'), 2000);
+            } catch (err) {
+                console.error(err);
+                setStatus('error', 'Error: ' + err.message);
+                alert('Error: ' + err.message);
+            }
+        };
+
+        window.addChecklistInput = () => {
+            const container = document.getElementById('checklistInputs');
+            const count = container.querySelectorAll('.checklist-input').length + 1;
+            const div = document.createElement('div');
+            div.className = 'add-checklist';
+            div.innerHTML = `
+                <input type="text" placeholder="Item ${count} description" class="checklist-input">
+                <button type="button" onclick="this.parentElement.remove()">-</button>
+            `;
+            container.appendChild(div);
+        };
+
+        window.switchUser = () => {
+            currentUser = document.getElementById('userSelect').value;
+            setStatus('syncing', 'Switching...');
+            loadTasks();
+            setTimeout(() => setStatus('synced', 'Ready'), 500);
+        };
+
+        window.showSection = (id) => {
+            document.querySelectorAll('.section').forEach(s => s.classList.remove('active'));
+            document.querySelectorAll('.nav-link').forEach(l => l.classList.remove('active'));
+            document.getElementById(id).classList.add('active');
+            document.querySelector(`a[href="#${id}"]`).classList.add('active');
+        };
+
+        window.showTaskModal = () => {
+            document.getElementById('taskModal').classList.add('active');
+        };
+
+        window.closeModal = () => {
+            document.getElementById('taskModal').classList.remove('active');
+        };
+
+        window.toggleSchedule = () => {
+            document.querySelectorAll('.schedule-opts').forEach(el => el.classList.remove('active'));
+            const type = document.getElementById('type').value;
+            document.getElementById(type + 'Opts').classList.add('active');
+        };
+
+        function setStatus(status, text) {
+            const el = document.getElementById('status');
+            const icon = document.getElementById('statusIcon');
+            const txt = document.getElementById('statusText');
+            
+            el.className = `status ${status}`;
+            txt.textContent = text;
+            icon.textContent = status === 'synced' ? '☁️' : '🔄';
+        }
+    </script>
+</body>
+</html>
