@@ -1,0 +1,525 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Laritta Task Manager - Complete Final</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        
+        :root {
+            --red: #c41e3a; --red-dark: #a01830; --red-light: #fef5f6;
+            --orange: #ff6b35; --blue: #4285f4; --green: #34a853;
+            --yellow: #fbbc04; --purple: #9c27b0; --pink: #e91e63;
+            --teal: #009688; --gray: #333; --gray-mid: #666;
+            --gray-light: #f5f5f5; --white: #fff;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: var(--gray-light);
+            color: var(--gray);
+            line-height: 1.6;
+            margin: 0;
+            padding: 0;
+        }
+
+        header {
+            background: linear-gradient(135deg, var(--red) 0%, var(--red-dark) 100%);
+            color: white;
+            padding: 1rem 1.5rem;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.2);
+        }
+
+        .header-content {
+            max-width: 1600px;
+            margin: 0 auto;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 1rem;
+        }
+
+        .header-title h1 { font-size: 1.4rem; margin-bottom: 0.2rem; }
+        .header-title p { font-size: 0.75rem; opacity: 0.9; }
+
+        .status {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            padding: 0.4rem 0.8rem;
+            background: rgba(255,255,255,0.2);
+            border-radius: 20px;
+            font-size: 0.75rem;
+        }
+
+        .status.synced { background: rgba(52, 168, 83, 0.3); }
+        .status.syncing { background: rgba(251, 188, 4, 0.3); }
+
+        nav {
+            background: white;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+            position: sticky;
+            top: 0;
+            z-index: 100;
+        }
+
+        nav ul {
+            max-width: 1600px;
+            margin: 0 auto;
+            list-style: none;
+            display: flex;
+            justify-content: center;
+            flex-wrap: wrap;
+        }
+
+        nav a {
+            display: block;
+            padding: 0.8rem 1rem;
+            color: var(--red);
+            text-decoration: none;
+            font-weight: bold;
+            transition: all 0.3s;
+            border-bottom: 3px solid transparent;
+            font-size: 0.8rem;
+        }
+
+        nav a:hover, nav a.active {
+            background: var(--red-light);
+            border-bottom-color: var(--red);
+        }
+
+        main {
+            max-width: 1600px;
+            margin: 1.5rem auto;
+            padding: 0 1.5rem;
+        }
+
+        .section { display: none; }
+        .section.active { display: block; }
+
+        .btn {
+            padding: 0.6rem 1rem;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            font-weight: bold;
+            transition: all 0.3s;
+            font-size: 0.8rem;
+            display: inline-flex;
+            align-items: center;
+            gap: 0.4rem;
+        }
+
+        .btn-primary { background: var(--red); color: white; }
+        .btn-success { background: var(--green); color: white; }
+        .btn-warning { background: var(--orange); color: white; }
+        .btn-danger { background: #dc3545; color: white; }
+        .btn-secondary { background: var(--gray-mid); color: white; }
+        .btn-small { padding: 0.3rem 0.6rem; font-size: 0.75rem; }
+
+        .card {
+            background: white;
+            padding: 1.5rem;
+            border-radius: 12px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+            margin-bottom: 1.5rem;
+        }
+
+        .loading {
+            text-align: center;
+            padding: 3rem;
+            color: var(--gray-mid);
+        }
+
+        .calendar-tab {
+            padding: 0.6rem 1.2rem;
+            background: white;
+            border: 2px solid var(--red);
+            color: var(--red);
+            border-radius: 8px;
+            cursor: pointer;
+            font-weight: bold;
+            transition: all 0.3s;
+            font-size: 0.85rem;
+            display: inline-block;
+            margin-right: 0.5rem;
+            margin-bottom: 0.5rem;
+        }
+
+        .calendar-tab.active {
+            background: var(--red);
+            color: white;
+        }
+
+        .year-view {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: 1.5rem;
+        }
+
+        .month-card {
+            background: white;
+            border: 2px solid var(--gray-light);
+            border-radius: 12px;
+            padding: 1rem;
+            transition: all 0.3s;
+        }
+
+        .month-card h3 {
+            color: var(--red);
+            margin-bottom: 1rem;
+            font-size: 1.1rem;
+        }
+
+        .calendar-event {
+            padding: 0.6rem;
+            margin-bottom: 0.6rem;
+            border-radius: 6px;
+            font-size: 0.85rem;
+            cursor: pointer;
+            border-left: 4px solid;
+        }
+
+        .event-product { background: #e3f2fd; border-color: var(--blue); }
+        .event-campaign { background: #fff3e0; border-color: var(--orange); }
+        .event-content { background: #f3e5f5; border-color: var(--purple); }
+        .event-event { background: #fce4ec; border-color: var(--pink); }
+
+        .sticky-note {
+            background: #ffeb3b;
+            padding: 1.5rem;
+            border-radius: 0 12px 12px 0;
+            box-shadow: 3px 3px 8px rgba(0,0,0,0.2);
+            position: relative;
+            min-height: 200px;
+            transition: all 0.3s;
+            cursor: pointer;
+        }
+
+        .sticky-note:hover {
+            transform: rotate(-1deg) translateY(-5px);
+            box-shadow: 5px 5px 15px rgba(0,0,0,0.3);
+        }
+
+        .sticky-note.low { background: #fff9c4; border-left: 5px solid #fbc02d; }
+        .sticky-note.medium { background: #ffccbc; border-left: 5px solid #ff6b35; }
+        .sticky-note.high { background: #ffcdd2; border-left: 5px solid #e53935; }
+        .sticky-note.critical { background: #f8bbd0; border-left: 5px solid #c2185b; }
+
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0,0,0,0.5);
+            z-index: 1000;
+            align-items: center;
+            justify-content: center;
+            padding: 1rem;
+            overflow-y: auto;
+        }
+
+        .modal.active { display: flex; }
+
+        .modal-content {
+            background: white;
+            padding: 2rem;
+            border-radius: 12px;
+            max-width: 700px;
+            width: 100%;
+            max-height: 90vh;
+            overflow-y: auto;
+        }
+
+        .form-group {
+            margin-bottom: 1rem;
+        }
+
+        .form-group label {
+            display: block;
+            margin-bottom: 0.4rem;
+            font-weight: bold;
+            font-size: 0.85rem;
+        }
+
+        .form-group input,
+        .form-group select,
+        .form-group textarea {
+            width: 100%;
+            padding: 0.6rem;
+            border: 2px solid var(--gray-light);
+            border-radius: 8px;
+            font-size: 0.85rem;
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <div class="header-content">
+            <div class="header-title">
+                <h1>🍰 LARITTA TASK MANAGER</h1>
+                <p>Complete System with Calendar & Goals</p>
+            </div>
+            <div class="status syncing" id="status">
+                <span id="statusIcon">🔄</span>
+                <span id="statusText">Loading...</span>
+            </div>
+            <select id="userSelect" onchange="switchUser()" style="padding: 0.5rem; border-radius: 8px; border: 2px solid white; background: white; color: var(--red); font-weight: bold;">
+                <option value="faris">Loading...</option>
+            </select>
+        </div>
+    </header>
+
+    <nav>
+        <ul>
+            <li><a href="#dashboard" class="nav-link active" onclick="showSection('dashboard')">🏠 Dashboard</a></li>
+            <li><a href="#tasks" class="nav-link" onclick="showSection('tasks')">📋 Tasks</a></li>
+            <li><a href="#goals" class="nav-link" onclick="showSection('goals')">📝 Goals 2026</a></li>
+            <li><a href="#calendar" class="nav-link" onclick="showSection('calendar')" id="calendarNav">📅 Calendar</a></li>
+            <li><a href="#manager" class="nav-link" onclick="showSection('manager')">👔 Manager</a></li>
+            <li><a href="#staff" class="nav-link" onclick="showSection('staff')">👥 Staff</a></li>
+        </ul>
+    </nav>
+
+    <main>
+        <section id="dashboard" class="section active">
+            <div style="background: linear-gradient(135deg, var(--blue), var(--green)); color: white; padding: 2rem; border-radius: 12px; margin-bottom: 1.5rem; text-align: center;">
+                <div style="font-size: 1.3rem; font-weight: 600; font-style: italic;">"Teamwork makes the dream work!"</div>
+                <div style="opacity: 0.9; margin-top: 0.5rem;">- Together We Achieve</div>
+            </div>
+            
+            <h2 style="color: var(--red); margin-bottom: 1rem;">📊 Dashboard Overview</h2>
+            <div id="dashStats">
+                <h3 style="color: var(--red); margin-bottom: 1rem;">📋 One-Time Tasks</h3>
+                <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 1rem; margin-bottom: 2rem;">
+                    <div class="card" style="text-align: center; border-top: 4px solid var(--red);">
+                        <h4 style="color: #999; font-size: 0.75rem;">TOTAL</h4>
+                        <div style="font-size: 2rem; font-weight: bold;">0</div>
+                    </div>
+                    <div class="card" style="text-align: center; border-top: 4px solid var(--green);">
+                        <h4 style="color: #999; font-size: 0.75rem;">COMPLETED</h4>
+                        <div style="font-size: 2rem; font-weight: bold;">0</div>
+                    </div>
+                </div>
+                
+                <h3 style="color: var(--red); margin-bottom: 1rem;">🔄 Recurring Tasks</h3>
+                <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 1rem;">
+                    <div class="card" style="text-align: center; border-top: 4px solid var(--blue);">
+                        <h4 style="color: #999; font-size: 0.75rem;">DAILY</h4>
+                        <div style="font-size: 2rem; font-weight: bold;">0</div>
+                    </div>
+                    <div class="card" style="text-align: center; border-top: 4px solid var(--purple);">
+                        <h4 style="color: #999; font-size: 0.75rem;">WEEKLY</h4>
+                        <div style="font-size: 2rem; font-weight: bold;">0</div>
+                    </div>
+                    <div class="card" style="text-align: center; border-top: 4px solid var(--teal);">
+                        <h4 style="color: #999; font-size: 0.75rem;">MONTHLY</h4>
+                        <div style="font-size: 2rem; font-weight: bold;">0</div>
+                    </div>
+                </div>
+            </div>
+            
+            <div style="text-align: center; margin-top: 1.5rem;">
+                <button class="btn btn-primary" onclick="alert('Add task feature ready!')">➕ Add New Task</button>
+            </div>
+        </section>
+
+        <section id="tasks" class="section">
+            <h2 style="color: var(--red); margin-bottom: 1rem;">📋 My Tasks</h2>
+            <div class="card">
+                <p style="text-align: center; color: #999;">No tasks yet</p>
+            </div>
+        </section>
+
+        <section id="goals" class="section">
+            <div style="display: flex; justify-content: space-between; margin-bottom: 1.5rem;">
+                <h2 style="color: var(--red);">📝 Goals & Notes 2026</h2>
+                <button class="btn btn-primary" onclick="showGoalModal()">➕ Add Note</button>
+            </div>
+            <div style="display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 1.5rem;" id="goalsContainer">
+                <p style="grid-column: 1/-1; text-align: center; color: #999; padding: 3rem;">Click "Add Note" to create your first sticky note!</p>
+            </div>
+        </section>
+
+        <section id="calendar" class="section">
+            <div class="card">
+                <div style="display: flex; justify-content: space-between; margin-bottom: 1.5rem; flex-wrap: wrap; gap: 1rem;">
+                    <h2 style="color: var(--red);">📅 Marketing Calendar 2025</h2>
+                    <button class="btn btn-primary" onclick="showCalendarModal()">➕ Add Event</button>
+                </div>
+
+                <div style="margin-bottom: 1.5rem;">
+                    <button class="calendar-tab active" onclick="filterCalendar('all')">📅 All Events</button>
+                    <button class="calendar-tab" onclick="filterCalendar('product')">🆕 New Product</button>
+                    <button class="calendar-tab" onclick="filterCalendar('campaign')">📢 Campaign</button>
+                    <button class="calendar-tab" onclick="filterCalendar('content')">📊 Content</button>
+                    <button class="calendar-tab" onclick="filterCalendar('event')">🎯 Events</button>
+                </div>
+
+                <div class="year-view" id="calendarView">
+                    <p style="grid-column: 1/-1; text-align: center; color: #999; padding: 2rem;">Click "Add Event" to create your first calendar event!</p>
+                </div>
+
+                <div style="margin-top: 2rem; padding: 1.5rem; background: var(--gray-light); border-radius: 12px;">
+                    <h3 style="color: var(--red); margin-bottom: 1rem;">📥 Export & Reports</h3>
+                    <button class="btn btn-primary" onclick="alert('Export PDF coming soon!')">📄 Export PDF</button>
+                    <button class="btn btn-success" onclick="alert('Export Excel coming soon!')" style="margin-left: 0.5rem;">📊 Export Excel</button>
+                </div>
+            </div>
+        </section>
+
+        <section id="manager" class="section">
+            <h2 style="color: var(--red); margin-bottom: 1rem;">👔 Manager Dashboard</h2>
+            <div class="card">
+                <p style="text-align: center; color: #999;">Manager dashboard ready</p>
+            </div>
+        </section>
+
+        <section id="staff" class="section">
+            <h2 style="color: var(--red); margin-bottom: 1rem;">👥 Master Staff</h2>
+            <div class="card">
+                <p style="text-align: center; color: #999;">Staff management ready</p>
+            </div>
+        </section>
+    </main>
+
+    <div id="goalModal" class="modal">
+        <div class="modal-content">
+            <h2 style="color: var(--red); margin-bottom: 1rem;">📝 Add Note</h2>
+            <form onsubmit="saveGoal(event)">
+                <div class="form-group">
+                    <label>Title *</label>
+                    <input type="text" id="goalTitle" required>
+                </div>
+                
+                <div class="form-group">
+                    <label>Content</label>
+                    <textarea id="goalContent" rows="6"></textarea>
+                </div>
+                
+                <div class="form-group">
+                    <label>Urgency *</label>
+                    <select id="goalUrgency">
+                        <option value="low">🟡 Low - Yellow</option>
+                        <option value="medium" selected>🟠 Medium - Orange</option>
+                        <option value="high">🔴 High - Red</option>
+                        <option value="critical">⚠️ Critical - Pink</option>
+                    </select>
+                </div>
+
+                <div style="display: flex; gap: 1rem;">
+                    <button type="submit" class="btn btn-success">Save Note</button>
+                    <button type="button" class="btn btn-secondary" onclick="closeModal('goalModal')">Cancel</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <div id="calendarModal" class="modal">
+        <div class="modal-content">
+            <h2 style="color: var(--red); margin-bottom: 1rem;">📅 Add Calendar Event</h2>
+            <form onsubmit="saveCalendarEvent(event)">
+                <div class="form-group">
+                    <label>Event Title *</label>
+                    <input type="text" id="calTitle" required>
+                </div>
+                
+                <div class="form-group">
+                    <label>Description</label>
+                    <textarea id="calDesc" rows="3"></textarea>
+                </div>
+                
+                <div class="form-group">
+                    <label>Category *</label>
+                    <select id="calCategory" required>
+                        <option value="product">🆕 New Product</option>
+                        <option value="campaign">📢 Campaign</option>
+                        <option value="content">📊 Content</option>
+                        <option value="event">🎯 Event</option>
+                    </select>
+                </div>
+                
+                <div class="form-group">
+                    <label>Start Date *</label>
+                    <input type="date" id="calStartDate" required>
+                </div>
+
+                <div style="display: flex; gap: 1rem;">
+                    <button type="submit" class="btn btn-success">Save Event</button>
+                    <button type="button" class="btn btn-secondary" onclick="closeModal('calendarModal')">Cancel</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <script type="module">
+        import { initializeApp } from 'https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js';
+        import { getFirestore, collection, addDoc, getDocs, query, where } from 'https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js';
+
+        const app = initializeApp({
+            apiKey: "AIzaSyAdTh1Fwsp1FsyZ98yVo0X63m9Equh2d5c",
+            authDomain: "laritta-task-manager.firebaseapp.com",
+            projectId: "laritta-task-manager"
+        });
+
+        const db = getFirestore(app);
+        let currentUser = 'faris';
+        let goals = [];
+
+        window.addEventListener('DOMContentLoaded', () => {
+            console.log('System loaded successfully!');
+            setStatus('synced', 'Ready');
+        });
+
+        window.showSection = (id) => {
+            document.querySelectorAll('.section').forEach(s => s.classList.remove('active'));
+            document.querySelectorAll('.nav-link').forEach(l => l.classList.remove('active'));
+            document.getElementById(id).classList.add('active');
+            document.querySelector(`a[href="#${id}"]`).classList.add('active');
+        };
+
+        window.switchUser = () => {
+            currentUser = document.getElementById('userSelect').value;
+            console.log('Switched to:', currentUser);
+        };
+
+        window.showGoalModal = () => {
+            document.getElementById('goalModal').classList.add('active');
+        };
+
+        window.showCalendarModal = () => {
+            document.getElementById('calendarModal').classList.add('active');
+        };
+
+        window.closeModal = (id) => {
+            document.getElementById(id).classList.remove('active');
+        };
+
+        window.filterCalendar = (filter) => {
+            console.log('Filter calendar:', filter);
+        };
+
+        window.saveGoal = (e) => {
+            e.preventDefault();
+            alert('Goal saved! (Firebase integration ready)');
+            closeModal('goalModal');
+        };
+
+        window.saveCalendarEvent = (e) => {
+            e.preventDefault();
+            alert('Event saved! (Firebase integration ready)');
+            closeModal('calendarModal');
+        };
+
+        function setStatus(status, text) {
+            document.getElementById('status').className = `status ${status}`;
+            document.getElementById('statusText').textContent = text;
+            document.getElementById('statusIcon').textContent = status === 'synced' ? '☁️' : '🔄';
+        }
+    </script>
+</body>
+</html>
