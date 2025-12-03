@@ -1,0 +1,1178 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Laritta Task Manager - Complete Final</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        
+        :root {
+            --red: #c41e3a; --red-dark: #a01830; --red-light: #fef5f6;
+            --orange: #ff6b35; --blue: #4285f4; --green: #34a853;
+            --yellow: #fbbc04; --purple: #9c27b0; --pink: #e91e63;
+            --teal: #009688; --gray: #333; --gray-mid: #666;
+            --gray-light: #f5f5f5; --white: #fff;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: var(--gray-light);
+            color: var(--gray);
+            line-height: 1.6;
+            margin: 0;
+            padding: 0;
+        }
+
+        header {
+            background: linear-gradient(135deg, var(--red) 0%, var(--red-dark) 100%);
+            color: white;
+            padding: 1rem 1.5rem;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.2);
+        }
+
+        .header-content {
+            max-width: 1600px;
+            margin: 0 auto;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 1rem;
+        }
+
+        .header-title h1 { font-size: 1.4rem; margin-bottom: 0.2rem; }
+        .header-title p { font-size: 0.75rem; opacity: 0.9; }
+
+        .status {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            padding: 0.4rem 0.8rem;
+            background: rgba(255,255,255,0.2);
+            border-radius: 20px;
+            font-size: 0.75rem;
+        }
+
+        .status.synced { background: rgba(52, 168, 83, 0.3); }
+        .status.syncing { background: rgba(251, 188, 4, 0.3); }
+
+        nav {
+            background: white;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+            position: sticky;
+            top: 0;
+            z-index: 100;
+        }
+
+        nav ul {
+            max-width: 1600px;
+            margin: 0 auto;
+            list-style: none;
+            display: flex;
+            justify-content: center;
+            flex-wrap: wrap;
+        }
+
+        nav a {
+            display: block;
+            padding: 0.8rem 1rem;
+            color: var(--red);
+            text-decoration: none;
+            font-weight: bold;
+            transition: all 0.3s;
+            border-bottom: 3px solid transparent;
+            font-size: 0.8rem;
+        }
+
+        nav a:hover, nav a.active {
+            background: var(--red-light);
+            border-bottom-color: var(--red);
+        }
+
+        main {
+            max-width: 1600px;
+            margin: 1.5rem auto;
+            padding: 0 1.5rem;
+        }
+
+        .section { display: none; }
+        .section.active { display: block; }
+
+        .btn {
+            padding: 0.6rem 1rem;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            font-weight: bold;
+            transition: all 0.3s;
+            font-size: 0.8rem;
+            display: inline-flex;
+            align-items: center;
+            gap: 0.4rem;
+        }
+
+        .btn-primary { background: var(--red); color: white; }
+        .btn-success { background: var(--green); color: white; }
+        .btn-warning { background: var(--orange); color: white; }
+        .btn-danger { background: #dc3545; color: white; }
+        .btn-secondary { background: var(--gray-mid); color: white; }
+        .btn-small { padding: 0.3rem 0.6rem; font-size: 0.75rem; }
+
+        .card {
+            background: white;
+            padding: 1.5rem;
+            border-radius: 12px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+            margin-bottom: 1.5rem;
+        }
+
+        .loading {
+            text-align: center;
+            padding: 3rem;
+            color: var(--gray-mid);
+        }
+
+        .calendar-tab {
+            padding: 0.6rem 1.2rem;
+            background: white;
+            border: 2px solid var(--red);
+            color: var(--red);
+            border-radius: 8px;
+            cursor: pointer;
+            font-weight: bold;
+            transition: all 0.3s;
+            font-size: 0.85rem;
+            display: inline-block;
+            margin-right: 0.5rem;
+            margin-bottom: 0.5rem;
+        }
+
+        .calendar-tab.active {
+            background: var(--red);
+            color: white;
+        }
+
+        .year-view {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: 1.5rem;
+        }
+
+        .month-card {
+            background: white;
+            border: 2px solid var(--gray-light);
+            border-radius: 12px;
+            padding: 1rem;
+            transition: all 0.3s;
+        }
+
+        .month-card h3 {
+            color: var(--red);
+            margin-bottom: 1rem;
+            font-size: 1.1rem;
+        }
+
+        .calendar-event {
+            padding: 0.6rem;
+            margin-bottom: 0.6rem;
+            border-radius: 6px;
+            font-size: 0.85rem;
+            cursor: pointer;
+            border-left: 4px solid;
+        }
+
+        .event-product { background: #e3f2fd; border-color: var(--blue); }
+        .event-campaign { background: #fff3e0; border-color: var(--orange); }
+        .event-content { background: #f3e5f5; border-color: var(--purple); }
+        .event-event { background: #fce4ec; border-color: var(--pink); }
+
+        .sticky-note {
+            background: #ffeb3b;
+            padding: 1.5rem;
+            border-radius: 0 12px 12px 0;
+            box-shadow: 3px 3px 8px rgba(0,0,0,0.2);
+            position: relative;
+            min-height: 200px;
+            transition: all 0.3s;
+            cursor: pointer;
+        }
+
+        .sticky-note:hover {
+            transform: rotate(-1deg) translateY(-5px);
+            box-shadow: 5px 5px 15px rgba(0,0,0,0.3);
+        }
+
+        .sticky-note.low { background: #fff9c4; border-left: 5px solid #fbc02d; }
+        .sticky-note.medium { background: #ffccbc; border-left: 5px solid #ff6b35; }
+        .sticky-note.high { background: #ffcdd2; border-left: 5px solid #e53935; }
+        .sticky-note.critical { background: #f8bbd0; border-left: 5px solid #c2185b; }
+
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0,0,0,0.5);
+            z-index: 1000;
+            align-items: center;
+            justify-content: center;
+            padding: 1rem;
+            overflow-y: auto;
+        }
+
+        .modal.active { display: flex; }
+
+        .modal-content {
+            background: white;
+            padding: 2rem;
+            border-radius: 12px;
+            max-width: 700px;
+            width: 100%;
+            max-height: 90vh;
+            overflow-y: auto;
+        }
+
+        .form-group {
+            margin-bottom: 1rem;
+        }
+
+        .form-group label {
+            display: block;
+            margin-bottom: 0.4rem;
+            font-weight: bold;
+            font-size: 0.85rem;
+        }
+
+        .form-group input,
+        .form-group select,
+        .form-group textarea {
+            width: 100%;
+            padding: 0.6rem;
+            border: 2px solid var(--gray-light);
+            border-radius: 8px;
+            font-size: 0.85rem;
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <div class="header-content">
+            <div class="header-title">
+                <h1>🍰 LARITTA TASK MANAGER</h1>
+                <p>Complete System with Calendar & Goals</p>
+            </div>
+            <div class="status syncing" id="status">
+                <span id="statusIcon">🔄</span>
+                <span id="statusText">Loading...</span>
+            </div>
+            <select id="userSelect" onchange="switchUser()" style="padding: 0.5rem; border-radius: 8px; border: 2px solid white; background: white; color: var(--red); font-weight: bold;">
+                <option value="faris">Loading...</option>
+            </select>
+        </div>
+    </header>
+
+    <nav>
+        <ul>
+            <li><a href="#dashboard" class="nav-link active" onclick="showSection('dashboard')">🏠 Dashboard</a></li>
+            <li><a href="#tasks" class="nav-link" onclick="showSection('tasks')">📋 Tasks</a></li>
+            <li><a href="#recurring" class="nav-link" onclick="showSection('recurring')">🔄 Task Berulang</a></li>
+            <li><a href="#goals" class="nav-link" onclick="showSection('goals')">📝 Goals 2026</a></li>
+            <li><a href="#calendar" class="nav-link" onclick="showSection('calendar')" id="calendarNav">📅 Calendar</a></li>
+            <li><a href="#manager" class="nav-link" onclick="showSection('manager')">👔 Dashboard Manager</a></li>
+            <li><a href="#staff" class="nav-link" onclick="showSection('staff')">👥 Master Staff</a></li>
+            <li><a href="#games" class="nav-link" onclick="showSection('games')">🎮 Games Break</a></li>
+        </ul>
+    </nav>
+
+    <main>
+        <section id="dashboard" class="section active">
+            <div style="background: linear-gradient(135deg, var(--blue), var(--green)); color: white; padding: 2rem; border-radius: 12px; margin-bottom: 1.5rem; text-align: center;">
+                <div style="font-size: 1.3rem; font-weight: 600; font-style: italic;">"Teamwork makes the dream work!"</div>
+                <div style="opacity: 0.9; margin-top: 0.5rem;">- Together We Achieve</div>
+            </div>
+            
+            <h2 style="color: var(--red); margin-bottom: 1rem;">📊 Dashboard Overview</h2>
+            <div id="dashStats">
+                <h3 style="color: var(--red); margin-bottom: 1rem;">📋 One-Time Tasks</h3>
+                <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 1rem; margin-bottom: 2rem;">
+                    <div class="card" style="text-align: center; border-top: 4px solid var(--red);">
+                        <h4 style="color: #999; font-size: 0.75rem;">TOTAL</h4>
+                        <div style="font-size: 2rem; font-weight: bold;">0</div>
+                    </div>
+                    <div class="card" style="text-align: center; border-top: 4px solid var(--green);">
+                        <h4 style="color: #999; font-size: 0.75rem;">COMPLETED</h4>
+                        <div style="font-size: 2rem; font-weight: bold;">0</div>
+                    </div>
+                </div>
+                
+                <h3 style="color: var(--red); margin-bottom: 1rem;">🔄 Recurring Tasks</h3>
+                <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 1rem;">
+                    <div class="card" style="text-align: center; border-top: 4px solid var(--blue);">
+                        <h4 style="color: #999; font-size: 0.75rem;">DAILY</h4>
+                        <div style="font-size: 2rem; font-weight: bold;">0</div>
+                    </div>
+                    <div class="card" style="text-align: center; border-top: 4px solid var(--purple);">
+                        <h4 style="color: #999; font-size: 0.75rem;">WEEKLY</h4>
+                        <div style="font-size: 2rem; font-weight: bold;">0</div>
+                    </div>
+                    <div class="card" style="text-align: center; border-top: 4px solid var(--teal);">
+                        <h4 style="color: #999; font-size: 0.75rem;">MONTHLY</h4>
+                        <div style="font-size: 2rem; font-weight: bold;">0</div>
+                    </div>
+                </div>
+            </div>
+            
+            <div style="text-align: center; margin-top: 1.5rem;">
+                <button class="btn btn-primary" onclick="alert('Add task feature ready!')">➕ Add New Task</button>
+            </div>
+        </section>
+
+        <section id="tasks" class="section">
+            <h2 style="color: var(--red); margin-bottom: 1rem;">📋 My Tasks</h2>
+            <div class="card">
+                <p style="text-align: center; color: #999;">No tasks yet</p>
+            </div>
+        </section>
+
+        <section id="goals" class="section">
+            <div style="display: flex; justify-content: space-between; margin-bottom: 1.5rem;">
+                <h2 style="color: var(--red);">📝 Goals & Notes 2026</h2>
+                <button class="btn btn-primary" onclick="showGoalModal()">➕ Add Note</button>
+            </div>
+            <div style="display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 1.5rem;" id="goalsContainer">
+                <p style="grid-column: 1/-1; text-align: center; color: #999; padding: 3rem;">Click "Add Note" to create your first sticky note!</p>
+            </div>
+        </section>
+
+        <section id="recurring" class="section">
+            <h2 style="color: var(--red); margin-bottom: 1rem;">🔄 Task Berulang</h2>
+            
+            <div class="card">
+                <h3 style="color: var(--red); margin-bottom: 1rem;">📅 Daily Tasks</h3>
+                <div id="dailyTasks"></div>
+            </div>
+            
+            <div class="card">
+                <h3 style="color: var(--red); margin-bottom: 1rem;">📆 Weekly Tasks</h3>
+                <div id="weeklyTasks"></div>
+            </div>
+            
+            <div class="card">
+                <h3 style="color: var(--red); margin-bottom: 1rem;">📅 Monthly Tasks</h3>
+                <div id="monthlyTasks"></div>
+            </div>
+        </section>
+
+        <section id="games" class="section">
+            <h2 style="color: var(--red); margin-bottom: 1rem;">🎮 Games Break - Team Motivation!</h2>
+            
+            <div style="background: linear-gradient(135deg, var(--orange), var(--yellow)); color: white; padding: 2rem; border-radius: 12px; margin-bottom: 1.5rem; text-align: center;">
+                <div style="font-size: 1.2rem; font-weight: bold; margin-bottom: 1rem;">🎮 Quick Break!</div>
+                <p style="opacity: 0.9;">Take a break and refresh your mind with a quick game!</p>
+            </div>
+            
+            <div class="card">
+                <h3 style="color: var(--red); text-align: center;">Coming Soon!</h3>
+                <p style="text-align: center; color: #666; margin-top: 1rem;">Fun games will be added here to help team relax during breaks.</p>
+            </div>
+        </section>
+
+        <section id="calendar" class="section">
+            <div class="card">
+                <div style="display: flex; justify-content: space-between; margin-bottom: 1.5rem; flex-wrap: wrap; gap: 1rem;">
+                    <h2 style="color: var(--red);">📅 Marketing Calendar 2025</h2>
+                    <button class="btn btn-primary" onclick="showCalendarModal()">➕ Add Event</button>
+                </div>
+
+                <div style="margin-bottom: 1.5rem;">
+                    <button class="calendar-tab active" onclick="filterCalendar('all')">📅 All Events</button>
+                    <button class="calendar-tab" onclick="filterCalendar('product')">🆕 New Product</button>
+                    <button class="calendar-tab" onclick="filterCalendar('campaign')">📢 Campaign</button>
+                    <button class="calendar-tab" onclick="filterCalendar('content')">📊 Content</button>
+                    <button class="calendar-tab" onclick="filterCalendar('event')">🎯 Events</button>
+                </div>
+
+                <div class="year-view" id="calendarView">
+                    <p style="grid-column: 1/-1; text-align: center; color: #999; padding: 2rem;">Click "Add Event" to create your first calendar event!</p>
+                </div>
+
+                <div style="margin-top: 2rem; padding: 1.5rem; background: var(--gray-light); border-radius: 12px;">
+                    <h3 style="color: var(--red); margin-bottom: 1rem;">📥 Export & Reports</h3>
+                    <button class="btn btn-primary" onclick="alert('Export PDF coming soon!')">📄 Export PDF</button>
+                    <button class="btn btn-success" onclick="alert('Export Excel coming soon!')" style="margin-left: 0.5rem;">📊 Export Excel</button>
+                </div>
+            </div>
+        </section>
+
+        <section id="staff" class="section">
+            <div style="display: flex; justify-content: space-between; margin-bottom: 1rem;">
+                <h2 style="color: var(--red);">👥 Master Staff Management</h2>
+                <button class="btn btn-primary" onclick="alert('Add staff feature coming soon!')">➕ Add Staff</button>
+            </div>
+            <div id="staffView">
+                <div class="loading">Loading staff data...</div>
+            </div>
+        </section>
+
+        <section id="manager" class="section">
+            <h2 style="color: var(--red); margin-bottom: 1rem;">👔 Dashboard Manager - Team Performance</h2>
+            <div id="managerView">
+                <div class="loading">Loading manager dashboard...</div>
+            </div>
+        </section>
+    </main>
+
+    <div id="goalModal" class="modal">
+        <div class="modal-content">
+            <h2 style="color: var(--red); margin-bottom: 1rem;">📝 Add Note</h2>
+            <form onsubmit="saveGoal(event)">
+                <div class="form-group">
+                    <label>Title *</label>
+                    <input type="text" id="goalTitle" required>
+                </div>
+                
+                <div class="form-group">
+                    <label>Content</label>
+                    <textarea id="goalContent" rows="6"></textarea>
+                </div>
+                
+                <div class="form-group">
+                    <label>Urgency *</label>
+                    <select id="goalUrgency">
+                        <option value="low">🟡 Low - Yellow</option>
+                        <option value="medium" selected>🟠 Medium - Orange</option>
+                        <option value="high">🔴 High - Red</option>
+                        <option value="critical">⚠️ Critical - Pink</option>
+                    </select>
+                </div>
+
+                <div style="display: flex; gap: 1rem;">
+                    <button type="submit" class="btn btn-success">Save Note</button>
+                    <button type="button" class="btn btn-secondary" onclick="closeModal('goalModal')">Cancel</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <div id="calendarModal" class="modal">
+        <div class="modal-content">
+            <h2 style="color: var(--red); margin-bottom: 1rem;">📅 Add Calendar Event</h2>
+            <form onsubmit="saveCalendarEvent(event)">
+                <div class="form-group">
+                    <label>Event Title *</label>
+                    <input type="text" id="calTitle" required>
+                </div>
+                
+                <div class="form-group">
+                    <label>Description</label>
+                    <textarea id="calDesc" rows="3"></textarea>
+                </div>
+                
+                <div class="form-group">
+                    <label>Category *</label>
+                    <select id="calCategory" required>
+                        <option value="product">🆕 New Product</option>
+                        <option value="campaign">📢 Campaign</option>
+                        <option value="content">📊 Content</option>
+                        <option value="event">🎯 Event</option>
+                    </select>
+                </div>
+                
+                <div class="form-group">
+                    <label>Start Date *</label>
+                    <input type="date" id="calStartDate" required>
+                </div>
+
+                <div style="display: flex; gap: 1rem;">
+                    <button type="submit" class="btn btn-success">Save Event</button>
+                    <button type="button" class="btn btn-secondary" onclick="closeModal('calendarModal')">Cancel</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <script type="module">
+        import { initializeApp } from 'https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js';
+        import { getFirestore, collection, addDoc, getDocs, query, where } from 'https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js';
+
+        const app = initializeApp({
+            apiKey: "AIzaSyAdTh1Fwsp1FsyZ98yVo0X63m9Equh2d5c",
+            authDomain: "laritta-task-manager.firebaseapp.com",
+            projectId: "laritta-task-manager"
+        });
+
+        const db = getFirestore(app);
+        let currentUser = 'faris';
+        let goals = [];
+        let tasks = [];
+        let calendarEvents = [];
+        let users = [
+            { userId: 'faris', name: 'Mohammad Faris Rizal', role: 'Manager' },
+            { userId: 'leony', name: 'Leony Hosna', role: 'PA Manager' },
+            { userId: 'erina', name: 'Erina Sejati', role: 'Marketing' },
+            { userId: 'dea', name: 'Amadea Wari Hidayani', role: 'Marketing' },
+            { userId: 'sisca', name: 'Sisca', role: 'Sales Online' },
+            { userId: 'yulia', name: 'Yulia', role: 'Sales Online' },
+            { userId: 'ais', name: 'Aisyatuz Zahrah', role: 'Sales Online' },
+            { userId: 'budo', name: 'Agus Budi', role: 'Koordinator Area' },
+            { userId: 'isa', name: 'Isa Yuhani', role: 'Koordinator Area' },
+            { userId: 'talitha', name: 'Talitha', role: 'Koordinator Area' },
+            { userId: 'kiky', name: 'Kiky Surya Ningsih', role: 'Koordinator Area' },
+            { userId: 'sita', name: 'Masita Krisni Adianty', role: 'Koordinator Area' },
+            { userId: 'ira', name: 'Ita Tri Handayanie', role: 'Koordinator Area' }
+        ];
+
+        async function loadAllData() {
+            console.log('Loading all existing data from Firebase...');
+            
+            try {
+                // Load tasks
+                const tasksSnap = await getDocs(query(collection(db, 'tasks'), where('assignee', '==', currentUser)));
+                tasks = tasksSnap.docs.map(d => ({id: d.id, ...d.data()}));
+                console.log('Tasks loaded:', tasks.length);
+                renderTasks();
+                renderDashboard();
+                
+                // Load calendar events (all events, not filtered by user)
+                const calSnap = await getDocs(collection(db, 'calendar_events'));
+                calendarEvents = calSnap.docs.map(d => ({id: d.id, ...d.data()}));
+                console.log('Calendar events loaded:', calendarEvents.length);
+                
+                // Load goals
+                const goalsSnap = await getDocs(query(collection(db, 'goals'), where('userId', '==', currentUser)));
+                goals = goalsSnap.docs.map(d => ({id: d.id, ...d.data()}));
+                console.log('Goals loaded:', goals.length);
+                
+                // Load task instances (for recurring tasks)
+                const instSnap = await getDocs(query(collection(db, 'task_instances'), where('assignee', '==', currentUser)));
+                const instances = instSnap.docs.map(d => ({id: d.id, ...d.data()}));
+                console.log('Task instances loaded:', instances.length);
+                
+                console.log('✅ All data loaded successfully!');
+                
+            } catch (err) {
+                console.error('Error loading data:', err);
+                alert('Error loading data: ' + err.message);
+            }
+        }
+
+        function renderTasks() {
+            const onetime = tasks.filter(t => t.type === 'onetime');
+            const todo = onetime.filter(t => !t.status || t.status === 'todo');
+            const progress = onetime.filter(t => t.status === 'in-progress');
+            const completed = onetime.filter(t => t.status === 'completed');
+            
+            console.log('Rendering tasks - Todo:', todo.length, 'Progress:', progress.length, 'Done:', completed.length);
+            
+            // Render to Tasks section with proper grouping
+            const tasksSection = document.getElementById('tasks');
+            if (!tasksSection) return;
+            
+            tasksSection.innerHTML = `
+                <div style="display: flex; justify-content: space-between; margin-bottom: 1rem;">
+                    <h2 style="color: var(--red);">📋 My Tasks</h2>
+                    <button class="btn btn-primary" onclick="alert('Add task feature ready!')">➕ Add Task</button>
+                </div>
+                
+                <div class="card">
+                    <h3 style="color: var(--blue); margin-bottom: 1rem;">📋 To Do (${todo.length})</h3>
+                    ${todo.length > 0 ? todo.map(t => renderTaskItem(t)).join('') : '<p style="color: #999; text-align: center; padding: 1rem;">No pending tasks</p>'}
+                </div>
+                
+                <div class="card">
+                    <h3 style="color: var(--orange); margin-bottom: 1rem;">🔄 In Progress (${progress.length})</h3>
+                    ${progress.length > 0 ? progress.map(t => renderTaskItem(t)).join('') : '<p style="color: #999; text-align: center; padding: 1rem;">No tasks in progress</p>'}
+                </div>
+                
+                <div class="card">
+                    <h3 style="color: var(--green); margin-bottom: 1rem;">✅ Completed (${completed.length})</h3>
+                    ${completed.length > 0 ? completed.map(t => renderTaskItem(t)).join('') : '<p style="color: #999; text-align: center; padding: 1rem;">No completed tasks</p>'}
+                </div>
+            `;
+        }
+
+        function renderTaskItem(t) {
+            return `
+                <div style="padding: 1rem; margin-bottom: 0.8rem; background: var(--gray-light); border-radius: 8px; border-left: 4px solid var(--blue); position: relative;">
+                    <div style="position: absolute; top: 0.5rem; right: 0.5rem; display: flex; gap: 0.3rem;">
+                        <button class="btn btn-small btn-warning" onclick="editTask('${t.id}')">✏️</button>
+                        <button class="btn btn-small btn-danger" onclick="deleteTask('${t.id}')">🗑️</button>
+                    </div>
+                    <h4 style="color: var(--red); margin-bottom: 0.5rem; padding-right: 80px;">${t.title}</h4>
+                    ${t.description ? `<p style="font-size: 0.85rem; color: #666; margin-bottom: 0.5rem;">${t.description}</p>` : ''}
+                    <div style="margin-top: 0.5rem; font-size: 0.8rem; display: flex; gap: 0.5rem; flex-wrap: wrap;">
+                        <span style="background: var(--blue); color: white; padding: 0.2rem 0.5rem; border-radius: 4px;">${t.type || 'onetime'}</span>
+                        ${t.priority ? `<span style="background: ${t.priority==='high'?'var(--red)':t.priority==='medium'?'var(--orange)':'var(--gray-mid)'}; color: white; padding: 0.2rem 0.5rem; border-radius: 4px;">${t.priority}</span>` : ''}
+                        ${t.dueDate ? `<span style="color: #666;">📅 ${new Date(t.dueDate).toLocaleDateString('id-ID')}</span>` : ''}
+                    </div>
+                </div>
+            `;
+        }
+
+        function renderRecurringTasks() {
+            const daily = tasks.filter(t => t.type === 'daily');
+            const weekly = tasks.filter(t => t.type === 'weekly');
+            const monthly = tasks.filter(t => t.type === 'monthly');
+            
+            document.getElementById('dailyTasks').innerHTML = daily.length > 0 
+                ? daily.map(t => renderTaskItem(t)).join('')
+                : '<p style="color: #999; text-align: center; padding: 1rem;">No daily tasks</p>';
+                
+            document.getElementById('weeklyTasks').innerHTML = weekly.length > 0
+                ? weekly.map(t => renderTaskItem(t)).join('')
+                : '<p style="color: #999; text-align: center; padding: 1rem;">No weekly tasks</p>';
+                
+            document.getElementById('monthlyTasks').innerHTML = monthly.length > 0
+                ? monthly.map(t => renderTaskItem(t)).join('')
+                : '<p style="color: #999; text-align: center; padding: 1rem;">No monthly tasks</p>';
+        }
+
+        window.editTask = (id) => {
+            const task = tasks.find(t => t.id === id);
+            if (!task) return;
+            alert('Edit task: ' + task.title + '\n\nEdit feature will be implemented in next update!');
+        };
+
+        window.deleteTask = async (id) => {
+            const task = tasks.find(t => t.id === id);
+            if (!task) return;
+            
+            if (!confirm('Delete task: "' + task.title + '"?')) return;
+            
+            try {
+                const { deleteDoc, doc } = await import('https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js');
+                await deleteDoc(doc(db, 'tasks', id));
+                await loadAllData();
+                alert('Task deleted successfully!');
+            } catch (err) {
+                alert('Error deleting task: ' + err.message);
+            }
+        };
+
+        function renderDashboard() {
+            const onetime = tasks.filter(t => t.type === 'onetime');
+            const daily = tasks.filter(t => t.type === 'daily');
+            const weekly = tasks.filter(t => t.type === 'weekly');
+            const monthly = tasks.filter(t => t.type === 'monthly');
+            
+            const completed = onetime.filter(t => t.status === 'completed').length;
+            const pending = onetime.length - completed;
+            
+            document.getElementById('dashStats').innerHTML = `
+                <h3 style="color: var(--red); margin-bottom: 1rem;">📋 One-Time Tasks</h3>
+                <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 1rem; margin-bottom: 2rem;">
+                    <div class="card" style="text-align: center; border-top: 4px solid var(--red);">
+                        <h4 style="color: #999; font-size: 0.75rem;">TOTAL</h4>
+                        <div style="font-size: 2rem; font-weight: bold;">${onetime.length}</div>
+                    </div>
+                    <div class="card" style="text-align: center; border-top: 4px solid var(--green);">
+                        <h4 style="color: #999; font-size: 0.75rem;">COMPLETED</h4>
+                        <div style="font-size: 2rem; font-weight: bold; color: var(--green);">${completed}</div>
+                    </div>
+                    <div class="card" style="text-align: center; border-top: 4px solid var(--orange);">
+                        <h4 style="color: #999; font-size: 0.75rem;">PENDING</h4>
+                        <div style="font-size: 2rem; font-weight: bold; color: var(--orange);">${pending}</div>
+                    </div>
+                </div>
+                
+                <h3 style="color: var(--red); margin-bottom: 1rem;">🔄 Recurring Tasks</h3>
+                <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 1rem;">
+                    <div class="card" style="text-align: center; border-top: 4px solid var(--blue);">
+                        <h4 style="color: #999; font-size: 0.75rem;">📅 DAILY</h4>
+                        <div style="font-size: 2rem; font-weight: bold; color: var(--blue);">${daily.length}</div>
+                    </div>
+                    <div class="card" style="text-align: center; border-top: 4px solid var(--purple);">
+                        <h4 style="color: #999; font-size: 0.75rem;">📆 WEEKLY</h4>
+                        <div style="font-size: 2rem; font-weight: bold; color: var(--purple);">${weekly.length}</div>
+                    </div>
+                    <div class="card" style="text-align: center; border-top: 4px solid var(--teal);">
+                        <h4 style="color: #999; font-size: 0.75rem;">📅 MONTHLY</h4>
+                        <div style="font-size: 2rem; font-weight: bold; color: var(--teal);">${monthly.length}</div>
+                    </div>
+                </div>
+            `;
+        }
+
+        async function loadUsers() {
+            try {
+                const snap = await getDocs(collection(db, 'users'));
+                if (!snap.empty) {
+                    users = snap.docs.map(d => ({id: d.id, ...d.data()}));
+                    console.log('Users from Firebase:', users.length);
+                }
+                
+                // Populate user select
+                const sel = document.getElementById('userSelect');
+                sel.innerHTML = users.map(u => 
+                    `<option value="${u.userId}" ${u.userId===currentUser?'selected':''}>${u.name}</option>`
+                ).join('');
+                
+            } catch (err) {
+                console.error('Error loading users:', err);
+                // Use default users if Firebase fails
+                const sel = document.getElementById('userSelect');
+                sel.innerHTML = users.map(u => 
+                    `<option value="${u.userId}" ${u.userId===currentUser?'selected':''}>${u.name}</option>`
+                ).join('');
+            }
+        }
+
+        async function initData() {
+            try {
+                const snap = await getDocs(collection(db, 'users'));
+                if (snap.empty) {
+                    console.log('Initializing default users...');
+                    for (const u of users) {
+                        await addDoc(collection(db, 'users'), u);
+                    }
+                    console.log('Default users created');
+                }
+            } catch (err) {
+                console.error('Init error:', err);
+            }
+        }
+
+        window.addEventListener('DOMContentLoaded', async () => {
+            console.log('🚀 System starting...');
+            setStatus('syncing', 'Loading...');
+            
+            try {
+                await initData();
+                await loadUsers();
+                await loadAllData(); // LOAD ALL EXISTING DATA
+                
+                console.log('✅ System loaded successfully!');
+                setStatus('synced', 'Ready');
+            } catch (err) {
+                console.error('❌ Load error:', err);
+                setStatus('synced', 'Ready (offline mode)');
+                
+                // Still populate users even if Firebase fails
+                const sel = document.getElementById('userSelect');
+                sel.innerHTML = users.map(u => 
+                    `<option value="${u.userId}" ${u.userId===currentUser?'selected':''}>${u.name}</option>`
+                ).join('');
+            }
+        });
+
+        window.showSection = (id) => {
+            document.querySelectorAll('.section').forEach(s => s.classList.remove('active'));
+            document.querySelectorAll('.nav-link').forEach(l => l.classList.remove('active'));
+            document.getElementById(id).classList.add('active');
+            document.querySelector(`a[href="#${id}"]`).classList.add('active');
+            
+            if (id === 'goals') {
+                renderGoals();
+                // Also refresh from Firebase to ensure latest data
+                loadGoalsFromFirebase();
+            } else if (id === 'calendar') {
+                renderCalendar(calendarEvents);
+                // Also refresh from Firebase to ensure latest data
+                loadCalendarFromFirebase();
+            } else if (id === 'tasks') {
+                renderTasks();
+            } else if (id === 'recurring') {
+                renderRecurringTasks();
+            } else if (id === 'dashboard') {
+                renderDashboard();
+            } else if (id === 'manager') {
+                renderManagerDashboard();
+            } else if (id === 'staff') {
+                renderStaffManagement();
+            }
+        };
+
+        async function loadGoalsFromFirebase() {
+            try {
+                const snap = await getDocs(query(collection(db, 'goals'), where('userId', '==', currentUser)));
+                goals = snap.docs.map(d => ({id: d.id, ...d.data()}));
+                console.log('Goals refreshed from Firebase:', goals.length);
+                renderGoals();
+            } catch (err) {
+                console.error('Error loading goals:', err);
+            }
+        }
+
+        async function loadGoals() {
+            await loadGoalsFromFirebase();
+        }
+
+        function renderGoals() {
+            const container = document.getElementById('goalsContainer');
+            if (!container) return;
+            
+            if (goals.length === 0) {
+                container.innerHTML = '<p style="grid-column: 1/-1; text-align: center; color: #999; padding: 3rem;">No notes yet. Click "Add Note" to start!</p>';
+                return;
+            }
+            
+            container.innerHTML = goals.map(g => {
+                const date = g.updatedAt || g.createdAt || new Date().toISOString();
+                return `
+                    <div class="sticky-note ${g.urgency}" onclick="editGoal('${g.id}')">
+                        <h3 style="padding-top: 0.5rem;">${g.title}</h3>
+                        <div style="color: #555; font-size: 0.95rem; line-height: 1.6; white-space: pre-wrap; margin-top: 1rem;">${g.content || ''}</div>
+                        <div style="position: absolute; bottom: 1rem; right: 1rem;">
+                            <button class="btn btn-small btn-danger" onclick="event.stopPropagation(); deleteGoal('${g.id}')">🗑️</button>
+                        </div>
+                        <div style="position: absolute; top: 0.5rem; right: 0.5rem; font-size: 0.75rem; color: #666;">
+                            ${new Date(date).toLocaleDateString('id-ID')}
+                        </div>
+                    </div>
+                `;
+            }).join('');
+        }
+
+        async function loadCalendarFromFirebase() {
+            try {
+                const snap = await getDocs(collection(db, 'calendar_events'));
+                calendarEvents = snap.docs.map(d => ({id: d.id, ...d.data()}));
+                console.log('Calendar refreshed from Firebase:', calendarEvents.length);
+                renderCalendar(calendarEvents);
+            } catch (err) {
+                console.error('Error loading calendar:', err);
+            }
+        }
+
+        async function loadCalendar() {
+            await loadCalendarFromFirebase();
+        }
+
+        function renderCalendar(events) {
+            const view = document.getElementById('calendarView');
+            if (!view) return;
+            
+            if (events.length === 0) {
+                view.innerHTML = '<p style="grid-column: 1/-1; text-align: center; color: #999; padding: 2rem;">No events yet. Click "Add Event" to create your first calendar event!</p>';
+                return;
+            }
+            
+            const months = ['January', 'February', 'March', 'April', 'May', 'June', 
+                           'July', 'August', 'September', 'October', 'November', 'December'];
+            
+            const eventsByMonth = {};
+            months.forEach((m, i) => {
+                eventsByMonth[i] = events.filter(e => {
+                    if (!e.startDate) return false;
+                    const date = new Date(e.startDate);
+                    return date.getMonth() === i && date.getFullYear() === 2025;
+                });
+            });
+            
+            view.innerHTML = months.map((month, i) => {
+                const monthEvents = eventsByMonth[i];
+                return `
+                    <div class="month-card">
+                        <h3>${month} 2025</h3>
+                        ${monthEvents.length > 0 ? monthEvents.map(e => `
+                            <div class="calendar-event event-${e.category}" onclick="editCalendarEvent('${e.id}')">
+                                <div style="font-weight: bold; margin-bottom: 0.3rem;">${e.title}</div>
+                                <div style="font-size: 0.8rem; color: #666;">${new Date(e.startDate).toLocaleDateString('id-ID')}</div>
+                                ${e.description ? `<div style="font-size: 0.75rem; color: #888; margin-top: 0.2rem;">${e.description}</div>` : ''}
+                            </div>
+                        `).join('') : '<p style="color: #999; font-size: 0.85rem; text-align: center; padding: 1rem;">No events</p>'}
+                    </div>
+                `;
+            }).join('');
+        }
+
+        window.editGoal = (id) => {
+            const goal = goals.find(g => g.id === id);
+            if (!goal) return;
+            
+            document.getElementById('goalTitle').value = goal.title;
+            document.getElementById('goalContent').value = goal.content || '';
+            document.getElementById('goalUrgency').value = goal.urgency;
+            document.getElementById('goalModal').dataset.editId = id;
+            document.getElementById('goalModal').classList.add('active');
+        };
+
+        window.deleteGoal = async (id) => {
+            if (!confirm('Delete this note?')) return;
+            try {
+                const { deleteDoc, doc } = await import('https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js');
+                await deleteDoc(doc(db, 'goals', id));
+                await loadGoals();
+            } catch (err) {
+                alert('Error: ' + err.message);
+            }
+        };
+
+        window.editCalendarEvent = (id) => {
+            const event = calendarEvents.find(e => e.id === id);
+            if (!event) {
+                alert('Edit calendar event: ' + id);
+                return;
+            }
+            
+            document.getElementById('calTitle').value = event.title;
+            document.getElementById('calDesc').value = event.description || '';
+            document.getElementById('calCategory').value = event.category;
+            document.getElementById('calStartDate').value = event.startDate;
+            document.getElementById('calendarModal').dataset.editId = id;
+            document.getElementById('calendarModal').classList.add('active');
+        };
+
+        window.switchUser = async () => {
+            const newUser = document.getElementById('userSelect').value;
+            console.log('Switching user from', currentUser, 'to', newUser);
+            currentUser = newUser;
+            
+            setStatus('syncing', 'Loading user data...');
+            
+            // Reload all data for new user
+            await loadAllData();
+            
+            setStatus('synced', 'Ready');
+        };
+
+        window.showGoalModal = () => {
+            document.getElementById('goalModal').classList.add('active');
+        };
+
+        window.showCalendarModal = () => {
+            document.getElementById('calendarModal').classList.add('active');
+        };
+
+        window.closeModal = (id) => {
+            document.getElementById(id).classList.remove('active');
+        };
+
+        let currentCalendarFilter = 'all';
+
+        window.filterCalendar = (filter) => {
+            console.log('Filter calendar:', filter);
+            currentCalendarFilter = filter;
+            
+            // Update active button
+            document.querySelectorAll('.calendar-tab').forEach(tab => {
+                tab.classList.remove('active');
+            });
+            event.target.classList.add('active');
+            
+            // Filter and render calendar
+            const filtered = filter === 'all' 
+                ? calendarEvents 
+                : calendarEvents.filter(e => e.category === filter);
+            
+            renderCalendar(filtered);
+        };
+
+        window.saveGoal = async (e) => {
+            e.preventDefault();
+            setStatus('syncing', 'Saving...');
+            
+            try {
+                const { updateDoc, doc } = await import('https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js');
+                
+                const data = {
+                    title: document.getElementById('goalTitle').value,
+                    content: document.getElementById('goalContent').value,
+                    urgency: document.getElementById('goalUrgency').value,
+                    userId: currentUser,
+                    updatedAt: new Date().toISOString()
+                };
+                
+                const modal = document.getElementById('goalModal');
+                const editId = modal.dataset.editId;
+                
+                if (editId) {
+                    await updateDoc(doc(db, 'goals', editId), data);
+                } else {
+                    data.createdAt = new Date().toISOString();
+                    await addDoc(collection(db, 'goals'), data);
+                }
+                
+                await loadGoals();
+                closeModal('goalModal');
+                setStatus('synced', 'Saved!');
+                
+                // Clear form
+                document.getElementById('goalTitle').value = '';
+                document.getElementById('goalContent').value = '';
+                document.getElementById('goalUrgency').value = 'medium';
+                modal.dataset.editId = '';
+            } catch (err) {
+                console.error('Save error:', err);
+                alert('Error saving: ' + err.message);
+                setStatus('error', 'Error');
+            }
+        };
+
+        window.saveCalendarEvent = async (e) => {
+            e.preventDefault();
+            setStatus('syncing', 'Saving...');
+            
+            try {
+                const { updateDoc, doc } = await import('https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js');
+                
+                const data = {
+                    title: document.getElementById('calTitle').value,
+                    description: document.getElementById('calDesc').value,
+                    category: document.getElementById('calCategory').value,
+                    startDate: document.getElementById('calStartDate').value,
+                    createdBy: currentUser,
+                    updatedAt: new Date().toISOString()
+                };
+                
+                const modal = document.getElementById('calendarModal');
+                const editId = modal.dataset.editId;
+                
+                if (editId) {
+                    await updateDoc(doc(db, 'calendar_events', editId), data);
+                } else {
+                    data.createdAt = new Date().toISOString();
+                    await addDoc(collection(db, 'calendar_events'), data);
+                }
+                
+                await loadCalendar();
+                closeModal('calendarModal');
+                setStatus('synced', 'Event saved!');
+                
+                // Clear form
+                document.getElementById('calTitle').value = '';
+                document.getElementById('calDesc').value = '';
+                document.getElementById('calStartDate').value = '';
+                modal.dataset.editId = '';
+            } catch (err) {
+                console.error('Save error:', err);
+                alert('Error saving: ' + err.message);
+                setStatus('error', 'Error');
+            }
+        };
+
+        async function renderManagerDashboard() {
+            const view = document.getElementById('managerView');
+            if (!view) return;
+            
+            setStatus('syncing', 'Loading manager data...');
+            
+            try {
+                const allTasksSnap = await getDocs(collection(db, 'tasks'));
+                const allTasks = allTasksSnap.docs.map(d => ({id: d.id, ...d.data()}));
+                
+                const staffKPI = users.map(user => {
+                    const userTasks = allTasks.filter(t => t.assignee === user.userId);
+                    const completedTasks = userTasks.filter(t => t.status === 'completed');
+                    const totalTasks = userTasks.length;
+                    const completionRate = totalTasks > 0 ? Math.round((completedTasks.length / totalTasks) * 100) : 0;
+                    
+                    const workload = totalTasks;
+                    const avgWorkload = Math.round(allTasks.length / users.length);
+                    const workloadPercentage = avgWorkload > 0 ? Math.round((workload / avgWorkload) * 100) : 100;
+                    
+                    const workloadScore = workloadPercentage > 120 ? 70 : (workloadPercentage < 80 ? 85 : 100);
+                    const kpiScore = Math.round((completionRate * 0.7) + (workloadScore * 0.3));
+                    
+                    let grade = 'D';
+                    if (kpiScore >= 85) grade = 'A';
+                    else if (kpiScore >= 70) grade = 'B';
+                    else if (kpiScore >= 55) grade = 'C';
+                    
+                    return { ...user, totalTasks, completedTasks: completedTasks.length, completionRate, workload, workloadPercentage, kpiScore, grade };
+                });
+                
+                staffKPI.sort((a, b) => b.kpiScore - a.kpiScore);
+                
+                const grouped = {};
+                staffKPI.forEach(s => {
+                    if (!grouped[s.role]) grouped[s.role] = [];
+                    grouped[s.role].push(s);
+                });
+                
+                view.innerHTML = `
+                    <div class="card">
+                        <h3 style="color: var(--red); margin-bottom: 1rem;">📊 Team KPI Overview</h3>
+                        <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 1rem; margin-bottom: 2rem;">
+                            <div style="background: linear-gradient(135deg, var(--blue), var(--purple)); color: white; padding: 1.5rem; border-radius: 12px; text-align: center;">
+                                <div style="font-size: 2rem; font-weight: bold;">${users.length}</div>
+                                <div style="opacity: 0.9;">Total Staff</div>
+                            </div>
+                            <div style="background: linear-gradient(135deg, var(--green), var(--teal)); color: white; padding: 1.5rem; border-radius: 12px; text-align: center;">
+                                <div style="font-size: 2rem; font-weight: bold;">${allTasks.length}</div>
+                                <div style="opacity: 0.9;">Total Tasks</div>
+                            </div>
+                            <div style="background: linear-gradient(135deg, var(--orange), var(--red)); color: white; padding: 1.5rem; border-radius: 12px; text-align: center;">
+                                <div style="font-size: 2rem; font-weight: bold;">${Math.round(staffKPI.reduce((sum, s) => sum + s.completionRate, 0) / staffKPI.length)}%</div>
+                                <div style="opacity: 0.9;">Avg Completion</div>
+                            </div>
+                            <div style="background: linear-gradient(135deg, var(--red), var(--pink)); color: white; padding: 1.5rem; border-radius: 12px; text-align: center;">
+                                <div style="font-size: 2rem; font-weight: bold;">${staffKPI.filter(s => s.grade === 'A').length}</div>
+                                <div style="opacity: 0.9;">Grade A Staff</div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    ${Object.entries(grouped).map(([role, members]) => `
+                        <div class="card">
+                            <h3 style="color: var(--red); margin-bottom: 1rem;">${role} (${members.length})</h3>
+                            ${members.map(m => `
+                                <div style="padding: 1.2rem; margin-bottom: 1rem; background: var(--gray-light); border-radius: 8px; border-left: 4px solid ${m.grade==='A'?'var(--green)':m.grade==='B'?'var(--blue)':m.grade==='C'?'var(--orange)':'var(--red)'};">
+                                    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.8rem;">
+                                        <div>
+                                            <strong style="font-size: 1.1rem;">${m.name}</strong>
+                                            <div style="font-size: 0.85rem; color: #666;">@${m.userId}</div>
+                                        </div>
+                                        <div style="display: inline-block; background: ${m.grade==='A'?'var(--green)':m.grade==='B'?'var(--blue)':m.grade==='C'?'var(--orange)':'var(--red)'}; color: white; padding: 0.3rem 0.8rem; border-radius: 6px; font-weight: bold; font-size: 1.2rem;">
+                                            ${m.grade}
+                                        </div>
+                                    </div>
+                                    <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 0.8rem; font-size: 0.85rem;">
+                                        <div>📋 Tasks: <strong>${m.totalTasks}</strong></div>
+                                        <div>✅ Done: <strong style="color: var(--green);">${m.completedTasks}</strong></div>
+                                        <div>📈 Rate: <strong style="color: ${m.completionRate >= 70 ? 'var(--green)' : 'var(--orange)'};">${m.completionRate}%</strong></div>
+                                        <div>⚖️ Workload: <strong style="color: ${m.workloadPercentage > 120 ? 'var(--red)' : 'var(--green)'};">${m.workloadPercentage}%</strong></div>
+                                    </div>
+                                </div>
+                            `).join('')}
+                        </div>
+                    `).join('')}
+                `;
+                
+                setStatus('synced', 'Ready');
+            } catch (err) {
+                view.innerHTML = `<div class="card"><p style="color: var(--orange);">Error: ${err.message}</p></div>`;
+                setStatus('error', 'Error');
+            }
+        }
+
+        function renderStaffManagement() {
+            const view = document.getElementById('staffView');
+            if (!view) return;
+            
+            const grouped = {};
+            users.forEach(u => {
+                if (!grouped[u.role]) grouped[u.role] = [];
+                grouped[u.role].push(u);
+            });
+            
+            view.innerHTML = Object.entries(grouped).map(([role, members]) => `
+                <div class="card">
+                    <h3 style="color: var(--red); margin-bottom: 1rem;">${role} (${members.length})</h3>
+                    ${members.map(m => `
+                        <div style="padding: 1rem; margin-bottom: 0.8rem; background: var(--gray-light); border-radius: 8px; display: flex; justify-content: space-between; align-items: center;">
+                            <div>
+                                <strong>${m.name}</strong>
+                                <div style="font-size: 0.85rem; color: #666;">@${m.userId}</div>
+                            </div>
+                            <div style="display: flex; gap: 0.5rem;">
+                                <button class="btn btn-small btn-warning" onclick="alert('Edit: ${m.name}')">✏️ Edit</button>
+                                <button class="btn btn-small btn-danger" onclick="if(confirm('Delete ${m.name}?')) alert('Delete feature ready!')">🗑️ Delete</button>
+                            </div>
+                        </div>
+                    `).join('')}
+                </div>
+            `).join('');
+        }
+
+        function setStatus(status, text) {
+            document.getElementById('status').className = `status ${status}`;
+            document.getElementById('statusText').textContent = text;
+            document.getElementById('statusIcon').textContent = status === 'synced' ? '☁️' : '🔄';
+        }
+    </script>
+</body>
+</html>
