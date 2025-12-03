@@ -1,0 +1,1201 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Laritta Task Manager - Ultimate with Calendar</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        
+        :root {
+            --red: #c41e3a; --red-dark: #a01830; --red-light: #fef5f6;
+            --orange: #ff6b35; --blue: #4285f4; --green: #34a853;
+            --yellow: #fbbc04; --purple: #9c27b0; --pink: #e91e63;
+            --teal: #009688; --gray: #333; --gray-mid: #666;
+            --gray-light: #f5f5f5; --white: #fff;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: var(--gray-light);
+            color: var(--gray);
+            line-height: 1.6;
+        }
+
+        header {
+            background: linear-gradient(135deg, var(--red) 0%, var(--red-dark) 100%);
+            color: white;
+            padding: 1rem 1.5rem;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.2);
+        }
+
+        .header-content {
+            max-width: 1600px;
+            margin: 0 auto;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 1rem;
+        }
+
+        .header-title h1 { font-size: 1.4rem; margin-bottom: 0.2rem; }
+        .header-title p { font-size: 0.75rem; opacity: 0.9; }
+
+        .status {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            padding: 0.4rem 0.8rem;
+            background: rgba(255,255,255,0.2);
+            border-radius: 20px;
+            font-size: 0.75rem;
+        }
+
+        .status.synced { background: rgba(52, 168, 83, 0.3); }
+        .status.syncing { background: rgba(251, 188, 4, 0.3); }
+
+        nav {
+            background: white;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+            position: sticky;
+            top: 0;
+            z-index: 100;
+        }
+
+        nav ul {
+            max-width: 1600px;
+            margin: 0 auto;
+            list-style: none;
+            display: flex;
+            justify-content: center;
+            flex-wrap: wrap;
+        }
+
+        nav a {
+            display: block;
+            padding: 0.8rem 1rem;
+            color: var(--red);
+            text-decoration: none;
+            font-weight: bold;
+            transition: all 0.3s;
+            border-bottom: 3px solid transparent;
+            font-size: 0.8rem;
+        }
+
+        nav a:hover, nav a.active {
+            background: var(--red-light);
+            border-bottom-color: var(--red);
+        }
+
+        main {
+            max-width: 1600px;
+            margin: 1.5rem auto;
+            padding: 0 1.5rem;
+        }
+
+        .section { display: none; }
+        .section.active { display: block; }
+
+        .btn {
+            padding: 0.6rem 1rem;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            font-weight: bold;
+            transition: all 0.3s;
+            font-size: 0.8rem;
+            display: inline-flex;
+            align-items: center;
+            gap: 0.4rem;
+        }
+
+        .btn-primary { background: var(--red); color: white; }
+        .btn-success { background: var(--green); color: white; }
+        .btn-warning { background: var(--orange); color: white; }
+        .btn-danger { background: #dc3545; color: white; }
+        .btn-secondary { background: var(--gray-mid); color: white; }
+        .btn-small { padding: 0.3rem 0.6rem; font-size: 0.75rem; }
+
+        .card {
+            background: white;
+            padding: 1.5rem;
+            border-radius: 12px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+            margin-bottom: 1.5rem;
+        }
+
+        .calendar-container {
+            background: white;
+            border-radius: 12px;
+            padding: 1.5rem;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+        }
+
+        .calendar-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 1.5rem;
+            flex-wrap: wrap;
+            gap: 1rem;
+        }
+
+        .calendar-nav {
+            display: flex;
+            gap: 0.5rem;
+            align-items: center;
+        }
+
+        .calendar-tabs {
+            display: flex;
+            gap: 0.5rem;
+            margin-bottom: 1.5rem;
+            flex-wrap: wrap;
+        }
+
+        .calendar-tab {
+            padding: 0.6rem 1.2rem;
+            background: white;
+            border: 2px solid var(--red);
+            color: var(--red);
+            border-radius: 8px;
+            cursor: pointer;
+            font-weight: bold;
+            transition: all 0.3s;
+            font-size: 0.85rem;
+        }
+
+        .calendar-tab.active {
+            background: var(--red);
+            color: white;
+        }
+
+        .year-view {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: 1.5rem;
+        }
+
+        .month-card {
+            background: white;
+            border: 2px solid var(--gray-light);
+            border-radius: 12px;
+            padding: 1rem;
+            transition: all 0.3s;
+        }
+
+        .month-card:hover {
+            box-shadow: 0 4px 12px rgba(196, 30, 58, 0.2);
+            border-color: var(--red);
+        }
+
+        .month-card h3 {
+            color: var(--red);
+            margin-bottom: 1rem;
+            font-size: 1.1rem;
+            border-bottom: 2px solid var(--red-light);
+            padding-bottom: 0.5rem;
+        }
+
+        .calendar-event {
+            padding: 0.6rem;
+            margin-bottom: 0.6rem;
+            border-radius: 6px;
+            font-size: 0.85rem;
+            cursor: pointer;
+            transition: all 0.2s;
+            border-left: 4px solid;
+        }
+
+        .calendar-event:hover {
+            transform: translateX(3px);
+            box-shadow: 0 2px 6px rgba(0,0,0,0.15);
+        }
+
+        .event-product { background: #e3f2fd; border-color: var(--blue); }
+        .event-campaign { background: #fff3e0; border-color: var(--orange); }
+        .event-content { background: #f3e5f5; border-color: var(--purple); }
+        .event-event { background: #fce4ec; border-color: var(--pink); }
+        .event-planning { background: #e8f5e9; border-color: var(--green); }
+
+        .event-title {
+            font-weight: bold;
+            margin-bottom: 0.3rem;
+        }
+
+        .event-date {
+            font-size: 0.75rem;
+            color: var(--gray-mid);
+        }
+
+        .timeline-view {
+            position: relative;
+            padding: 2rem 0;
+        }
+
+        .timeline-line {
+            position: absolute;
+            left: 50%;
+            top: 0;
+            bottom: 0;
+            width: 3px;
+            background: var(--red-light);
+        }
+
+        .timeline-item {
+            display: flex;
+            margin-bottom: 2rem;
+            position: relative;
+        }
+
+        .timeline-item:nth-child(even) {
+            flex-direction: row-reverse;
+        }
+
+        .timeline-content {
+            width: 45%;
+            background: white;
+            padding: 1.5rem;
+            border-radius: 12px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+            border-left: 4px solid var(--red);
+        }
+
+        .timeline-marker {
+            position: absolute;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 16px;
+            height: 16px;
+            background: var(--red);
+            border: 3px solid white;
+            border-radius: 50%;
+            box-shadow: 0 2px 6px rgba(0,0,0,0.2);
+        }
+
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 1rem;
+            margin-bottom: 2rem;
+        }
+
+        .stat-card {
+            background: linear-gradient(135deg, var(--blue), var(--purple));
+            color: white;
+            padding: 1.5rem;
+            border-radius: 12px;
+            text-align: center;
+        }
+
+        .stat-number {
+            font-size: 2.5rem;
+            font-weight: bold;
+            margin-bottom: 0.5rem;
+        }
+
+        .stat-label {
+            font-size: 0.9rem;
+            opacity: 0.9;
+        }
+
+        .filter-bar {
+            display: flex;
+            gap: 0.5rem;
+            margin-bottom: 1.5rem;
+            flex-wrap: wrap;
+            padding: 1rem;
+            background: var(--gray-light);
+            border-radius: 8px;
+        }
+
+        .filter-btn {
+            padding: 0.5rem 1rem;
+            border: 2px solid transparent;
+            background: white;
+            border-radius: 6px;
+            cursor: pointer;
+            transition: all 0.3s;
+            font-size: 0.85rem;
+        }
+
+        .filter-btn.active {
+            border-color: var(--red);
+            background: var(--red-light);
+            color: var(--red);
+            font-weight: bold;
+        }
+
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0,0,0,0.5);
+            z-index: 1000;
+            align-items: center;
+            justify-content: center;
+            padding: 1rem;
+            overflow-y: auto;
+        }
+
+        .modal.active { display: flex; }
+
+        .modal-content {
+            background: white;
+            padding: 2rem;
+            border-radius: 12px;
+            max-width: 700px;
+            width: 100%;
+            max-height: 90vh;
+            overflow-y: auto;
+        }
+
+        .form-group {
+            margin-bottom: 1rem;
+        }
+
+        .form-group label {
+            display: block;
+            margin-bottom: 0.4rem;
+            font-weight: bold;
+            font-size: 0.85rem;
+        }
+
+        .form-group input,
+        .form-group select,
+        .form-group textarea {
+            width: 100%;
+            padding: 0.6rem;
+            border: 2px solid var(--gray-light);
+            border-radius: 8px;
+            font-size: 0.85rem;
+        }
+
+        .export-section {
+            margin-top: 2rem;
+            padding: 1.5rem;
+            background: var(--gray-light);
+            border-radius: 12px;
+        }
+
+        .export-btn {
+            padding: 0.8rem 1.5rem;
+            margin-right: 0.5rem;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            font-weight: bold;
+            transition: all 0.3s;
+        }
+
+        .loading {
+            text-align: center;
+            padding: 3rem;
+            color: var(--gray-mid);
+        }
+
+        @media (max-width: 768px) {
+            .timeline-content { width: 90%; }
+            .year-view { grid-template-columns: 1fr; }
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <div class="header-content">
+            <div class="header-title">
+                <h1>🍰 LARITTA TASK MANAGER</h1>
+                <p>Ultimate System with Professional Calendar</p>
+            </div>
+            <div class="status syncing" id="status">
+                <span id="statusIcon">🔄</span>
+                <span id="statusText">Loading...</span>
+            </div>
+            <select id="userSelect" onchange="switchUser()" style="padding: 0.5rem; border-radius: 8px; border: 2px solid white; background: white; color: var(--red); font-weight: bold;">
+                <option value="">Loading...</option>
+            </select>
+        </div>
+    </header>
+
+    <nav>
+        <ul>
+            <li><a href="#dashboard" class="nav-link active" onclick="showSection('dashboard')">🏠 Dashboard</a></li>
+            <li><a href="#tasks" class="nav-link" onclick="showSection('tasks')">📋 Tasks</a></li>
+            <li><a href="#calendar" class="nav-link" onclick="showSection('calendar')" id="calendarNav" style="display:none;">📅 Marketing Calendar</a></li>
+            <li><a href="#games" class="nav-link" onclick="showSection('games')">🎮 Games</a></li>
+            <li><a href="#assign" class="nav-link" onclick="showSection('assign')" id="assignTab" style="display:none;">👥 Assign</a></li>
+            <li><a href="#manager" class="nav-link" onclick="showSection('manager')">👔 Manager</a></li>
+            <li><a href="#staff" class="nav-link" onclick="showSection('staff')">👥 Staff</a></li>
+        </ul>
+    </nav>
+
+    <main>
+        <!-- DASHBOARD -->
+        <section id="dashboard" class="section active">
+            <div style="background: linear-gradient(135deg, var(--blue), var(--green)); color: white; padding: 2rem; border-radius: 12px; margin-bottom: 1.5rem; text-align: center;" id="quoteCard"></div>
+            
+            <h2 style="color: var(--red); margin-bottom: 1rem;">📊 Dashboard Overview</h2>
+            <div id="dashStats"></div>
+            
+            <div style="text-align: center; margin-top: 1.5rem;">
+                <button class="btn btn-primary" onclick="showTaskModal()">➕ Add New Task</button>
+            </div>
+        </section>
+
+        <!-- TASKS -->
+        <section id="tasks" class="section">
+            <div style="display: flex; justify-content: space-between; margin-bottom: 1rem; flex-wrap: wrap; gap: 1rem;">
+                <h2 style="color: var(--red);">📋 My Tasks</h2>
+                <button class="btn btn-primary" onclick="showTaskModal()">➕ Add</button>
+            </div>
+            
+            <div class="status-group">
+                <h3 style="color: var(--red); margin-bottom: 1rem;">📋 To Do</h3>
+                <div id="todoTasks"></div>
+            </div>
+            
+            <div class="status-group">
+                <h3 style="color: var(--red); margin-bottom: 1rem; margin-top: 1.5rem;">🔄 In Progress</h3>
+                <div id="progressTasks"></div>
+            </div>
+            
+            <div class="status-group">
+                <h3 style="color: var(--red); margin-bottom: 1rem; margin-top: 1.5rem;">✅ Completed</h3>
+                <div id="completedTasks"></div>
+            </div>
+        </section>
+
+        <!-- MARKETING CALENDAR -->
+        <section id="calendar" class="section">
+            <div class="calendar-container">
+                <div class="calendar-header">
+                    <h2 style="color: var(--red);">📅 Marketing Calendar 2025</h2>
+                    <div class="calendar-nav">
+                        <button class="btn btn-secondary" onclick="changeView('year')">📅 Year View</button>
+                        <button class="btn btn-secondary" onclick="changeView('timeline')">📊 Timeline</button>
+                        <button class="btn btn-primary" onclick="showCalendarModal()">➕ Add Event</button>
+                    </div>
+                </div>
+
+                <div class="calendar-tabs">
+                    <button class="calendar-tab active" onclick="filterCalendar('all')" id="tabAll">📅 All Events</button>
+                    <button class="calendar-tab" onclick="filterCalendar('product')" id="tabProduct">🆕 New Product</button>
+                    <button class="calendar-tab" onclick="filterCalendar('campaign')" id="tabCampaign">📢 Campaign</button>
+                    <button class="calendar-tab" onclick="filterCalendar('content')" id="tabContent">📊 Content</button>
+                    <button class="calendar-tab" onclick="filterCalendar('event')" id="tabEvent">🎯 Events</button>
+                </div>
+
+                <div class="stats-grid" id="calendarStats"></div>
+
+                <div id="yearView" class="year-view"></div>
+                <div id="timelineView" class="timeline-view" style="display: none;"></div>
+
+                <div class="export-section">
+                    <h3 style="color: var(--red); margin-bottom: 1rem;">📥 Export & Reports</h3>
+                    <button class="export-btn" style="background: var(--red); color: white;" onclick="exportToPDF()">📄 Export PDF</button>
+                    <button class="export-btn" style="background: var(--green); color: white;" onclick="exportToExcel()">📊 Export Excel</button>
+                    <button class="export-btn" style="background: var(--blue); color: white;" onclick="printCalendar()">🖨️ Print</button>
+                </div>
+            </div>
+        </section>
+
+        <!-- GAMES -->
+        <section id="games" class="section">
+            <h2 style="color: var(--red); margin-bottom: 1rem;">🎮 Games Break</h2>
+            
+            <div style="background: linear-gradient(135deg, var(--orange), var(--yellow)); color: white; padding: 2rem; border-radius: 12px; margin-bottom: 1.5rem; text-align: center;">
+                <div style="font-size: 1.2rem; font-weight: bold; margin-bottom: 1rem;" id="gameQuestion"></div>
+                <input type="text" id="gameAnswer" placeholder="Your answer..." style="width: 100%; padding: 0.8rem; font-size: 1rem; border-radius: 8px; border: none; margin-bottom: 1rem;">
+                <button class="btn btn-success" onclick="checkAnswer()" style="width: 100%;">Submit Answer</button>
+                <div id="gameResult" style="margin-top: 1rem; font-size: 1.1rem;"></div>
+            </div>
+            
+            <div class="card">
+                <h3 style="color: var(--red); margin-bottom: 1rem;">🏆 Leaderboard</h3>
+                <div id="gameLeaderboard"></div>
+            </div>
+        </section>
+
+        <!-- ASSIGN (Faris Only) -->
+        <section id="assign" class="section">
+            <h2 style="color: var(--red); margin-bottom: 1rem;">👥 Assign Tasks to Team</h2>
+            <button class="btn btn-primary" onclick="showAssignModal()">➕ Create Team Task</button>
+            <div id="assignedTasksList" style="margin-top: 1.5rem;"></div>
+        </section>
+
+        <!-- MANAGER -->
+        <section id="manager" class="section">
+            <h2 style="color: var(--red); margin-bottom: 1rem;">👔 Manager Dashboard</h2>
+            <div id="managerView"><div class="loading">Loading...</div></div>
+        </section>
+
+        <!-- STAFF -->
+        <section id="staff" class="section">
+            <div id="staffView"></div>
+        </section>
+    </main>
+
+    <!-- MODALS -->
+    <div id="taskModal" class="modal">
+        <div class="modal-content">
+            <h2 style="color: var(--red); margin-bottom: 1rem;">Add Task</h2>
+            <form id="taskForm" onsubmit="saveTask(event)">
+                <input type="hidden" id="editTaskId">
+                
+                <div class="form-group">
+                    <label>Title *</label>
+                    <input type="text" id="title" required>
+                </div>
+                
+                <div class="form-group">
+                    <label>Description</label>
+                    <textarea id="desc" rows="3"></textarea>
+                </div>
+                
+                <div style="display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 1rem;">
+                    <div class="form-group">
+                        <label>Type</label>
+                        <select id="type">
+                            <option value="onetime">One-time</option>
+                            <option value="daily">Daily</option>
+                        </select>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label>Priority</label>
+                        <select id="priority">
+                            <option value="low">Low</option>
+                            <option value="medium" selected>Medium</option>
+                            <option value="high">High</option>
+                        </select>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label>Status</label>
+                        <select id="taskStatus">
+                            <option value="todo">To Do</option>
+                            <option value="in-progress">In Progress</option>
+                            <option value="completed">Completed</option>
+                        </select>
+                    </div>
+                </div>
+                
+                <div class="form-group">
+                    <label>Due Date</label>
+                    <input type="date" id="dueDate">
+                </div>
+
+                <div style="display: flex; gap: 1rem; margin-top: 1.5rem;">
+                    <button type="submit" class="btn btn-primary">Save</button>
+                    <button type="button" class="btn btn-secondary" onclick="closeModal('taskModal')">Cancel</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <div id="calendarModal" class="modal">
+        <div class="modal-content">
+            <h2 style="color: var(--red); margin-bottom: 1rem;" id="calModalTitle">Add Calendar Event</h2>
+            <form id="calendarForm" onsubmit="saveCalendarEvent(event)">
+                <input type="hidden" id="editCalId">
+                
+                <div class="form-group">
+                    <label>Event Title *</label>
+                    <input type="text" id="calTitle" required>
+                </div>
+                
+                <div class="form-group">
+                    <label>Description</label>
+                    <textarea id="calDesc" rows="3"></textarea>
+                </div>
+                
+                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1rem;">
+                    <div class="form-group">
+                        <label>Category *</label>
+                        <select id="calCategory" required>
+                            <option value="product">🆕 New Product</option>
+                            <option value="campaign">📢 Campaign</option>
+                            <option value="content">📊 Content</option>
+                            <option value="event">🎯 Event</option>
+                        </select>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label>Priority</label>
+                        <select id="calPriority">
+                            <option value="low">Low</option>
+                            <option value="medium" selected>Medium</option>
+                            <option value="high">High</option>
+                        </select>
+                    </div>
+                </div>
+                
+                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1rem;">
+                    <div class="form-group">
+                        <label>Start Date *</label>
+                        <input type="date" id="calStartDate" required>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label>End Date</label>
+                        <input type="date" id="calEndDate">
+                    </div>
+                </div>
+                
+                <div class="form-group">
+                    <label>Budget (Rp)</label>
+                    <input type="number" id="calBudget" placeholder="0">
+                </div>
+                
+                <div class="form-group">
+                    <label>Assigned To</label>
+                    <select id="calAssigned">
+                        <option value="">Select team member...</option>
+                    </select>
+                </div>
+
+                <div style="display: flex; gap: 1rem; margin-top: 1.5rem;">
+                    <button type="submit" class="btn btn-success">Save Event</button>
+                    <button type="button" class="btn btn-secondary" onclick="closeModal('calendarModal')">Cancel</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <div id="commentModal" class="modal">
+        <div class="modal-content">
+            <h2 style="color: var(--red); margin-bottom: 1rem;">💬 Comments</h2>
+            <div id="commentsList" style="max-height: 300px; overflow-y: auto; margin-bottom: 1rem;"></div>
+            
+            <div class="form-group">
+                <label>Add Comment</label>
+                <textarea id="newComment" rows="3" placeholder="Type comment..."></textarea>
+            </div>
+            
+            <div style="display: flex; gap: 1rem;">
+                <button class="btn btn-primary" onclick="addComment()">Send</button>
+                <button class="btn btn-secondary" onclick="closeModal('commentModal')">Close</button>
+            </div>
+        </div>
+    </div>
+
+    <script type="module">
+        import { initializeApp } from 'https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js';
+        import { getFirestore, collection, addDoc, getDocs, query, where, onSnapshot, doc, updateDoc, deleteDoc, serverTimestamp } from 'https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js';
+
+        const app = initializeApp({
+            apiKey: "AIzaSyAdTh1Fwsp1FsyZ98yVo0X63m9Equh2d5c",
+            authDomain: "laritta-task-manager.firebaseapp.com",
+            projectId: "laritta-task-manager",
+            storageBucket: "laritta-task-manager.firebasestorage.app",
+            messagingSenderId: "408024084018",
+            appId: "1:408024084018:web:8739f2654a71cdaf04962b"
+        });
+
+        const db = getFirestore(app);
+        let currentUser = 'faris';
+        let currentUserName = 'Mohammad Faris Rizal';
+        let currentUserRole = 'Manager';
+        let tasks = [];
+        let users = [];
+        let calendarEvents = [];
+        let currentCalendarFilter = 'all';
+        let currentView = 'year';
+        let currentTaskForComment = null;
+        let gameScores = {};
+        let currentGame = {};
+
+        const quotes = [
+            { text: "Teamwork makes the dream work!", author: "Together We Achieve" },
+            { text: "Communication is key to success", author: "Sales Excellence" },
+            { text: "Take action today!", author: "Laritta Spirit" },
+            { text: "Bersyukur atas setiap pencapaian", author: "Grateful Team" }
+        ];
+
+        const games = [
+            { q: "Jika 5 + 5 = 25, maka 10 + 10 = ?", a: "100" },
+            { q: "Berapa hari dalam 4 minggu?", a: "28" },
+            { q: "2 + 2 x 2 = ?", a: "6" }
+        ];
+
+        const months = ['January', 'February', 'March', 'April', 'May', 'June', 
+                       'July', 'August', 'September', 'October', 'November', 'December'];
+
+        window.addEventListener('DOMContentLoaded', init);
+
+        async function init() {
+            setStatus('syncing', 'Loading...');
+            await initData();
+            await loadUsers();
+            await loadTasks();
+            await loadCalendarEvents();
+            setupListeners();
+            displayQuote();
+            loadGame();
+            updateUI();
+            setStatus('synced', 'Ready');
+        }
+
+        function displayQuote() {
+            const day = Math.floor((Date.now() - new Date(new Date().getFullYear(), 0, 0)) / 86400000);
+            const q = quotes[day % quotes.length];
+            document.getElementById('quoteCard').innerHTML = `
+                <div style="font-size: 1.3rem; font-weight: 600; font-style: italic; margin-bottom: 0.5rem;">"${q.text}"</div>
+                <div style="opacity: 0.9;">- ${q.author}</div>
+            `;
+        }
+
+        function loadGame() {
+            currentGame = games[Math.floor(Math.random() * games.length)];
+            document.getElementById('gameQuestion').textContent = `🎮 ${currentGame.q}`;
+            document.getElementById('gameAnswer').value = '';
+            document.getElementById('gameResult').innerHTML = '';
+        }
+
+        window.checkAnswer = () => {
+            const ans = document.getElementById('gameAnswer').value.trim().toLowerCase();
+            const result = document.getElementById('gameResult');
+            
+            if (ans === currentGame.a.toLowerCase()) {
+                gameScores[currentUser] = (gameScores[currentUser] || 0) + 1;
+                result.innerHTML = '🎉 BENAR! Loading soal baru...';
+                result.style.color = 'white';
+                updateLeaderboard();
+                setTimeout(loadGame, 2000);
+            } else {
+                result.innerHTML = '❌ Coba lagi!';
+                result.style.color = '#ffe0e0';
+            }
+        };
+
+        function updateLeaderboard() {
+            const sorted = Object.entries(gameScores).sort((a, b) => b[1] - a[1]);
+            const html = sorted.map(([userId, score], i) => {
+                const user = users.find(u => u.userId === userId);
+                const medal = ['🥇', '🥈', '🥉'][i] || '🏅';
+                return `
+                    <div style="padding: 0.8rem; margin-bottom: 0.5rem; background: var(--gray-light); border-radius: 6px; display: flex; justify-content: space-between;">
+                        <span>${medal} ${user?.name || userId}</span>
+                        <strong style="color: var(--green);">${score} pts</strong>
+                    </div>
+                `;
+            }).join('');
+            
+            document.getElementById('gameLeaderboard').innerHTML = html || '<p style="text-align: center; color: #999;">No players yet</p>';
+        }
+
+        async function initData() {
+            const snap = await getDocs(collection(db, 'users'));
+            if (snap.empty) {
+                const defaultUsers = [
+                    { userId: 'faris', name: 'Mohammad Faris Rizal', role: 'Manager' },
+                    { userId: 'leony', name: 'Leony Hosna', role: 'PA Manager' },
+                    { userId: 'erina', name: 'Erina Sejati', role: 'Marketing' },
+                    { userId: 'isa', name: 'Isa Yuhani', role: 'Koordinator Area' }
+                ];
+                for (const u of defaultUsers) await addDoc(collection(db, 'users'), u);
+            }
+        }
+
+        async function loadUsers() {
+            const snap = await getDocs(collection(db, 'users'));
+            users = snap.docs.map(d => ({id: d.id, ...d.data()}));
+            
+            const sel = document.getElementById('userSelect');
+            sel.innerHTML = users.map(u => 
+                `<option value="${u.userId}" ${u.userId===currentUser?'selected':''}>${u.name}</option>`
+            ).join('');
+            
+            const calAssigned = document.getElementById('calAssigned');
+            if (calAssigned) {
+                calAssigned.innerHTML = '<option value="">All team...</option>' + 
+                    users.map(u => `<option value="${u.userId}">${u.name}</option>`).join('');
+            }
+        }
+
+        async function loadTasks() {
+            const q = query(collection(db, 'tasks'), where('assignee', '==', currentUser));
+            const snap = await getDocs(q);
+            tasks = snap.docs.map(d => ({id: d.id, ...d.data()}));
+            renderTasksSection();
+            renderDashboard();
+        }
+
+        async function loadCalendarEvents() {
+            const snap = await getDocs(collection(db, 'calendar_events'));
+            calendarEvents = snap.docs.map(d => ({id: d.id, ...d.data()}));
+            renderCalendar();
+        }
+
+        function setupListeners() {
+            const q = query(collection(db, 'tasks'), where('assignee', '==', currentUser));
+            onSnapshot(q, snap => {
+                tasks = snap.docs.map(d => ({id: d.id, ...d.data()}));
+                renderTasksSection();
+                renderDashboard();
+            });
+            
+            onSnapshot(collection(db, 'calendar_events'), snap => {
+                calendarEvents = snap.docs.map(d => ({id: d.id, ...d.data()}));
+                renderCalendar();
+            });
+        }
+
+        function updateUI() {
+            const user = users.find(u => u.userId === currentUser);
+            currentUserRole = user?.role || '';
+            
+            // Show calendar for Manager, PA Manager, Marketing only
+            if (['Manager', 'PA Manager', 'Marketing'].includes(currentUserRole)) {
+                document.getElementById('calendarNav').style.display = 'block';
+            } else {
+                document.getElementById('calendarNav').style.display = 'none';
+            }
+            
+            if (currentUser === 'faris') {
+                document.getElementById('assignTab').style.display = 'block';
+            } else {
+                document.getElementById('assignTab').style.display = 'none';
+            }
+            
+            renderStaffView();
+        }
+
+        function renderStaffView() {
+            const view = document.getElementById('staffView');
+            if (currentUser === 'faris') {
+                view.innerHTML = `
+                    <h2 style="color: var(--red); margin-bottom: 1rem;">👥 Master Staff</h2>
+                    <div id="staffList"></div>
+                `;
+                renderStaffList();
+            } else {
+                view.innerHTML = `
+                    <div class="card">
+                        <h3 style="color: var(--orange); text-align: center;">🔒 Access Restricted</h3>
+                        <p style="text-align: center; margin-top: 1rem;">Only Mohammad Faris Rizal can access</p>
+                    </div>
+                `;
+            }
+        }
+
+        function renderStaffList() {
+            const grouped = {};
+            users.forEach(u => {
+                if (!grouped[u.role]) grouped[u.role] = [];
+                grouped[u.role].push(u);
+            });
+            
+            const html = Object.entries(grouped).map(([role, members]) => `
+                <h3 style="color: var(--red); margin: 1.5rem 0 1rem 0;">${role}</h3>
+                ${members.map(m => `
+                    <div style="padding: 1rem; margin-bottom: 0.8rem; background: var(--gray-light); border-radius: 8px; display: flex; justify-content: space-between; align-items: center;">
+                        <div>
+                            <strong>${m.name}</strong>
+                            <div style="font-size: 0.85rem; color: #666;">@${m.userId}</div>
+                        </div>
+                    </div>
+                `).join('')}
+            `).join('');
+            
+            const list = document.getElementById('staffList');
+            if (list) list.innerHTML = html;
+        }
+
+        function renderDashboard() {
+            const onetime = tasks.filter(t => t.type === 'onetime');
+            
+            const stats = {
+                total: onetime.length,
+                todo: onetime.filter(t => !t.status || t.status === 'todo').length,
+                prog: onetime.filter(t => t.status === 'in-progress').length,
+                done: onetime.filter(t => t.status === 'completed').length
+            };
+            
+            document.getElementById('dashStats').innerHTML = `
+                <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 1rem;">
+                    ${Object.entries(stats).map(([key, val], i) => `
+                        <div class="card" style="text-align: center; border-top: 4px solid ${['var(--red)','var(--blue)','var(--orange)','var(--green)'][i]}; padding: 1.5rem;">
+                            <h3 style="color: #999; font-size: 0.8rem; text-transform: uppercase;">${key}</h3>
+                            <div style="font-size: 2.5rem; font-weight: bold;">${val}</div>
+                        </div>
+                    `).join('')}
+                </div>
+            `;
+        }
+
+        function renderTasksSection() {
+            const todo = tasks.filter(t => t.type === 'onetime' && (!t.status || t.status === 'todo'));
+            const prog = tasks.filter(t => t.type === 'onetime' && t.status === 'in-progress');
+            const done = tasks.filter(t => t.type === 'onetime' && t.status === 'completed');
+            
+            document.getElementById('todoTasks').innerHTML = renderTaskList(todo);
+            document.getElementById('progressTasks').innerHTML = renderTaskList(prog);
+            document.getElementById('completedTasks').innerHTML = renderTaskList(done);
+        }
+
+        function renderTaskList(taskList) {
+            if (taskList.length === 0) return '<p style="color: #999; text-align: center; padding: 1rem;">No tasks</p>';
+            
+            return taskList.map(t => `
+                <div style="padding: 1rem; margin-bottom: 1rem; border-left: 4px solid var(--blue); background: var(--gray-light); border-radius: 8px;">
+                    <h4 style="color: var(--red); margin-bottom: 0.5rem;">${t.title}</h4>
+                    ${t.description ? `<p style="font-size: 0.85rem;">${t.description}</p>` : ''}
+                    ${t.dueDate ? `<p style="font-size: 0.8rem; color: #666; margin-top: 0.5rem;">📅 ${new Date(t.dueDate).toLocaleDateString('id-ID')}</p>` : ''}
+                </div>
+            `).join('');
+        }
+
+        function renderCalendar() {
+            if (currentView === 'year') {
+                renderYearView();
+            } else {
+                renderTimelineView();
+            }
+            renderCalendarStats();
+        }
+
+        function renderCalendarStats() {
+            const filtered = currentCalendarFilter === 'all' ? 
+                calendarEvents : 
+                calendarEvents.filter(e => e.category === currentCalendarFilter);
+            
+            const stats = {
+                total: filtered.length,
+                product: calendarEvents.filter(e => e.category === 'product').length,
+                campaign: calendarEvents.filter(e => e.category === 'campaign').length,
+                content: calendarEvents.filter(e => e.category === 'content').length,
+                event: calendarEvents.filter(e => e.category === 'event').length
+            };
+            
+            const colors = ['var(--red)', 'var(--blue)', 'var(--orange)', 'var(--purple)', 'var(--pink)'];
+            const labels = ['Total Events', 'Products', 'Campaigns', 'Content', 'Events'];
+            
+            document.getElementById('calendarStats').innerHTML = Object.values(stats).map((val, i) => `
+                <div class="stat-card" style="background: linear-gradient(135deg, ${colors[i]}, ${colors[(i+1)%5]});">
+                    <div class="stat-number">${val}</div>
+                    <div class="stat-label">${labels[i]}</div>
+                </div>
+            `).join('');
+        }
+
+        function renderYearView() {
+            const filtered = currentCalendarFilter === 'all' ? 
+                calendarEvents : 
+                calendarEvents.filter(e => e.category === currentCalendarFilter);
+            
+            const eventsByMonth = {};
+            months.forEach((m, i) => {
+                eventsByMonth[i] = filtered.filter(e => {
+                    const date = new Date(e.startDate);
+                    return date.getMonth() === i && date.getFullYear() === 2025;
+                });
+            });
+            
+            const html = months.map((month, i) => {
+                const monthEvents = eventsByMonth[i];
+                return `
+                    <div class="month-card">
+                        <h3>${month} 2025</h3>
+                        ${monthEvents.length > 0 ? monthEvents.map(e => `
+                            <div class="calendar-event event-${e.category}" onclick="editCalendarEvent('${e.id}')">
+                                <div class="event-title">${e.title}</div>
+                                <div class="event-date">${new Date(e.startDate).toLocaleDateString('id-ID')}</div>
+                            </div>
+                        `).join('') : '<p style="color: #999; font-size: 0.85rem; text-align: center; padding: 1rem;">No events</p>'}
+                    </div>
+                `;
+            }).join('');
+            
+            document.getElementById('yearView').innerHTML = html;
+            document.getElementById('yearView').style.display = 'grid';
+            document.getElementById('timelineView').style.display = 'none';
+        }
+
+        function renderTimelineView() {
+            const filtered = (currentCalendarFilter === 'all' ? 
+                calendarEvents : 
+                calendarEvents.filter(e => e.category === currentCalendarFilter))
+                .sort((a, b) => new Date(a.startDate) - new Date(b.startDate));
+            
+            const html = filtered.map(e => `
+                <div class="timeline-item">
+                    <div class="timeline-marker"></div>
+                    <div class="timeline-content" style="border-left-color: var(--${e.category === 'product' ? 'blue' : e.category === 'campaign' ? 'orange' : e.category === 'content' ? 'purple' : 'pink'});">
+                        <h3 style="color: var(--red); margin-bottom: 0.5rem;">${e.title}</h3>
+                        <p style="font-size: 0.85rem; margin-bottom: 0.5rem;">${e.description || ''}</p>
+                        <p style="font-size: 0.8rem; color: #666;">
+                            📅 ${new Date(e.startDate).toLocaleDateString('id-ID')}
+                            ${e.endDate ? ' - ' + new Date(e.endDate).toLocaleDateString('id-ID') : ''}
+                        </p>
+                        ${e.budget ? `<p style="font-size: 0.85rem; color: var(--green); margin-top: 0.5rem;">💰 Rp ${parseInt(e.budget).toLocaleString('id-ID')}</p>` : ''}
+                    </div>
+                </div>
+            `).join('');
+            
+            document.getElementById('timelineView').innerHTML = html || '<p style="text-align: center; color: #999;">No events in timeline</p>';
+            document.getElementById('yearView').style.display = 'none';
+            document.getElementById('timelineView').style.display = 'block';
+        }
+
+        window.filterCalendar = (filter) => {
+            currentCalendarFilter = filter;
+            
+            ['All', 'Product', 'Campaign', 'Content', 'Event'].forEach(f => {
+                const btn = document.getElementById('tab' + f);
+                if (btn) {
+                    if (filter === f.toLowerCase()) {
+                        btn.classList.add('active');
+                    } else {
+                        btn.classList.remove('active');
+                    }
+                }
+            });
+            
+            renderCalendar();
+        };
+
+        window.changeView = (view) => {
+            currentView = view;
+            renderCalendar();
+        };
+
+        window.showCalendarModal = () => {
+            document.getElementById('calModalTitle').textContent = 'Add Calendar Event';
+            document.getElementById('editCalId').value = '';
+            document.getElementById('calendarForm').reset();
+            document.getElementById('calStartDate').value = new Date().toISOString().split('T')[0];
+            document.getElementById('calendarModal').classList.add('active');
+        };
+
+        window.editCalendarEvent = (id) => {
+            const event = calendarEvents.find(e => e.id === id);
+            if (!event) return;
+            
+            document.getElementById('calModalTitle').textContent = 'Edit Calendar Event';
+            document.getElementById('editCalId').value = id;
+            document.getElementById('calTitle').value = event.title;
+            document.getElementById('calDesc').value = event.description || '';
+            document.getElementById('calCategory').value = event.category;
+            document.getElementById('calPriority').value = event.priority || 'medium';
+            document.getElementById('calStartDate').value = event.startDate;
+            document.getElementById('calEndDate').value = event.endDate || '';
+            document.getElementById('calBudget').value = event.budget || '';
+            document.getElementById('calAssigned').value = event.assignedTo || '';
+            document.getElementById('calendarModal').classList.add('active');
+        };
+
+        window.saveCalendarEvent = async (e) => {
+            e.preventDefault();
+            setStatus('syncing', 'Saving...');
+            
+            try {
+                const data = {
+                    title: document.getElementById('calTitle').value,
+                    description: document.getElementById('calDesc').value,
+                    category: document.getElementById('calCategory').value,
+                    priority: document.getElementById('calPriority').value,
+                    startDate: document.getElementById('calStartDate').value,
+                    endDate: document.getElementById('calEndDate').value,
+                    budget: document.getElementById('calBudget').value,
+                    assignedTo: document.getElementById('calAssigned').value,
+                    createdBy: currentUser,
+                    updatedAt: new Date().toISOString()
+                };
+                
+                const editId = document.getElementById('editCalId').value;
+                if (editId) {
+                    await updateDoc(doc(db, 'calendar_events', editId), data);
+                } else {
+                    data.createdAt = new Date().toISOString();
+                    await addDoc(collection(db, 'calendar_events'), data);
+                }
+                
+                closeModal('calendarModal');
+                setStatus('synced', 'Saved!');
+            } catch (err) {
+                alert('Error: ' + err.message);
+                setStatus('error', 'Error');
+            }
+        };
+
+        window.exportToPDF = () => {
+            alert('📄 Export to PDF feature - Coming soon!\n\nThis will generate a professional PDF report of your marketing calendar.');
+        };
+
+        window.exportToExcel = () => {
+            alert('📊 Export to Excel feature - Coming soon!\n\nThis will export all calendar events to Excel spreadsheet.');
+        };
+
+        window.printCalendar = () => {
+            window.print();
+        };
+
+        window.showTaskModal = () => {
+            document.getElementById('editTaskId').value = '';
+            document.getElementById('taskForm').reset();
+            document.getElementById('dueDate').value = new Date().toISOString().split('T')[0];
+            document.getElementById('taskModal').classList.add('active');
+        };
+
+        window.saveTask = async (e) => {
+            e.preventDefault();
+            setStatus('syncing', 'Saving...');
+            
+            try {
+                const data = {
+                    title: document.getElementById('title').value,
+                    description: document.getElementById('desc').value,
+                    type: document.getElementById('type').value,
+                    priority: document.getElementById('priority').value,
+                    status: document.getElementById('taskStatus').value,
+                    assignee: currentUser,
+                    dueDate: document.getElementById('dueDate').value
+                };
+                
+                const editId = document.getElementById('editTaskId').value;
+                if (editId) {
+                    await updateDoc(doc(db, 'tasks', editId), data);
+                } else {
+                    data.createdAt = new Date().toISOString();
+                    await addDoc(collection(db, 'tasks'), data);
+                }
+                
+                closeModal('taskModal');
+                setStatus('synced', 'Saved!');
+            } catch (err) {
+                alert('Error: ' + err.message);
+            }
+        };
+
+        window.switchUser = () => {
+            currentUser = document.getElementById('userSelect').value;
+            const user = users.find(u => u.userId === currentUser);
+            currentUserName = user?.name || currentUser;
+            loadTasks();
+            updateUI();
+        };
+
+        window.showSection = (id) => {
+            document.querySelectorAll('.section').forEach(s => s.classList.remove('active'));
+            document.querySelectorAll('.nav-link').forEach(l => l.classList.remove('active'));
+            document.getElementById(id).classList.add('active');
+            document.querySelector(`a[href="#${id}"]`).classList.add('active');
+        };
+
+        window.closeModal = (id) => {
+            document.getElementById(id).classList.remove('active');
+        };
+
+        function setStatus(status, text) {
+            document.getElementById('status').className = `status ${status}`;
+            document.getElementById('statusText').textContent = text;
+            document.getElementById('statusIcon').textContent = status === 'synced' ? '☁️' : '🔄';
+        }
+    </script>
+</body>
+</html>
