@@ -1,0 +1,1946 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Laritta Task Manager - Ultimate Complete v3</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        
+        :root {
+            --red: #c41e3a; --red-dark: #a01830; --red-light: #fef5f6;
+            --orange: #ff6b35; --blue: #4285f4; --green: #34a853;
+            --yellow: #fbbc04; --purple: #9c27b0; --pink: #e91e63;
+            --teal: #009688; --gray: #333; --gray-mid: #666;
+            --gray-light: #f5f5f5; --white: #fff;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: var(--gray-light);
+            color: var(--gray);
+            line-height: 1.6;
+        }
+
+        header {
+            background: linear-gradient(135deg, var(--red) 0%, var(--red-dark) 100%);
+            color: white;
+            padding: 1rem 1.5rem;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.2);
+        }
+
+        .header-content {
+            max-width: 1800px;
+            margin: 0 auto;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 1rem;
+        }
+
+        .header-title h1 { font-size: 1.4rem; margin-bottom: 0.2rem; }
+        .header-title p { font-size: 0.75rem; opacity: 0.9; }
+
+        .status {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            padding: 0.4rem 0.8rem;
+            background: rgba(255,255,255,0.2);
+            border-radius: 20px;
+            font-size: 0.75rem;
+        }
+
+        .status.synced { background: rgba(52, 168, 83, 0.3); }
+        .status.syncing { background: rgba(251, 188, 4, 0.3); }
+
+        nav {
+            background: white;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+            position: sticky;
+            top: 0;
+            z-index: 100;
+        }
+
+        nav ul {
+            max-width: 1800px;
+            margin: 0 auto;
+            list-style: none;
+            display: flex;
+            justify-content: center;
+            flex-wrap: wrap;
+        }
+
+        nav a {
+            display: block;
+            padding: 0.8rem 0.9rem;
+            color: var(--red);
+            text-decoration: none;
+            font-weight: bold;
+            transition: all 0.3s;
+            border-bottom: 3px solid transparent;
+            font-size: 0.75rem;
+        }
+
+        nav a:hover, nav a.active {
+            background: var(--red-light);
+            border-bottom-color: var(--red);
+        }
+
+        main {
+            max-width: 1800px;
+            margin: 1.5rem auto;
+            padding: 0 1.5rem;
+        }
+
+        .section { display: none; }
+        .section.active { display: block; }
+
+        .btn {
+            padding: 0.6rem 1rem;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            font-weight: bold;
+            transition: all 0.3s;
+            font-size: 0.8rem;
+            display: inline-flex;
+            align-items: center;
+            gap: 0.4rem;
+        }
+
+        .btn-primary { background: var(--red); color: white; }
+        .btn-primary:hover { background: var(--red-dark); }
+        .btn-success { background: var(--green); color: white; }
+        .btn-warning { background: var(--orange); color: white; }
+        .btn-danger { background: #dc3545; color: white; }
+        .btn-secondary { background: var(--gray-mid); color: white; }
+        .btn-small { padding: 0.3rem 0.6rem; font-size: 0.75rem; }
+
+        .card {
+            background: white;
+            padding: 1.5rem;
+            border-radius: 12px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+            margin-bottom: 1.5rem;
+        }
+
+        .sticky-note {
+            background: #ffeb3b;
+            padding: 1.5rem;
+            border-radius: 0 12px 12px 0;
+            box-shadow: 3px 3px 8px rgba(0,0,0,0.2);
+            position: relative;
+            min-height: 200px;
+            transition: all 0.3s;
+            cursor: pointer;
+        }
+
+        .sticky-note:hover {
+            transform: rotate(-1deg) translateY(-5px);
+            box-shadow: 5px 5px 15px rgba(0,0,0,0.3);
+        }
+
+        .sticky-note.low { background: #fff9c4; border-left: 5px solid #fbc02d; }
+        .sticky-note.medium { background: #ffccbc; border-left: 5px solid #ff6b35; }
+        .sticky-note.high { background: #ffcdd2; border-left: 5px solid #e53935; }
+        .sticky-note.critical { background: #f8bbd0; border-left: 5px solid #c2185b; }
+
+        .calendar-tab {
+            padding: 0.6rem 1.2rem;
+            background: white;
+            border: 2px solid var(--red);
+            color: var(--red);
+            border-radius: 8px;
+            cursor: pointer;
+            font-weight: bold;
+            transition: all 0.3s;
+            font-size: 0.85rem;
+            display: inline-block;
+            margin-right: 0.5rem;
+            margin-bottom: 0.5rem;
+        }
+
+        .calendar-tab.active {
+            background: var(--red);
+            color: white;
+        }
+
+        .year-view {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: 1.5rem;
+        }
+
+        .month-card {
+            background: white;
+            border: 2px solid var(--gray-light);
+            border-radius: 12px;
+            padding: 1rem;
+        }
+
+        .month-card h3 {
+            color: var(--red);
+            margin-bottom: 1rem;
+        }
+
+        .calendar-event {
+            padding: 0.6rem;
+            margin-bottom: 0.6rem;
+            border-radius: 6px;
+            font-size: 0.85rem;
+            cursor: pointer;
+            border-left: 4px solid;
+        }
+
+        .event-product { background: #e3f2fd; border-color: var(--blue); }
+        .event-campaign { background: #fff3e0; border-color: var(--orange); }
+        .event-content { background: #f3e5f5; border-color: var(--purple); }
+        .event-event { background: #fce4ec; border-color: var(--pink); }
+        .event-meeting { background: #e8f5e9; border-color: var(--teal); }
+
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0,0,0,0.5);
+            z-index: 1000;
+            align-items: center;
+            justify-content: center;
+            padding: 1rem;
+            overflow-y: auto;
+        }
+
+        .modal.active { display: flex; }
+
+        .modal-content {
+            background: white;
+            padding: 2rem;
+            border-radius: 12px;
+            max-width: 700px;
+            width: 100%;
+            max-height: 90vh;
+            overflow-y: auto;
+        }
+
+        .form-group {
+            margin-bottom: 1rem;
+        }
+
+        .form-group label {
+            display: block;
+            margin-bottom: 0.4rem;
+            font-weight: bold;
+            font-size: 0.85rem;
+        }
+
+        .form-group input,
+        .form-group select,
+        .form-group textarea {
+            width: 100%;
+            padding: 0.6rem;
+            border: 2px solid var(--gray-light);
+            border-radius: 8px;
+            font-size: 0.85rem;
+        }
+
+        .date-time-group {
+            display: grid;
+            grid-template-columns: 2fr 1fr;
+            gap: 0.5rem;
+        }
+
+        .budget-card {
+            background: white;
+            padding: 1.5rem;
+            border-radius: 12px;
+            border-left: 4px solid var(--blue);
+            margin-bottom: 1rem;
+        }
+
+        .budget-card h3 {
+            color: var(--red);
+            margin-bottom: 1rem;
+        }
+
+        .budget-item {
+            display: flex;
+            justify-content: space-between;
+            padding: 0.8rem;
+            background: var(--gray-light);
+            border-radius: 6px;
+            margin-bottom: 0.5rem;
+        }
+
+        .game-container {
+            background: linear-gradient(135deg, var(--orange), var(--yellow));
+            color: white;
+            padding: 2rem;
+            border-radius: 12px;
+            margin-bottom: 1.5rem;
+        }
+
+        .game-question {
+            font-size: 1.3rem;
+            font-weight: bold;
+            margin-bottom: 1.5rem;
+            text-align: center;
+        }
+
+        .game-input {
+            width: 100%;
+            padding: 1rem;
+            font-size: 1.1rem;
+            border-radius: 8px;
+            border: none;
+            margin-bottom: 1rem;
+        }
+
+        .game-result {
+            text-align: center;
+            font-size: 1.2rem;
+            margin-top: 1rem;
+            padding: 1rem;
+            border-radius: 8px;
+        }
+
+        .loading {
+            text-align: center;
+            padding: 3rem;
+            color: var(--gray-mid);
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <div class="header-content">
+            <div style="display: flex; align-items: center; gap: 1rem;">
+                <img src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAASwAAAC0CAYAAAAuPxHvAAAACXBIWXMAAAsTAAALEwEAmpwYAAAAAXNSR0IArs4c6QAAAARnQU1BAACxjwv8YQUAABrISURBVHgB7Z0JeBRVmsf/VXWkO0knIYQkJCQhgRBCCCRcIogIKCqgODo6Ojs7szuz+zw7+zzjrM84u8/Mjus1M+Pu6K" alt="Laritta" style="height: 45px; width: auto; filter: brightness(0) invert(1);">
+                <div class="header-title">
+                    <h1>🍰 LARITTA TASK MANAGER</h1>
+                    <p>Ultimate Complete System v3.0</p>
+                </div>
+            </div>
+            <div class="status syncing" id="status">
+                <span id="statusIcon">🔄</span>
+                <span id="statusText">Loading...</span>
+            </div>
+            <select id="userSelect" onchange="switchUser()" style="padding: 0.5rem; border-radius: 8px; border: 2px solid white; background: white; color: var(--red); font-weight: bold;">
+                <option value="faris">Loading...</option>
+            </select>
+        </div>
+    </header>
+
+    <nav>
+        <ul>
+            <li><a href="#dashboard" class="nav-link active" onclick="showSection('dashboard')">🏠 Dashboard</a></li>
+            <li><a href="#tasks" class="nav-link" onclick="showSection('tasks')">📋 Tasks</a></li>
+            <li><a href="#recurring" class="nav-link" onclick="showSection('recurring')">🔄 Task Berulang</a></li>
+            <li><a href="#notes" class="nav-link" onclick="showSection('notes')">📝 Sticky Notes</a></li>
+            <li><a href="#calendar" class="nav-link" onclick="showSection('calendar')">📅 Calendar</a></li>
+            <li><a href="#budget" class="nav-link" onclick="showSection('budget')" id="budgetNav" style="display:none;">💰 Budget Tahunan</a></li>
+            <li><a href="#manager" class="nav-link" onclick="showSection('manager')">👔 Manager</a></li>
+            <li><a href="#staff" class="nav-link" onclick="showSection('staff')">👥 Master Staff</a></li>
+            <li><a href="#games" class="nav-link" onclick="showSection('games')">🎮 Games</a></li>
+        </ul>
+    </nav>
+
+    <main>
+        <!-- DASHBOARD -->
+        <section id="dashboard" class="section active">
+            <div style="background: linear-gradient(135deg, var(--blue), var(--green)); color: white; padding: 2rem; border-radius: 12px; margin-bottom: 1.5rem; text-align: center;">
+                <div style="font-size: 1.3rem; font-weight: 600; font-style: italic;">"Teamwork makes the dream work!"</div>
+            </div>
+            
+            <h2 style="color: var(--red); margin-bottom: 1rem;">📊 Dashboard Overview</h2>
+            <div id="dashStats"></div>
+            
+            <div style="text-align: center; margin-top: 1.5rem;">
+                <button class="btn btn-primary" onclick="showTaskModal()">➕ Add New Task</button>
+            </div>
+        </section>
+
+        <!-- TASKS -->
+        <section id="tasks" class="section">
+            <div style="display: flex; justify-content: space-between; margin-bottom: 1rem;">
+                <h2 style="color: var(--red);">📋 My Tasks</h2>
+                <button class="btn btn-primary" onclick="showTaskModal()">➕ Add Task</button>
+            </div>
+            <div id="tasksContent"></div>
+        </section>
+
+        <!-- TASK BERULANG -->
+        <section id="recurring" class="section">
+            <h2 style="color: var(--red); margin-bottom: 1rem;">🔄 Task Berulang</h2>
+            <div id="recurringContent"></div>
+        </section>
+
+        <!-- STICKY NOTES (was Goals 2026) -->
+        <section id="notes" class="section">
+            <div style="display: flex; justify-content: space-between; margin-bottom: 1.5rem;">
+                <h2 style="color: var(--red);">📝 Sticky Notes</h2>
+                <button class="btn btn-primary" onclick="showNoteModal()">➕ Add Note</button>
+            </div>
+            <div style="display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 1.5rem;" id="notesContainer">
+                <p style="grid-column: 1/-1; text-align: center; color: #999; padding: 3rem;">Click "Add Note" to create your first sticky note!</p>
+            </div>
+        </section>
+
+        <!-- CALENDAR -->
+        <section id="calendar" class="section">
+            <div class="card">
+                <div style="display: flex; justify-content: space-between; margin-bottom: 1.5rem;">
+                    <h2 style="color: var(--red);">📅 Marketing Calendar 2025</h2>
+                    <button class="btn btn-primary" onclick="showCalendarModal()">➕ Add Event</button>
+                </div>
+
+                <div style="margin-bottom: 1.5rem; display: flex; gap: 1rem; flex-wrap: wrap; align-items: center;">
+                    <div style="display: flex; gap: 0.5rem;">
+                        <button class="calendar-tab active" onclick="filterCalendar('all')">📅 All</button>
+                        <button class="calendar-tab" onclick="filterCalendar('product')">🆕 Product</button>
+                        <button class="calendar-tab" onclick="filterCalendar('campaign')">📢 Campaign</button>
+                        <button class="calendar-tab" onclick="filterCalendar('content')">📊 Content</button>
+                        <button class="calendar-tab" onclick="filterCalendar('event')">🎯 Events</button>
+                        <button class="calendar-tab" onclick="filterCalendar('meeting')">🤝 Meetings</button>
+                    </div>
+                    
+                    <div style="display: flex; gap: 0.5rem; margin-left: auto; align-items: center;">
+                        <button class="btn btn-secondary btn-small" onclick="changeCalendarMonth(-1)">⬅️ Prev</button>
+                        <span id="currentMonthDisplay" style="font-weight: bold; min-width: 120px; text-align: center;">All Months</span>
+                        <button class="btn btn-secondary btn-small" onclick="changeCalendarMonth(1)">Next ➡️</button>
+                    </div>
+                </div>
+
+                <div class="year-view" id="calendarView"></div>
+            </div>
+        </section>
+
+        <!-- BUDGET TAHUNAN -->
+        <section id="budget" class="section">
+            <div style="display: flex; justify-content: space-between; margin-bottom: 1rem;">
+                <h2 style="color: var(--red);">💰 Budget Tahunan 2025</h2>
+                <button class="btn btn-primary" onclick="showBudgetModal()">➕ Add Budget Item</button>
+            </div>
+            <div id="budgetContent"></div>
+        </section>
+
+        <!-- MANAGER -->
+        <section id="manager" class="section">
+            <h2 style="color: var(--red); margin-bottom: 1rem;">👔 Dashboard Manager</h2>
+            <div id="managerView"><div class="loading">Loading...</div></div>
+        </section>
+
+        <!-- MASTER STAFF -->
+        <section id="staff" class="section">
+            <div style="display: flex; justify-content: space-between; margin-bottom: 1rem;">
+                <h2 style="color: var(--red);">👥 Master Staff</h2>
+                <button class="btn btn-primary" onclick="showStaffModal()">➕ Add Staff</button>
+            </div>
+            <div id="staffView"></div>
+        </section>
+
+        <!-- GAMES BREAK -->
+        <section id="games" class="section">
+            <h2 style="color: var(--red); margin-bottom: 1rem;">🎮 Games Break</h2>
+            
+            <div class="game-container">
+                <div class="game-question" id="gameQuestion">Loading game...</div>
+                <input type="text" class="game-input" id="gameAnswer" placeholder="Type your answer here...">
+                <button class="btn btn-success" onclick="checkGameAnswer()" style="width: 100%; padding: 1rem; font-size: 1rem;">Submit Answer</button>
+                <div class="game-result" id="gameResult"></div>
+            </div>
+            
+            <div class="card">
+                <h3 style="color: var(--red); margin-bottom: 1rem;">🏆 Leaderboard</h3>
+                <div id="gameLeaderboard"></div>
+            </div>
+        </section>
+    </main>
+
+    <footer style="background: linear-gradient(135deg, var(--red) 0%, var(--red-dark) 100%); color: white; padding: 2rem; text-align: center; margin-top: 3rem;">
+        <div style="max-width: 1800px; margin: 0 auto;">
+            <img src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAASwAAAC0CAYAAAAuPxHvAAAACXBIWXMAAAsTAAALEwEAmpwYAAAAAXNSR0IArs4c6QAAAARnQU1BAACxjwv8YQUAABrISURBVHgB7Z0JeBRVmsf/VXWkO0knIYQkJCQhgRBCCCRcIogIKCqgODo6Ojs7szuz+zw7+zzjrM84u8/Mjus1M+Pu6K" alt="Laritta Bakery" style="height: 60px; width: auto; margin-bottom: 1rem; filter: brightness(0) invert(1);">
+            <div style="font-size: 0.9rem; opacity: 0.9;">
+                <p style="margin: 0.5rem 0;"><strong>Laritta Bakery Shop</strong></p>
+                <p style="margin: 0.5rem 0; font-size: 0.85rem;">Sistem Management Task & KPI - v3.0</p>
+                <p style="margin: 0.5rem 0; font-size: 0.75rem; opacity: 0.7;">© 2025 Laritta Bakery. All rights reserved.</p>
+            </div>
+        </div>
+    </footer>
+
+    <!-- MODALS -->
+    
+    <!-- TASK MODAL -->
+    <div id="taskModal" class="modal">
+        <div class="modal-content">
+            <h2 style="color: var(--red); margin-bottom: 1rem;" id="taskModalTitle">➕ Add Task</h2>
+            <form id="taskForm" onsubmit="saveTask(event)">
+                <input type="hidden" id="editTaskId">
+                
+                <div class="form-group">
+                    <label>Title *</label>
+                    <input type="text" id="taskTitle" required>
+                </div>
+                
+                <div class="form-group">
+                    <label>Description</label>
+                    <textarea id="taskDesc" rows="3"></textarea>
+                </div>
+                
+                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1rem;">
+                    <div class="form-group">
+                        <label>Type *</label>
+                        <select id="taskType" required>
+                            <option value="onetime">One-time</option>
+                            <option value="daily">Daily</option>
+                            <option value="weekly">Weekly</option>
+                            <option value="monthly">Monthly</option>
+                        </select>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label>Priority</label>
+                        <select id="taskPriority">
+                            <option value="low">Low</option>
+                            <option value="medium" selected>Medium</option>
+                            <option value="high">High</option>
+                        </select>
+                    </div>
+                </div>
+                
+                <div class="form-group">
+                    <label>Status</label>
+                    <select id="taskStatus">
+                        <option value="todo">To Do</option>
+                        <option value="in-progress">In Progress</option>
+                        <option value="completed">Completed</option>
+                    </select>
+                </div>
+                
+                <div class="form-group">
+                    <label>👥 Assign To Team Members *</label>
+                    <div style="background: var(--gray-light); padding: 0.8rem; border-radius: 8px; max-height: 200px; overflow-y: auto;">
+                        <div id="teamMembersList"></div>
+                    </div>
+                    <small style="color: #666; font-size: 0.75rem;">Select one or more team members. Task will appear for all selected members.</small>
+                </div>
+                
+                <div class="form-group">
+                    <label>Start Date & Time *</label>
+                    <div class="date-time-group">
+                        <input type="date" id="taskStartDate" required>
+                        <input type="time" id="taskStartTime" required>
+                    </div>
+                </div>
+                
+                <div class="form-group">
+                    <label>Due Date & Time *</label>
+                    <div class="date-time-group">
+                        <input type="date" id="taskDueDate" required>
+                        <input type="time" id="taskDueTime" required>
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label>Subtasks (Optional)</label>
+                    <div id="subtasksList"></div>
+                    <button type="button" class="btn btn-secondary btn-small" onclick="addSubtaskField()" style="margin-top: 0.5rem;">➕ Add Subtask</button>
+                </div>
+
+                <div style="display: flex; gap: 1rem; margin-top: 1.5rem;">
+                    <button type="submit" class="btn btn-success">Save Task</button>
+                    <button type="button" class="btn btn-secondary" onclick="closeModal('taskModal')">Cancel</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- NOTE MODAL -->
+    <div id="noteModal" class="modal">
+        <div class="modal-content">
+            <h2 style="color: var(--red); margin-bottom: 1rem;">📝 Sticky Note</h2>
+            <form id="noteForm" onsubmit="saveNote(event)">
+                <input type="hidden" id="editNoteId">
+                
+                <div class="form-group">
+                    <label>Title *</label>
+                    <input type="text" id="noteTitle" required>
+                </div>
+                
+                <div class="form-group">
+                    <label>Content</label>
+                    <textarea id="noteContent" rows="6"></textarea>
+                </div>
+                
+                <div class="form-group">
+                    <label>Urgency *</label>
+                    <select id="noteUrgency">
+                        <option value="low">🟡 Low - Yellow</option>
+                        <option value="medium" selected>🟠 Medium - Orange</option>
+                        <option value="high">🔴 High - Red</option>
+                        <option value="critical">⚠️ Critical - Pink</option>
+                    </select>
+                </div>
+
+                <div style="display: flex; gap: 1rem;">
+                    <button type="submit" class="btn btn-success">Save Note</button>
+                    <button type="button" class="btn btn-secondary" onclick="closeModal('noteModal')">Cancel</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- CALENDAR MODAL -->
+    <div id="calendarModal" class="modal">
+        <div class="modal-content">
+            <h2 style="color: var(--red); margin-bottom: 1rem;">📅 Calendar Event</h2>
+            <form id="calendarForm" onsubmit="saveCalendarEvent(event)">
+                <input type="hidden" id="editCalId">
+                
+                <div class="form-group">
+                    <label>Event Title *</label>
+                    <input type="text" id="calTitle" required>
+                </div>
+                
+                <div class="form-group">
+                    <label>Description</label>
+                    <textarea id="calDesc" rows="3"></textarea>
+                </div>
+                
+                <div class="form-group">
+                    <label>Category *</label>
+                    <select id="calCategory" required>
+                        <option value="product">🆕 New Product</option>
+                        <option value="campaign">📢 Campaign</option>
+                        <option value="content">📊 Content</option>
+                        <option value="event">🎯 Event</option>
+                        <option value="meeting">🤝 Meeting</option>
+                    </select>
+                </div>
+                
+                <div class="form-group">
+                    <label>Start Date & Time *</label>
+                    <div class="date-time-group">
+                        <input type="date" id="calStartDate" required>
+                        <input type="time" id="calStartTime" required>
+                    </div>
+                </div>
+                
+                <div class="form-group">
+                    <label>Due Date & Time *</label>
+                    <div class="date-time-group">
+                        <input type="date" id="calDueDate" required>
+                        <input type="time" id="calDueTime" required>
+                    </div>
+                </div>
+
+                <div style="display: flex; gap: 1rem;">
+                    <button type="submit" class="btn btn-success">Save Event</button>
+                    <button type="button" class="btn btn-secondary" onclick="closeModal('calendarModal')">Cancel</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- BUDGET MODAL -->
+    <div id="budgetModal" class="modal">
+        <div class="modal-content">
+            <h2 style="color: var(--red); margin-bottom: 1rem;">💰 Budget Item</h2>
+            <form id="budgetForm" onsubmit="saveBudget(event)">
+                <input type="hidden" id="editBudgetId">
+                
+                <div class="form-group">
+                    <label>Item Name *</label>
+                    <input type="text" id="budgetName" required>
+                </div>
+                
+                <div class="form-group">
+                    <label>Category *</label>
+                    <select id="budgetCategory" required>
+                        <option value="marketing">Marketing</option>
+                        <option value="production">Production</option>
+                        <option value="operational">Operational</option>
+                        <option value="other">Other</option>
+                    </select>
+                </div>
+                
+                <div class="form-group">
+                    <label>Period *</label>
+                    <select id="budgetPeriod" required>
+                        <option value="yearly">Yearly (Full Year)</option>
+                        <option value="semester1">Semester 1 (Jan-Jun)</option>
+                        <option value="semester2">Semester 2 (Jul-Dec)</option>
+                        <option value="q1">Quarter 1 (Jan-Mar)</option>
+                        <option value="q2">Quarter 2 (Apr-Jun)</option>
+                        <option value="q3">Quarter 3 (Jul-Sep)</option>
+                        <option value="q4">Quarter 4 (Oct-Dec)</option>
+                        <option value="january">January</option>
+                        <option value="february">February</option>
+                        <option value="march">March</option>
+                        <option value="april">April</option>
+                        <option value="may">May</option>
+                        <option value="june">June</option>
+                        <option value="july">July</option>
+                        <option value="august">August</option>
+                        <option value="september">September</option>
+                        <option value="october">October</option>
+                        <option value="november">November</option>
+                        <option value="december">December</option>
+                    </select>
+                </div>
+                
+                <div class="form-group">
+                    <label>Amount (Rp) *</label>
+                    <input type="number" id="budgetAmount" required min="0">
+                </div>
+
+                <div style="display: flex; gap: 1rem;">
+                    <button type="submit" class="btn btn-success">Save Budget</button>
+                    <button type="button" class="btn btn-secondary" onclick="closeModal('budgetModal')">Cancel</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- STAFF MODAL -->
+    <div id="staffModal" class="modal">
+        <div class="modal-content">
+            <h2 style="color: var(--red); margin-bottom: 1rem;">👥 Staff Member</h2>
+            <form id="staffForm" onsubmit="saveStaff(event)">
+                <input type="hidden" id="editStaffId">
+                
+                <div class="form-group">
+                    <label>Full Name *</label>
+                    <input type="text" id="staffName" required>
+                </div>
+                
+                <div class="form-group">
+                    <label>User ID *</label>
+                    <input type="text" id="staffUserId" required>
+                </div>
+                
+                <div class="form-group">
+                    <label>Role *</label>
+                    <select id="staffRole" required>
+                        <option value="Manager">Manager</option>
+                        <option value="PA Manager">PA Manager</option>
+                        <option value="Marketing">Marketing</option>
+                        <option value="Sales Online">Sales Online</option>
+                        <option value="Koordinator Area">Koordinator Area</option>
+                    </select>
+                </div>
+
+                <div style="display: flex; gap: 1rem;">
+                    <button type="submit" class="btn btn-success">Save Staff</button>
+                    <button type="button" class="btn btn-secondary" onclick="closeModal('staffModal')">Cancel</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <script type="module">
+        import { initializeApp } from 'https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js';
+        import { getFirestore, collection, addDoc, getDocs, query, where, onSnapshot, doc, updateDoc, deleteDoc } from 'https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js';
+
+        const app = initializeApp({
+            apiKey: "AIzaSyAdTh1Fwsp1FsyZ98yVo0X63m9Equh2d5c",
+            authDomain: "laritta-task-manager.firebaseapp.com",
+            projectId: "laritta-task-manager"
+        });
+
+        const db = getFirestore(app);
+        let currentUser = 'faris';
+        let currentUserName = 'Mohammad Faris Rizal';
+        let tasks = [];
+        let notes = [];
+        let calendarEvents = [];
+        let budgetItems = [];
+        let users = [
+            { userId: 'faris', name: 'Mohammad Faris Rizal', role: 'Manager' },
+            { userId: 'leony', name: 'Leony Hosna', role: 'PA Manager' },
+            { userId: 'erina', name: 'Erina Sejati', role: 'Marketing' },
+            { userId: 'dea', name: 'Amadea Wari Hidayani', role: 'Marketing' },
+            { userId: 'sisca', name: 'Sisca', role: 'Sales Online' },
+            { userId: 'yulia', name: 'Yulia', role: 'Sales Online' },
+            { userId: 'ais', name: 'Aisyatuz Zahrah', role: 'Sales Online' },
+            { userId: 'budo', name: 'Agus Budi', role: 'Koordinator Area' },
+            { userId: 'isa', name: 'Isa Yuhani', role: 'Koordinator Area' },
+            { userId: 'talitha', name: 'Talitha', role: 'Koordinator Area' },
+            { userId: 'kiky', name: 'Kiky Surya Ningsih', role: 'Koordinator Area' },
+            { userId: 'sita', name: 'Masita Krisni Adianty', role: 'Koordinator Area' },
+            { userId: 'ira', name: 'Ita Tri Handayanie', role: 'Koordinator Area' }
+        ];
+        
+        let currentCalendarFilter = 'all';
+        let currentCalendarMonth = -1; // -1 means show all months
+        let gameScores = {};
+        let currentGame = null;
+        
+        const games = [
+            { q: "Jika 5 + 5 = 25, maka 10 + 10 = ?", a: "100", hint: "Dikalikan!" },
+            { q: "Berapa hari dalam 4 minggu?", a: "28", hint: "7 x 4" },
+            { q: "Apa yang lebih berat: 1 kg kapas atau 1 kg besi?", a: "sama", hint: "Sama berat!" },
+            { q: "2 + 2 x 2 = ?", a: "6", hint: "Perkalian dulu" },
+            { q: "Jika kemarin adalah besok, hari ini hari apa?", a: "minggu", hint: "Think about it..." }
+        ];
+
+        // INITIALIZATION
+        window.addEventListener('DOMContentLoaded', async () => {
+            console.log('🚀 System starting...');
+            setStatus('syncing', 'Loading...');
+            
+            try {
+                await loadUsers();
+                await loadAllData();
+                loadNewGame();
+                updateBudgetAccess();
+                setStatus('synced', 'Ready');
+            } catch (err) {
+                console.error('Init error:', err);
+                setStatus('synced', 'Ready (offline)');
+            }
+        });
+
+        function updateBudgetAccess() {
+            // Only Faris (Manager Sales & Marketing) can access Budget Tahunan
+            const budgetNav = document.getElementById('budgetNav');
+            if (currentUser === 'faris') {
+                budgetNav.style.display = 'block';
+            } else {
+                budgetNav.style.display = 'none';
+                // If user is on budget page, redirect to dashboard
+                if (document.getElementById('budget').classList.contains('active')) {
+                    showSection('dashboard');
+                }
+            }
+        }
+
+        async function loadUsers() {
+            try {
+                const snap = await getDocs(collection(db, 'users'));
+                if (!snap.empty) {
+                    users = snap.docs.map(d => ({id: d.id, ...d.data()}));
+                }
+                
+                const sel = document.getElementById('userSelect');
+                sel.innerHTML = users.map(u => 
+                    `<option value="${u.userId}" ${u.userId===currentUser?'selected':''}>${u.name}</option>`
+                ).join('');
+            } catch (err) {
+                console.error('Load users error:', err);
+            }
+        }
+
+        async function loadAllData() {
+            try {
+                // Load tasks where current user is assigned (creator OR in assignedTo list)
+                const allTasksSnap = await getDocs(collection(db, 'tasks'));
+                tasks = allTasksSnap.docs
+                    .map(d => ({id: d.id, ...d.data()}))
+                    .filter(t => {
+                        // Show if user is creator OR in assignedTo list
+                        return t.assignee === currentUser || 
+                               (t.assignedTo && t.assignedTo.includes(currentUser));
+                    });
+                console.log('Tasks loaded:', tasks.length);
+                
+                // Load task instances for recurring tasks
+                const instancesSnap = await getDocs(collection(db, 'task_instances'));
+                window.taskInstances = instancesSnap.docs
+                    .map(d => ({id: d.id, ...d.data()}))
+                    .filter(t => {
+                        return t.assignee === currentUser || 
+                               (t.assignedTo && t.assignedTo.includes(currentUser));
+                    });
+                console.log('Task instances loaded:', window.taskInstances.length);
+                
+                // Load notes (was goals)
+                const notesSnap = await getDocs(query(collection(db, 'goals'), where('userId', '==', currentUser)));
+                notes = notesSnap.docs.map(d => ({id: d.id, ...d.data()}));
+                console.log('Notes loaded:', notes.length);
+                
+                // Load calendar
+                const calSnap = await getDocs(collection(db, 'calendar_events'));
+                calendarEvents = calSnap.docs.map(d => ({id: d.id, ...d.data()}));
+                console.log('Calendar events loaded:', calendarEvents.length);
+                
+                // Load budget
+                const budgetSnap = await getDocs(collection(db, 'budget_items'));
+                budgetItems = budgetSnap.docs.map(d => ({id: d.id, ...d.data()}));
+                console.log('Budget items loaded:', budgetItems.length);
+                
+                renderDashboard();
+                renderTasks();
+                renderRecurring();
+                renderNotes();
+                renderCalendar();
+                renderBudget();
+                
+            } catch (err) {
+                console.error('Load data error:', err);
+            }
+        }
+
+        // RENDER FUNCTIONS
+        function renderDashboard() {
+            const onetime = tasks.filter(t => t.type === 'onetime');
+            const daily = tasks.filter(t => t.type === 'daily');
+            const weekly = tasks.filter(t => t.type === 'weekly');
+            const monthly = tasks.filter(t => t.type === 'monthly');
+            
+            const completed = onetime.filter(t => t.status === 'completed').length;
+            
+            document.getElementById('dashStats').innerHTML = `
+                <h3 style="color: var(--red); margin-bottom: 1rem;">📋 One-Time Tasks</h3>
+                <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 1rem; margin-bottom: 2rem;">
+                    <div class="card" style="text-align: center; border-top: 4px solid var(--red);">
+                        <h4 style="color: #999; font-size: 0.75rem;">TOTAL</h4>
+                        <div style="font-size: 2rem; font-weight: bold;">${onetime.length}</div>
+                    </div>
+                    <div class="card" style="text-align: center; border-top: 4px solid var(--green);">
+                        <h4 style="color: #999; font-size: 0.75rem;">COMPLETED</h4>
+                        <div style="font-size: 2rem; font-weight: bold;">${completed}</div>
+                    </div>
+                    <div class="card" style="text-align: center; border-top: 4px solid var(--orange);">
+                        <h4 style="color: #999; font-size: 0.75rem;">PENDING</h4>
+                        <div style="font-size: 2rem; font-weight: bold;">${onetime.length - completed}</div>
+                    </div>
+                </div>
+                
+                <h3 style="color: var(--red); margin-bottom: 1rem;">🔄 Recurring Tasks</h3>
+                <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 1rem;">
+                    <div class="card" style="text-align: center; border-top: 4px solid var(--blue);">
+                        <h4 style="color: #999; font-size: 0.75rem;">DAILY</h4>
+                        <div style="font-size: 2rem; font-weight: bold;">${daily.length}</div>
+                    </div>
+                    <div class="card" style="text-align: center; border-top: 4px solid var(--purple);">
+                        <h4 style="color: #999; font-size: 0.75rem;">WEEKLY</h4>
+                        <div style="font-size: 2rem; font-weight: bold;">${weekly.length}</div>
+                    </div>
+                    <div class="card" style="text-align: center; border-top: 4px solid var(--teal);">
+                        <h4 style="color: #999; font-size: 0.75rem;">MONTHLY</h4>
+                        <div style="font-size: 2rem; font-weight: bold;">${monthly.length}</div>
+                    </div>
+                </div>
+            `;
+        }
+
+        function renderTasks() {
+            const onetime = tasks.filter(t => t.type === 'onetime');
+            const todo = onetime.filter(t => !t.status || t.status === 'todo');
+            const progress = onetime.filter(t => t.status === 'in-progress');
+            const completed = onetime.filter(t => t.status === 'completed');
+            
+            document.getElementById('tasksContent').innerHTML = `
+                <div class="card">
+                    <h3 style="color: var(--blue); margin-bottom: 1rem;">📋 To Do (${todo.length})</h3>
+                    ${todo.length > 0 ? todo.map(renderTaskItem).join('') : '<p style="color: #999;">No tasks</p>'}
+                </div>
+                <div class="card">
+                    <h3 style="color: var(--orange); margin-bottom: 1rem;">🔄 In Progress (${progress.length})</h3>
+                    ${progress.length > 0 ? progress.map(renderTaskItem).join('') : '<p style="color: #999;">No tasks</p>'}
+                </div>
+                <div class="card">
+                    <h3 style="color: var(--green); margin-bottom: 1rem;">✅ Completed (${completed.length})</h3>
+                    ${completed.length > 0 ? completed.map(renderTaskItem).join('') : '<p style="color: #999;">No tasks</p>'}
+                </div>
+            `;
+        }
+
+        function renderTaskItem(t) {
+            const startDateTime = `${t.startDate || ''} ${t.startTime || ''}`.trim();
+            const dueDateTime = `${t.dueDate || ''} ${t.dueTime || ''}`.trim();
+            
+            // Calculate subtask progress
+            const subtasks = t.subtasks || [];
+            const completedSubtasks = subtasks.filter(s => s.completed).length;
+            const totalSubtasks = subtasks.length;
+            const progress = totalSubtasks > 0 ? Math.round((completedSubtasks / totalSubtasks) * 100) : 0;
+            
+            // Get assigned team members
+            const assignedTo = t.assignedTo || [t.assignee];
+            const teamMembers = assignedTo.map(userId => {
+                const user = users.find(u => u.userId === userId);
+                return user ? user.name.split(' ')[0] : userId; // First name only
+            }).join(', ');
+            
+            return `
+                <div style="padding: 1rem; margin-bottom: 0.8rem; background: var(--gray-light); border-radius: 8px; border-left: 4px solid var(--blue); position: relative;">
+                    <div style="position: absolute; top: 0.5rem; right: 0.5rem; display: flex; gap: 0.3rem;">
+                        <button class="btn btn-small btn-warning" onclick="editTask('${t.id}')">✏️</button>
+                        <button class="btn btn-small btn-danger" onclick="deleteTask('${t.id}')">🗑️</button>
+                    </div>
+                    <h4 style="color: var(--red); margin-bottom: 0.5rem; padding-right: 80px;">${t.title}</h4>
+                    ${t.description ? `<p style="font-size: 0.85rem; color: #666; margin-bottom: 0.5rem;">${t.description}</p>` : ''}
+                    
+                    ${assignedTo.length > 0 ? `
+                        <div style="margin-bottom: 0.5rem;">
+                            <span style="font-size: 0.75rem; color: #666;">👥 Team: </span>
+                            <span style="font-size: 0.8rem; font-weight: bold; color: var(--blue);">${teamMembers}</span>
+                        </div>
+                    ` : ''}
+                    
+                    ${totalSubtasks > 0 ? `
+                        <div style="margin: 0.8rem 0;">
+                            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.3rem;">
+                                <span style="font-size: 0.75rem; color: #666;">Subtasks Progress</span>
+                                <span style="font-size: 0.75rem; font-weight: bold; color: ${progress === 100 ? 'var(--green)' : 'var(--orange)'};">${completedSubtasks}/${totalSubtasks} (${progress}%)</span>
+                            </div>
+                            <div style="background: #e0e0e0; height: 8px; border-radius: 4px; overflow: hidden;">
+                                <div style="background: ${progress === 100 ? 'var(--green)' : 'var(--blue)'}; width: ${progress}%; height: 100%; transition: width 0.3s;"></div>
+                            </div>
+                            <div style="margin-top: 0.5rem;">
+                                ${subtasks.map((st, idx) => `
+                                    <div style="display: flex; align-items: center; gap: 0.5rem; padding: 0.3rem 0;">
+                                        <input type="checkbox" ${st.completed ? 'checked' : ''} onchange="toggleSubtask('${t.id}', ${idx})" style="cursor: pointer;">
+                                        <span style="font-size: 0.85rem; ${st.completed ? 'text-decoration: line-through; color: #999;' : ''}">${st.title}</span>
+                                    </div>
+                                `).join('')}
+                            </div>
+                        </div>
+                    ` : ''}
+                    
+                    <div style="margin-top: 0.5rem; font-size: 0.8rem; display: flex; gap: 0.5rem; flex-wrap: wrap;">
+                        <span style="background: var(--blue); color: white; padding: 0.2rem 0.5rem; border-radius: 4px;">${t.type}</span>
+                        ${t.priority ? `<span style="background: var(--orange); color: white; padding: 0.2rem 0.5rem; border-radius: 4px;">${t.priority}</span>` : ''}
+                    </div>
+                    ${startDateTime ? `<div style="font-size: 0.75rem; color: #666; margin-top: 0.5rem;">📅 Start: ${startDateTime}</div>` : ''}
+                    ${dueDateTime ? `<div style="font-size: 0.75rem; color: #666;">⏰ Due: ${dueDateTime}</div>` : ''}
+                </div>
+            `;
+        }
+
+        window.toggleSubtask = async (taskId, subtaskIndex) => {
+            try {
+                const task = tasks.find(t => t.id === taskId);
+                if (!task || !task.subtasks) return;
+                
+                task.subtasks[subtaskIndex].completed = !task.subtasks[subtaskIndex].completed;
+                
+                await updateDoc(doc(db, 'tasks', taskId), { subtasks: task.subtasks });
+                await loadAllData();
+            } catch (err) {
+                console.error('Toggle subtask error:', err);
+            }
+        };
+
+        function renderRecurring() {
+            const instances = window.taskInstances || [];
+            
+            const daily = instances.filter(t => t.type === 'daily');
+            const weekly = instances.filter(t => t.type === 'weekly');
+            const monthly = instances.filter(t => t.type === 'monthly');
+            
+            document.getElementById('recurringContent').innerHTML = `
+                <div class="card">
+                    <h3 style="color: var(--blue); margin-bottom: 1rem;">📅 Daily Tasks - 30 Days (${daily.length} instances)</h3>
+                    ${daily.length > 0 ? daily.map(renderRecurringInstance).join('') : '<p style="color: #999;">No daily tasks. Create a daily task to see 30-day instances here.</p>'}
+                </div>
+                <div class="card">
+                    <h3 style="color: var(--purple); margin-bottom: 1rem;">📆 Weekly Tasks - 4 Weeks (${weekly.length} instances)</h3>
+                    ${weekly.length > 0 ? weekly.map(renderRecurringInstance).join('') : '<p style="color: #999;">No weekly tasks. Create a weekly task to see 4-week instances here.</p>'}
+                </div>
+                <div class="card">
+                    <h3 style="color: var(--teal); margin-bottom: 1rem;">📅 Monthly Tasks - 12 Months (${monthly.length} instances)</h3>
+                    ${monthly.length > 0 ? monthly.map(renderRecurringInstance).join('') : '<p style="color: #999;">No monthly tasks. Create a monthly task to see 12-month instances here.</p>'}
+                </div>
+            `;
+        }
+
+        function renderRecurringInstance(t) {
+            const isChecked = t.completed || false;
+            const startDateTime = `${t.startDate || ''} ${t.startTime || ''}`.trim();
+            const dueDateTime = `${t.dueDate || ''} ${t.dueTime || ''}`.trim();
+            
+            return `
+                <div style="padding: ${isChecked ? '0.5rem' : '1rem'}; margin-bottom: 0.8rem; background: var(--gray-light); border-radius: 8px; display: flex; align-items: center; gap: 1rem; transition: all 0.3s; opacity: ${isChecked ? '0.6' : '1'};">
+                    <input type="checkbox" ${isChecked ? 'checked' : ''} onchange="toggleRecurringInstance('${t.id}')" style="width: 24px; height: 24px; cursor: pointer;">
+                    <div style="flex: 1; ${isChecked ? 'max-height: 50px; overflow: hidden;' : ''}">
+                        <h4 style="color: var(--red); margin-bottom: 0.3rem; ${isChecked ? 'text-decoration: line-through; color: #999;' : ''}">
+                            ${t.title} - ${t.instanceTitle || 'Instance ' + t.instanceNumber}
+                        </h4>
+                        ${!isChecked && t.description ? `<p style="font-size: 0.85rem; color: #666;">${t.description}</p>` : ''}
+                        ${!isChecked ? `<div style="font-size: 0.75rem; color: #666; margin-top: 0.3rem;">📅 ${t.instanceDate || ''}</div>` : ''}
+                        ${!isChecked && startDateTime ? `<div style="font-size: 0.75rem; color: #666;">⏱️ Start: ${startDateTime}</div>` : ''}
+                        ${!isChecked && dueDateTime ? `<div style="font-size: 0.75rem; color: #666;">⏰ Due: ${dueDateTime}</div>` : ''}
+                        ${isChecked ? `<div style="font-size: 0.75rem; color: var(--green);">✅ Completed</div>` : ''}
+                    </div>
+                </div>
+            `;
+        }
+
+        window.toggleRecurringInstance = async (id) => {
+            try {
+                const instance = window.taskInstances.find(t => t.id === id);
+                if (!instance) return;
+                
+                await updateDoc(doc(db, 'task_instances', id), {
+                    completed: !instance.completed,
+                    completedAt: !instance.completed ? new Date().toISOString() : null
+                });
+                
+                await loadAllData();
+            } catch (err) {
+                console.error('Toggle instance error:', err);
+            }
+        };
+            
+            return `
+                <div style="padding: ${isChecked ? '0.5rem' : '1rem'}; margin-bottom: 0.8rem; background: var(--gray-light); border-radius: 8px; display: flex; align-items: center; gap: 1rem; transition: all 0.3s; opacity: ${isChecked ? '0.6' : '1'};">
+                    <input type="checkbox" ${isChecked ? 'checked' : ''} onchange="toggleRecurring('${t.id}')" style="width: 24px; height: 24px; cursor: pointer;">
+                    <div style="flex: 1; ${isChecked ? 'max-height: 50px; overflow: hidden;' : ''}">
+                        <h4 style="color: var(--red); margin-bottom: 0.3rem; ${isChecked ? 'text-decoration: line-through; color: #999;' : ''}">${t.title}</h4>
+                        ${!isChecked && t.description ? `<p style="font-size: 0.85rem; color: #666;">${t.description}</p>` : ''}
+                        ${!isChecked && startDateTime ? `<div style="font-size: 0.75rem; color: #666; margin-top: 0.3rem;">📅 Start: ${startDateTime}</div>` : ''}
+                        ${!isChecked && dueDateTime ? `<div style="font-size: 0.75rem; color: #666;">⏰ Due: ${dueDateTime}</div>` : ''}
+                        ${isChecked ? `<div style="font-size: 0.75rem; color: var(--green);">✅ Completed today</div>` : ''}
+                    </div>
+                    ${!isChecked ? `
+                    <div style="display: flex; gap: 0.3rem;">
+                        <button class="btn btn-small btn-warning" onclick="editTask('${t.id}')">✏️</button>
+                        <button class="btn btn-small btn-danger" onclick="deleteTask('${t.id}')">🗑️</button>
+                    </div>
+                    ` : ''}
+                </div>
+            `;
+        }
+
+        function renderNotes() {
+            const container = document.getElementById('notesContainer');
+            if (notes.length === 0) {
+                container.innerHTML = '<p style="grid-column: 1/-1; text-align: center; color: #999; padding: 3rem;">No notes yet</p>';
+                return;
+            }
+            
+            container.innerHTML = notes.map(n => `
+                <div class="sticky-note ${n.urgency}" onclick="editNote('${n.id}')">
+                    <h3 style="padding-top: 0.5rem;">${n.title}</h3>
+                    <div style="color: #555; font-size: 0.95rem; margin-top: 1rem; white-space: pre-wrap;">${n.content || ''}</div>
+                    <div style="position: absolute; bottom: 1rem; right: 1rem;">
+                        <button class="btn btn-small btn-danger" onclick="event.stopPropagation(); deleteNote('${n.id}')">🗑️</button>
+                    </div>
+                </div>
+            `).join('');
+        }
+
+        function renderCalendar() {
+            const view = document.getElementById('calendarView');
+            const months = ['January', 'February', 'March', 'April', 'May', 'June', 
+                           'July', 'August', 'September', 'October', 'November', 'December'];
+            
+            const filtered = currentCalendarFilter === 'all' 
+                ? calendarEvents 
+                : calendarEvents.filter(e => e.category === currentCalendarFilter);
+            
+            // Update month display
+            const monthDisplay = document.getElementById('currentMonthDisplay');
+            if (monthDisplay) {
+                monthDisplay.textContent = currentCalendarMonth === -1 ? 'All Months' : months[currentCalendarMonth] + ' 2025';
+            }
+            
+            if (filtered.length === 0) {
+                view.innerHTML = '<p style="grid-column: 1/-1; text-align: center; color: #999; padding: 2rem;">No events</p>';
+                return;
+            }
+            
+            const eventsByMonth = {};
+            months.forEach((m, i) => {
+                eventsByMonth[i] = filtered.filter(e => {
+                    if (!e.startDate) return false;
+                    const date = new Date(e.startDate);
+                    return date.getMonth() === i && date.getFullYear() === 2025;
+                });
+            });
+            
+            // Determine which months to show
+            const monthsToShow = currentCalendarMonth === -1 
+                ? months.map((m, i) => i)  // Show all months
+                : [currentCalendarMonth];   // Show only current month
+            
+            view.innerHTML = monthsToShow.map(i => {
+                const month = months[i];
+                const monthEvents = eventsByMonth[i];
+                return `
+                    <div class="month-card" style="${currentCalendarMonth !== -1 ? 'grid-column: 1/-1;' : ''}">
+                        <h3>${month} 2025</h3>
+                        ${monthEvents.length > 0 ? monthEvents.map(e => `
+                            <div class="calendar-event event-${e.category}" onclick="editCalendarEvent('${e.id}')">
+                                <div style="font-weight: bold;">${e.title}</div>
+                                <div style="font-size: 0.8rem; color: #666;">${new Date(e.startDate).toLocaleDateString('id-ID')}</div>
+                                ${e.description ? `<div style="font-size: 0.75rem; color: #888; margin-top: 0.3rem;">${e.description.substring(0, 60)}${e.description.length > 60 ? '...' : ''}</div>` : ''}
+                            </div>
+                        `).join('') : '<p style="color: #999; font-size: 0.85rem; text-align: center; padding: 1rem;">No events</p>'}
+                    </div>
+                `;
+            }).join('');
+        }
+
+        window.changeCalendarMonth = (direction) => {
+            if (currentCalendarMonth === -1 && direction === 1) {
+                // From "All Months" → January
+                currentCalendarMonth = 0;
+            } else if (currentCalendarMonth === -1 && direction === -1) {
+                // From "All Months" → December
+                currentCalendarMonth = 11;
+            } else {
+                // Navigate between months
+                currentCalendarMonth += direction;
+                
+                // Wrap around
+                if (currentCalendarMonth > 11) {
+                    currentCalendarMonth = -1; // Back to All Months
+                } else if (currentCalendarMonth < -1) {
+                    currentCalendarMonth = -1; // Back to All Months
+                }
+            }
+            
+            renderCalendar();
+        };
+
+        function renderBudget() {
+            const container = document.getElementById('budgetContent');
+            
+            if (budgetItems.length === 0) {
+                container.innerHTML = '<div class="card"><p style="text-align: center; color: #999;">No budget items yet</p></div>';
+                return;
+            }
+            
+            // Group by period type
+            const yearly = budgetItems.filter(b => b.period === 'yearly');
+            const semester = budgetItems.filter(b => b.period.startsWith('semester'));
+            const quarter = budgetItems.filter(b => b.period.startsWith('q'));
+            const monthly = budgetItems.filter(b => !['yearly','semester1','semester2','q1','q2','q3','q4'].includes(b.period));
+            
+            let html = '';
+            
+            if (yearly.length > 0) {
+                html += `
+                    <div class="budget-card" style="border-color: var(--red);">
+                        <h3>📅 Yearly Budget</h3>
+                        ${yearly.map(renderBudgetItem).join('')}
+                    </div>
+                `;
+            }
+            
+            if (semester.length > 0) {
+                html += `
+                    <div class="budget-card" style="border-color: var(--orange);">
+                        <h3>📊 Semester Budget</h3>
+                        ${semester.map(renderBudgetItem).join('')}
+                    </div>
+                `;
+            }
+            
+            if (quarter.length > 0) {
+                html += `
+                    <div class="budget-card" style="border-color: var(--blue);">
+                        <h3>📈 Quarterly Budget</h3>
+                        ${quarter.map(renderBudgetItem).join('')}
+                    </div>
+                `;
+            }
+            
+            if (monthly.length > 0) {
+                html += `
+                    <div class="budget-card" style="border-color: var(--green);">
+                        <h3>📆 Monthly Budget</h3>
+                        ${monthly.map(renderBudgetItem).join('')}
+                    </div>
+                `;
+            }
+            
+            container.innerHTML = html;
+        }
+
+        function renderBudgetItem(b) {
+            return `
+                <div class="budget-item">
+                    <div>
+                        <strong>${b.name}</strong>
+                        <div style="font-size: 0.85rem; color: #666;">${b.category} - ${formatPeriod(b.period)}</div>
+                    </div>
+                    <div style="display: flex; align-items: center; gap: 0.5rem;">
+                        <strong style="color: var(--green); font-size: 1.1rem;">Rp ${parseInt(b.amount).toLocaleString('id-ID')}</strong>
+                        <button class="btn btn-small btn-warning" onclick="editBudget('${b.id}')">✏️</button>
+                        <button class="btn btn-small btn-danger" onclick="deleteBudget('${b.id}')">🗑️</button>
+                    </div>
+                </div>
+            `;
+        }
+
+        function formatPeriod(period) {
+            const map = {
+                'yearly': 'Full Year',
+                'semester1': 'Semester 1',
+                'semester2': 'Semester 2',
+                'q1': 'Q1', 'q2': 'Q2', 'q3': 'Q3', 'q4': 'Q4',
+                'january': 'January', 'february': 'February', 'march': 'March',
+                'april': 'April', 'may': 'May', 'june': 'June',
+                'july': 'July', 'august': 'August', 'september': 'September',
+                'october': 'October', 'november': 'November', 'december': 'December'
+            };
+            return map[period] || period;
+        }
+
+        async function renderManagerDashboard() {
+            const view = document.getElementById('managerView');
+            setStatus('syncing', 'Loading...');
+            
+            try {
+                const allTasksSnap = await getDocs(collection(db, 'tasks'));
+                const allTasks = allTasksSnap.docs.map(d => ({id: d.id, ...d.data()}));
+                
+                const staffKPI = users.map(user => {
+                    const userTasks = allTasks.filter(t => t.assignee === user.userId);
+                    const completed = userTasks.filter(t => t.status === 'completed');
+                    const total = userTasks.length;
+                    const rate = total > 0 ? Math.round((completed.length / total) * 100) : 0;
+                    
+                    const avgTasks = Math.round(allTasks.length / users.length);
+                    const workload = avgTasks > 0 ? Math.round((total / avgTasks) * 100) : 100;
+                    
+                    const workloadScore = workload > 120 ? 70 : (workload < 80 ? 85 : 100);
+                    const kpi = Math.round((rate * 0.7) + (workloadScore * 0.3));
+                    
+                    let grade = 'D';
+                    if (kpi >= 85) grade = 'A';
+                    else if (kpi >= 70) grade = 'B';
+                    else if (kpi >= 55) grade = 'C';
+                    
+                    return { ...user, total, completed: completed.length, rate, workload, kpi, grade };
+                });
+                
+                staffKPI.sort((a, b) => b.kpi - a.kpi);
+                
+                const grouped = {};
+                staffKPI.forEach(s => {
+                    if (!grouped[s.role]) grouped[s.role] = [];
+                    grouped[s.role].push(s);
+                });
+                
+                view.innerHTML = `
+                    <div class="card">
+                        <h3 style="color: var(--red); margin-bottom: 1rem;">📊 Team Overview</h3>
+                        <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 1rem;">
+                            <div style="background: linear-gradient(135deg, var(--blue), var(--purple)); color: white; padding: 1.5rem; border-radius: 12px; text-align: center;">
+                                <div style="font-size: 2rem; font-weight: bold;">${users.length}</div>
+                                <div>Total Staff</div>
+                            </div>
+                            <div style="background: linear-gradient(135deg, var(--green), var(--teal)); color: white; padding: 1.5rem; border-radius: 12px; text-align: center;">
+                                <div style="font-size: 2rem; font-weight: bold;">${allTasks.length}</div>
+                                <div>Total Tasks</div>
+                            </div>
+                            <div style="background: linear-gradient(135deg, var(--orange), var(--red)); color: white; padding: 1.5rem; border-radius: 12px; text-align: center;">
+                                <div style="font-size: 2rem; font-weight: bold;">${Math.round(staffKPI.reduce((s, m) => s + m.rate, 0) / staffKPI.length)}%</div>
+                                <div>Avg Completion</div>
+                            </div>
+                            <div style="background: linear-gradient(135deg, var(--red), var(--pink)); color: white; padding: 1.5rem; border-radius: 12px; text-align: center;">
+                                <div style="font-size: 2rem; font-weight: bold;">${staffKPI.filter(s => s.grade === 'A').length}</div>
+                                <div>Grade A</div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    ${Object.entries(grouped).map(([role, members]) => `
+                        <div class="card">
+                            <h3 style="color: var(--red); margin-bottom: 1rem;">${role} (${members.length})</h3>
+                            ${members.map(m => `
+                                <div style="padding: 1.2rem; margin-bottom: 1rem; background: var(--gray-light); border-radius: 8px; border-left: 4px solid ${m.grade==='A'?'var(--green)':m.grade==='B'?'var(--blue)':m.grade==='C'?'var(--orange)':'var(--red)'};">
+                                    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.8rem;">
+                                        <div>
+                                            <strong style="font-size: 1.1rem;">${m.name}</strong>
+                                            <div style="font-size: 0.85rem; color: #666;">@${m.userId}</div>
+                                        </div>
+                                        <div style="background: ${m.grade==='A'?'var(--green)':m.grade==='B'?'var(--blue)':m.grade==='C'?'var(--orange)':'var(--red)'}; color: white; padding: 0.3rem 0.8rem; border-radius: 6px; font-weight: bold; font-size: 1.2rem;">
+                                            ${m.grade}
+                                        </div>
+                                    </div>
+                                    <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 0.8rem; font-size: 0.85rem;">
+                                        <div>📋 Tasks: <strong>${m.total}</strong></div>
+                                        <div>✅ Done: <strong style="color: var(--green);">${m.completed}</strong></div>
+                                        <div>📈 Rate: <strong style="color: ${m.rate >= 70 ? 'var(--green)' : 'var(--orange)'};">${m.rate}%</strong></div>
+                                        <div>⚖️ Load: <strong>${m.workload}%</strong></div>
+                                    </div>
+                                </div>
+                            `).join('')}
+                        </div>
+                    `).join('')}
+                `;
+                
+                setStatus('synced', 'Ready');
+            } catch (err) {
+                view.innerHTML = `<div class="card"><p style="color: var(--orange);">Error: ${err.message}</p></div>`;
+                setStatus('error', 'Error');
+            }
+        }
+
+        function renderStaffManagement() {
+            const view = document.getElementById('staffView');
+            const grouped = {};
+            users.forEach(u => {
+                if (!grouped[u.role]) grouped[u.role] = [];
+                grouped[u.role].push(u);
+            });
+            
+            view.innerHTML = Object.entries(grouped).map(([role, members]) => `
+                <div class="card">
+                    <h3 style="color: var(--red); margin-bottom: 1rem;">${role} (${members.length})</h3>
+                    ${members.map(m => `
+                        <div style="padding: 1rem; margin-bottom: 0.8rem; background: var(--gray-light); border-radius: 8px; display: flex; justify-content: space-between; align-items: center;">
+                            <div>
+                                <strong>${m.name}</strong>
+                                <div style="font-size: 0.85rem; color: #666;">@${m.userId}</div>
+                            </div>
+                            <div style="display: flex; gap: 0.5rem;">
+                                <button class="btn btn-small btn-warning" onclick="editStaff('${m.id || m.userId}')">✏️</button>
+                                <button class="btn btn-small btn-danger" onclick="deleteStaff('${m.id || m.userId}')">🗑️</button>
+                            </div>
+                        </div>
+                    `).join('')}
+                </div>
+            `).join('');
+        }
+
+        // GAME FUNCTIONS
+        function loadNewGame() {
+            currentGame = games[Math.floor(Math.random() * games.length)];
+            document.getElementById('gameQuestion').textContent = currentGame.q;
+            document.getElementById('gameAnswer').value = '';
+            document.getElementById('gameResult').innerHTML = '';
+        }
+
+        window.checkGameAnswer = () => {
+            const answer = document.getElementById('gameAnswer').value.trim().toLowerCase();
+            const result = document.getElementById('gameResult');
+            
+            if (answer === currentGame.a.toLowerCase()) {
+                gameScores[currentUser] = (gameScores[currentUser] || 0) + 1;
+                result.innerHTML = '🎉 CORRECT! Loading new question...';
+                result.style.background = 'var(--green)';
+                updateGameLeaderboard();
+                setTimeout(loadNewGame, 2000);
+            } else {
+                result.innerHTML = `❌ Try again! Hint: ${currentGame.hint}`;
+                result.style.background = 'rgba(220, 53, 69, 0.8)';
+            }
+        };
+
+        function updateGameLeaderboard() {
+            const sorted = Object.entries(gameScores).sort((a, b) => b[1] - a[1]);
+            const html = sorted.map(([userId, score], i) => {
+                const user = users.find(u => u.userId === userId);
+                const medal = ['🥇', '🥈', '🥉'][i] || '🏅';
+                return `
+                    <div style="padding: 0.8rem; margin-bottom: 0.5rem; background: var(--gray-light); border-radius: 6px; display: flex; justify-content: space-between;">
+                        <span>${medal} ${user?.name || userId}</span>
+                        <strong style="color: var(--green);">${score} pts</strong>
+                    </div>
+                `;
+            }).join('');
+            
+            document.getElementById('gameLeaderboard').innerHTML = html || '<p style="text-align: center; color: #999;">No scores yet</p>';
+        }
+
+        // MODAL FUNCTIONS
+        window.showTaskModal = () => {
+            document.getElementById('taskModalTitle').textContent = '➕ Add Task';
+            document.getElementById('editTaskId').value = '';
+            document.getElementById('taskForm').reset();
+            const now = new Date();
+            document.getElementById('taskStartDate').value = now.toISOString().split('T')[0];
+            document.getElementById('taskStartTime').value = now.toTimeString().slice(0,5);
+            document.getElementById('taskDueDate').value = now.toISOString().split('T')[0];
+            document.getElementById('taskDueTime').value = '17:00';
+            document.getElementById('subtasksList').innerHTML = '';
+            
+            // Populate team members checkboxes
+            const teamList = document.getElementById('teamMembersList');
+            teamList.innerHTML = users.map(u => `
+                <label style="display: flex; align-items: center; gap: 0.5rem; padding: 0.5rem; cursor: pointer; border-radius: 6px; transition: background 0.2s;" 
+                       onmouseover="this.style.background='white'" 
+                       onmouseout="this.style.background='transparent'">
+                    <input type="checkbox" value="${u.userId}" ${u.userId === currentUser ? 'checked' : ''} class="team-member-checkbox" style="cursor: pointer;">
+                    <span style="font-size: 0.9rem;">${u.name} <span style="color: #999; font-size: 0.8rem;">(${u.role})</span></span>
+                </label>
+            `).join('');
+            
+            document.getElementById('taskModal').classList.add('active');
+        };
+
+        window.addSubtaskField = () => {
+            const container = document.getElementById('subtasksList');
+            const index = container.children.length;
+            const div = document.createElement('div');
+            div.style.cssText = 'display: flex; gap: 0.5rem; margin-bottom: 0.5rem;';
+            div.innerHTML = `
+                <input type="text" placeholder="Subtask title" class="subtask-input" style="flex: 1; padding: 0.5rem; border: 2px solid var(--gray-light); border-radius: 6px;">
+                <button type="button" class="btn btn-small btn-danger" onclick="this.parentElement.remove()">🗑️</button>
+            `;
+            container.appendChild(div);
+        };
+
+        window.editTask = (id) => {
+            const task = tasks.find(t => t.id === id);
+            if (!task) return;
+            
+            document.getElementById('taskModalTitle').textContent = '✏️ Edit Task';
+            document.getElementById('editTaskId').value = id;
+            document.getElementById('taskTitle').value = task.title;
+            document.getElementById('taskDesc').value = task.description || '';
+            document.getElementById('taskType').value = task.type;
+            document.getElementById('taskPriority').value = task.priority || 'medium';
+            document.getElementById('taskStatus').value = task.status || 'todo';
+            document.getElementById('taskStartDate').value = task.startDate || '';
+            document.getElementById('taskStartTime').value = task.startTime || '';
+            document.getElementById('taskDueDate').value = task.dueDate || '';
+            document.getElementById('taskDueTime').value = task.dueTime || '';
+            
+            // Load team members with existing assignments checked
+            const assignedTeam = task.assignedTo || [task.assignee]; // Backward compatible
+            const teamList = document.getElementById('teamMembersList');
+            teamList.innerHTML = users.map(u => `
+                <label style="display: flex; align-items: center; gap: 0.5rem; padding: 0.5rem; cursor: pointer; border-radius: 6px; transition: background 0.2s;" 
+                       onmouseover="this.style.background='white'" 
+                       onmouseout="this.style.background='transparent'">
+                    <input type="checkbox" value="${u.userId}" ${assignedTeam.includes(u.userId) ? 'checked' : ''} class="team-member-checkbox" style="cursor: pointer;">
+                    <span style="font-size: 0.9rem;">${u.name} <span style="color: #999; font-size: 0.8rem;">(${u.role})</span></span>
+                </label>
+            `).join('');
+            
+            // Load existing subtasks
+            const subtasksList = document.getElementById('subtasksList');
+            subtasksList.innerHTML = '';
+            if (task.subtasks && task.subtasks.length > 0) {
+                task.subtasks.forEach(st => {
+                    const div = document.createElement('div');
+                    div.style.cssText = 'display: flex; gap: 0.5rem; margin-bottom: 0.5rem;';
+                    div.innerHTML = `
+                        <input type="text" value="${st.title}" class="subtask-input" style="flex: 1; padding: 0.5rem; border: 2px solid var(--gray-light); border-radius: 6px;">
+                        <button type="button" class="btn btn-small btn-danger" onclick="this.parentElement.remove()">🗑️</button>
+                    `;
+                    subtasksList.appendChild(div);
+                });
+            }
+            
+            document.getElementById('taskModal').classList.add('active');
+        };
+
+        window.deleteTask = async (id) => {
+            const task = tasks.find(t => t.id === id);
+            if (!task || !confirm(`Delete "${task.title}"?`)) return;
+            
+            try {
+                await deleteDoc(doc(db, 'tasks', id));
+                await loadAllData();
+            } catch (err) {
+                alert('Error: ' + err.message);
+            }
+        };
+
+        window.saveTask = async (e) => {
+            e.preventDefault();
+            setStatus('syncing', 'Saving...');
+            
+            try {
+                // Collect selected team members
+                const teamCheckboxes = document.querySelectorAll('.team-member-checkbox:checked');
+                const assignedTo = Array.from(teamCheckboxes).map(cb => cb.value);
+                
+                if (assignedTo.length === 0) {
+                    alert('Please select at least one team member!');
+                    return;
+                }
+                
+                // Collect subtasks from form
+                const subtaskInputs = document.querySelectorAll('.subtask-input');
+                const subtasks = Array.from(subtaskInputs)
+                    .map(input => input.value.trim())
+                    .filter(title => title.length > 0)
+                    .map(title => ({ title, completed: false }));
+                
+                const taskType = document.getElementById('taskType').value;
+                
+                const data = {
+                    title: document.getElementById('taskTitle').value,
+                    description: document.getElementById('taskDesc').value,
+                    type: taskType,
+                    priority: document.getElementById('taskPriority').value,
+                    status: document.getElementById('taskStatus').value,
+                    startDate: document.getElementById('taskStartDate').value,
+                    startTime: document.getElementById('taskStartTime').value,
+                    dueDate: document.getElementById('taskDueDate').value,
+                    dueTime: document.getElementById('taskDueTime').value,
+                    subtasks: subtasks,
+                    assignee: currentUser, // Creator
+                    assignedTo: assignedTo, // All assigned team members
+                    createdBy: currentUser,
+                    createdAt: new Date().toISOString()
+                };
+                
+                const editId = document.getElementById('editTaskId').value;
+                if (editId) {
+                    // Editing existing task
+                    const existingTask = tasks.find(t => t.id === editId);
+                    if (existingTask && existingTask.subtasks) {
+                        data.subtasks = data.subtasks.map((newSt, idx) => {
+                            const existing = existingTask.subtasks[idx];
+                            return existing && existing.title === newSt.title ? existing : newSt;
+                        });
+                    }
+                    await updateDoc(doc(db, 'tasks', editId), data);
+                } else {
+                    // Creating new task
+                    const mainTask = await addDoc(collection(db, 'tasks'), data);
+                    
+                    // FEATURE 2: Auto-generate recurring instances
+                    if (taskType === 'daily') {
+                        // Generate 30 daily instances
+                        const baseDate = new Date(data.startDate);
+                        for (let i = 1; i <= 30; i++) {
+                            const instanceDate = new Date(baseDate);
+                            instanceDate.setDate(instanceDate.getDate() + (i - 1));
+                            
+                            await addDoc(collection(db, 'task_instances'), {
+                                ...data,
+                                parentTaskId: mainTask.id,
+                                instanceNumber: i,
+                                instanceDate: instanceDate.toISOString().split('T')[0],
+                                instanceTitle: `Day ${i}`,
+                                completed: false
+                            });
+                        }
+                    } else if (taskType === 'weekly') {
+                        // Generate 4 weekly instances
+                        const baseDate = new Date(data.startDate);
+                        for (let i = 1; i <= 4; i++) {
+                            const instanceDate = new Date(baseDate);
+                            instanceDate.setDate(instanceDate.getDate() + (i - 1) * 7);
+                            
+                            await addDoc(collection(db, 'task_instances'), {
+                                ...data,
+                                parentTaskId: mainTask.id,
+                                instanceNumber: i,
+                                instanceDate: instanceDate.toISOString().split('T')[0],
+                                instanceTitle: `Week ${i}`,
+                                completed: false
+                            });
+                        }
+                    } else if (taskType === 'monthly') {
+                        // Generate 12 monthly instances
+                        const months = ['January', 'February', 'March', 'April', 'May', 'June', 
+                                       'July', 'August', 'September', 'October', 'November', 'December'];
+                        const baseDate = new Date(data.startDate);
+                        
+                        for (let i = 0; i < 12; i++) {
+                            const instanceDate = new Date(baseDate);
+                            instanceDate.setMonth(instanceDate.getMonth() + i);
+                            
+                            await addDoc(collection(db, 'task_instances'), {
+                                ...data,
+                                parentTaskId: mainTask.id,
+                                instanceNumber: i + 1,
+                                instanceDate: instanceDate.toISOString().split('T')[0],
+                                instanceTitle: months[i],
+                                completed: false
+                            });
+                        }
+                    }
+                }
+                
+                await loadAllData();
+                closeModal('taskModal');
+                setStatus('synced', 'Saved!');
+            } catch (err) {
+                alert('Error: ' + err.message);
+                setStatus('error', 'Error');
+            }
+        };
+
+        window.toggleRecurring = async (id) => {
+            const task = tasks.find(t => t.id === id);
+            if (!task) return;
+            
+            try {
+                const today = new Date().toISOString().split('T')[0];
+                await updateDoc(doc(db, 'tasks', id), { lastChecked: today });
+                await loadAllData();
+            } catch (err) {
+                alert('Error: ' + err.message);
+            }
+        };
+
+        window.showNoteModal = () => {
+            document.getElementById('editNoteId').value = '';
+            document.getElementById('noteForm').reset();
+            document.getElementById('noteModal').classList.add('active');
+        };
+
+        window.editNote = (id) => {
+            const note = notes.find(n => n.id === id);
+            if (!note) return;
+            
+            document.getElementById('editNoteId').value = id;
+            document.getElementById('noteTitle').value = note.title;
+            document.getElementById('noteContent').value = note.content || '';
+            document.getElementById('noteUrgency').value = note.urgency;
+            document.getElementById('noteModal').classList.add('active');
+        };
+
+        window.deleteNote = async (id) => {
+            if (!confirm('Delete note?')) return;
+            
+            try {
+                await deleteDoc(doc(db, 'goals', id));
+                await loadAllData();
+            } catch (err) {
+                alert('Error: ' + err.message);
+            }
+        };
+
+        window.saveNote = async (e) => {
+            e.preventDefault();
+            setStatus('syncing', 'Saving...');
+            
+            try {
+                const data = {
+                    title: document.getElementById('noteTitle').value,
+                    content: document.getElementById('noteContent').value,
+                    urgency: document.getElementById('noteUrgency').value,
+                    userId: currentUser,
+                    updatedAt: new Date().toISOString()
+                };
+                
+                const editId = document.getElementById('editNoteId').value;
+                if (editId) {
+                    await updateDoc(doc(db, 'goals', editId), data);
+                } else {
+                    data.createdAt = new Date().toISOString();
+                    await addDoc(collection(db, 'goals'), data);
+                }
+                
+                await loadAllData();
+                closeModal('noteModal');
+                setStatus('synced', 'Saved!');
+            } catch (err) {
+                alert('Error: ' + err.message);
+            }
+        };
+
+        window.showCalendarModal = () => {
+            document.getElementById('editCalId').value = '';
+            document.getElementById('calendarForm').reset();
+            const now = new Date();
+            document.getElementById('calStartDate').value = now.toISOString().split('T')[0];
+            document.getElementById('calStartTime').value = '09:00';
+            document.getElementById('calDueDate').value = now.toISOString().split('T')[0];
+            document.getElementById('calDueTime').value = '17:00';
+            document.getElementById('calendarModal').classList.add('active');
+        };
+
+        window.editCalendarEvent = (id) => {
+            const event = calendarEvents.find(e => e.id === id);
+            if (!event) return;
+            
+            document.getElementById('editCalId').value = id;
+            document.getElementById('calTitle').value = event.title;
+            document.getElementById('calDesc').value = event.description || '';
+            document.getElementById('calCategory').value = event.category;
+            document.getElementById('calStartDate').value = event.startDate || '';
+            document.getElementById('calStartTime').value = event.startTime || '';
+            document.getElementById('calDueDate').value = event.dueDate || '';
+            document.getElementById('calDueTime').value = event.dueTime || '';
+            document.getElementById('calendarModal').classList.add('active');
+        };
+
+        window.saveCalendarEvent = async (e) => {
+            e.preventDefault();
+            setStatus('syncing', 'Saving...');
+            
+            try {
+                const data = {
+                    title: document.getElementById('calTitle').value,
+                    description: document.getElementById('calDesc').value,
+                    category: document.getElementById('calCategory').value,
+                    startDate: document.getElementById('calStartDate').value,
+                    startTime: document.getElementById('calStartTime').value,
+                    dueDate: document.getElementById('calDueDate').value,
+                    dueTime: document.getElementById('calDueTime').value,
+                    createdBy: currentUser
+                };
+                
+                const editId = document.getElementById('editCalId').value;
+                if (editId) {
+                    await updateDoc(doc(db, 'calendar_events', editId), data);
+                } else {
+                    await addDoc(collection(db, 'calendar_events'), data);
+                }
+                
+                await loadAllData();
+                closeModal('calendarModal');
+                setStatus('synced', 'Saved!');
+            } catch (err) {
+                alert('Error: ' + err.message);
+            }
+        };
+
+        window.filterCalendar = (filter) => {
+            currentCalendarFilter = filter;
+            document.querySelectorAll('.calendar-tab').forEach(tab => tab.classList.remove('active'));
+            event.target.classList.add('active');
+            renderCalendar();
+        };
+
+        window.showBudgetModal = () => {
+            document.getElementById('editBudgetId').value = '';
+            document.getElementById('budgetForm').reset();
+            document.getElementById('budgetModal').classList.add('active');
+        };
+
+        window.editBudget = (id) => {
+            const budget = budgetItems.find(b => b.id === id);
+            if (!budget) return;
+            
+            document.getElementById('editBudgetId').value = id;
+            document.getElementById('budgetName').value = budget.name;
+            document.getElementById('budgetCategory').value = budget.category;
+            document.getElementById('budgetPeriod').value = budget.period;
+            document.getElementById('budgetAmount').value = budget.amount;
+            document.getElementById('budgetModal').classList.add('active');
+        };
+
+        window.deleteBudget = async (id) => {
+            if (!confirm('Delete budget item?')) return;
+            
+            try {
+                await deleteDoc(doc(db, 'budget_items', id));
+                await loadAllData();
+            } catch (err) {
+                alert('Error: ' + err.message);
+            }
+        };
+
+        window.saveBudget = async (e) => {
+            e.preventDefault();
+            setStatus('syncing', 'Saving...');
+            
+            try {
+                const data = {
+                    name: document.getElementById('budgetName').value,
+                    category: document.getElementById('budgetCategory').value,
+                    period: document.getElementById('budgetPeriod').value,
+                    amount: document.getElementById('budgetAmount').value,
+                    createdBy: currentUser
+                };
+                
+                const editId = document.getElementById('editBudgetId').value;
+                if (editId) {
+                    await updateDoc(doc(db, 'budget_items', editId), data);
+                } else {
+                    await addDoc(collection(db, 'budget_items'), data);
+                }
+                
+                await loadAllData();
+                closeModal('budgetModal');
+                setStatus('synced', 'Saved!');
+            } catch (err) {
+                alert('Error: ' + err.message);
+            }
+        };
+
+        window.showStaffModal = () => {
+            document.getElementById('editStaffId').value = '';
+            document.getElementById('staffForm').reset();
+            document.getElementById('staffModal').classList.add('active');
+        };
+
+        window.editStaff = (id) => {
+            const staff = users.find(u => u.id === id || u.userId === id);
+            if (!staff) return;
+            
+            document.getElementById('editStaffId').value = staff.id || staff.userId;
+            document.getElementById('staffName').value = staff.name;
+            document.getElementById('staffUserId').value = staff.userId;
+            document.getElementById('staffRole').value = staff.role;
+            document.getElementById('staffModal').classList.add('active');
+        };
+
+        window.deleteStaff = async (id) => {
+            const staff = users.find(u => u.id === id || u.userId === id);
+            if (!staff || !confirm(`Delete ${staff.name}?`)) return;
+            
+            try {
+                if (staff.id) {
+                    await deleteDoc(doc(db, 'users', staff.id));
+                }
+                await loadUsers();
+                renderStaffManagement();
+            } catch (err) {
+                alert('Error: ' + err.message);
+            }
+        };
+
+        window.saveStaff = async (e) => {
+            e.preventDefault();
+            setStatus('syncing', 'Saving...');
+            
+            try {
+                const data = {
+                    name: document.getElementById('staffName').value,
+                    userId: document.getElementById('staffUserId').value,
+                    role: document.getElementById('staffRole').value
+                };
+                
+                const editId = document.getElementById('editStaffId').value;
+                const existingStaff = users.find(u => u.id === editId || u.userId === editId);
+                
+                if (existingStaff && existingStaff.id) {
+                    await updateDoc(doc(db, 'users', existingStaff.id), data);
+                } else {
+                    await addDoc(collection(db, 'users'), data);
+                }
+                
+                await loadUsers();
+                renderStaffManagement();
+                closeModal('staffModal');
+                setStatus('synced', 'Saved!');
+            } catch (err) {
+                alert('Error: ' + err.message);
+            }
+        };
+
+        window.switchUser = async () => {
+            currentUser = document.getElementById('userSelect').value;
+            const user = users.find(u => u.userId === currentUser);
+            currentUserName = user?.name || currentUser;
+            setStatus('syncing', 'Loading...');
+            await loadAllData();
+            updateBudgetAccess();
+            setStatus('synced', 'Ready');
+        };
+
+        window.showSection = (id) => {
+            document.querySelectorAll('.section').forEach(s => s.classList.remove('active'));
+            document.querySelectorAll('.nav-link').forEach(l => l.classList.remove('active'));
+            document.getElementById(id).classList.add('active');
+            document.querySelector(`a[href="#${id}"]`).classList.add('active');
+            
+            if (id === 'manager') renderManagerDashboard();
+            else if (id === 'staff') renderStaffManagement();
+        };
+
+        window.closeModal = (id) => {
+            document.getElementById(id).classList.remove('active');
+        };
+
+        function setStatus(status, text) {
+            document.getElementById('status').className = `status ${status}`;
+            document.getElementById('statusText').textContent = text;
+            document.getElementById('statusIcon').textContent = status === 'synced' ? '☁️' : '🔄';
+        }
+    </script>
+</body>
+</html>
